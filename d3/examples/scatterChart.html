@@ -119,27 +119,6 @@ div {
 </style>
 
 
-
-
-
-<body>
-
-<div id="offsetDiv" class="fixedheight">
-  <div id="test1" class='with-3d-shadow with-transitions'>
-    <svg></svg>
-  </div>
-</div>
-
-<hr/>
-
-
-
-</style>
-
-
-
-
-
 <body>
 
 <div id="offsetDiv" class="fixedheight">
@@ -154,15 +133,8 @@ div {
 
 
 <div >
-	Please upload file : <input type="file" name="filedata" onchange="read_csv()">
-	<br>
-	Fields of data:
-	<table >
-	  	<tr>
-			<th>FieldName</th>
-			<th>ValueType</th>
-	  	</tr>
-	</table>	
+	
+		
 	<div id="choose_x"> Choose data on X axis:</div>
 	<hr />
 	<div id="choose_y"> Choose data on Y axis:</div>
@@ -171,7 +143,7 @@ div {
 	<hr />
 	<div id="choose_points"> Choose data on the coordinates:</div>
 	<hr />
-	<button type="button" id="createDigram">Draw</button>
+	<button type="button" id="createDigram" onclick='' enabled='false'>Draw</button>
 	
 	
 </div>
@@ -239,8 +211,22 @@ div {
   options1 = select1.selectAll('option').data(fieldNames); // Data join
   options1.enter().append("option").text(function(d) { return d; });
 
-  //too choose which part shows up in the x axis
-  var select2  = d3.select("#choose_z")
+ 
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script>
+
+t2  = d3.select("#choose_z")
 			.append("select")
 			.attr("id","z_axis")
 			.on("change", change_z);
@@ -266,8 +252,7 @@ nv.addGraph(function() {
                 .showDistY(true)
                 .useVoronoi(true)
                 .color(d3.scale.category10().range())
-                .transitionDuration(300)
-                ;
+                .transitionDuration(300);
 
   chart.xAxis.tickFormat(d3.format('.02f'));
   chart.yAxis.tickFormat(d3.format('.02f'));
