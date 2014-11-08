@@ -3,80 +3,64 @@
 
 <link href="../src/nv.d3.css" rel="stylesheet" type="text/css">
 <script>
-	data_loaded = false;
-	var x_field_index = null;
-	var y_field_index = null;
-	var z_field_index = null;
-	var pnt_field_index = null;
+    var x_field_index = null;
+    var y_field_index = null;
+    var z_field_index = null;
+    var pnt_field_index = null;
 
-	function read_csv() {
-		alert("In Read CSV");
-		d3.csv("",function(data) {console.log(data)});
-	}
 
-	function change_x() {
+    var x_field_name = null;
+    var y_field_name = null;
+    var z_field_name = null;
+    var pnt_field_name = null;
+    
+    // how many groups in the plot figure
+    var group_num = 0;
+	
+    //full dataset we are plotting
+    var full_dataset = [];
+    
+    
+    function change_x() {
 	     var sel = document.getElementById('x_axis');
 	     x_field_index = sel.selectedIndex;
-	}
+	     x_field_name = sel.options[sel.selectedIndex].value;
+	     //alert("x_field_name = " + x_field_name);
+	     enable_button();
+    }
 	
-	function change_y() {
+    function change_y() {
 	     var sel = document.getElementById('y_axis');
 	     y_field_index = sel.selectedIndex;
-	}
+	     y_field_name = sel.options[sel.selectedIndex].value;
+	     //alert("y_field_name = " + y_field_name);
+	     enable_button();
+    }
 	
-	function change_z() {
+    function change_z() {
 	     var sel = document.getElementById('z_axis');
 	     z_field_index = sel.selectedIndex;
-	}
+	     z_field_name = sel.options[sel.selectedIndex].value;
+	     //alert("z_field_name = " + z_field_name);
+	     enable_button();
+    }
 	
-	
-	function change_pnt() {
+    function change_pnt() {
 	     var sel = document.getElementById('pnt_axis');
 	     pnt_field_index = sel.selectedIndex;
-	}
+	     pnt_field_name = sel.options[sel.selectedIndex].value;
+	     //alert("pnt_field_name = " + pnt_field_name);
+	     enable_button();
+    }
+    
+    function enable_button() {
+	     if(x_field_name != null && y_field_name != null && pnt_field_name !=null) {
+		var ele = document.getElementById('createDigram');
+		ele.disabled = false;
+	     }
+    }
 
 </script>
-
-
-<style>
-
-.fixedheight {
-    width: 100%;
-    height: 70%;
-    background-color: #e0e0e0;
-}
-
-body {
-  overflow-y:scroll;
-  margin: 0;
-  padding: 0;
-}
-
-svg {
-  overflow: hidden;
-}
-
-div {
-  border: 0;
-  margin: 0;
-}
-
-/*
-#offsetDiv {
-  margin-left: 100px;
-  margin-top: 100px;
-}
-*/
-
-
-#test1 {
-  margin: 0;
-}alert(" x_field_index = " + x_field_index);
-	}
-
-</script>
-
-
 <style>
 
 .fixedheight {
@@ -119,6 +103,9 @@ div {
 </style>
 
 
+
+
+
 <body>
 
 <div id="offsetDiv" class="fixedheight">
@@ -143,7 +130,7 @@ div {
 	<hr />
 	<div id="choose_points"> Choose data on the coordinates:</div>
 	<hr />
-	<button type="button" id="createDigram" onclick='' enabled='false'>Draw</button>
+	<button type="button" id="createDigram" onclick='fetchData()' disabled>Draw</button>
 	
 	
 </div>
@@ -153,7 +140,7 @@ div {
 <script src="../nv.d3.js"></script>
 <script src="../src/tooltip.js"></script>
 <script src="../src/utils.js"></script>
-<script src="../src/models/legend.js"></script>x
+<script src="../src/models/legend.js"></script>
 <script src="../src/models/axis.js"></script>
 <script src="../src/models/distribution.js"></script>
 <script src="../src/models/scatter.js"></script>
@@ -161,9 +148,7 @@ div {
 <script>
 
 
-
-
-  //To create the selecting paz_field_indexrt
+//To create the selecting paz_field_indexrt
   fieldNames = [ "CaseNum",	
 				 "NucCount",	
 				 "PH3",	
@@ -211,30 +196,16 @@ div {
   options1 = select1.selectAll('option').data(fieldNames); // Data join
   options1.enter().append("option").text(function(d) { return d; });
 
- 
-</script>
-
-
-
-
-
-
-
-
-
-
-
-<script>
-
-t2  = d3.select("#choose_z")
+;
+  var select2 = d3.select("#choose_z")
 			.append("select")
 			.attr("id","z_axis")
 			.on("change", change_z);
-  options2 = select.selectAll('option').data(fieldNames); // Data join
+  options2 = select2.selectAll('option').data(fieldNames); // Data join
   options2.enter().append("option").text(function(d) { return d; });
   
-  //too choose which part shows up in the x axis
-  var select3  = d3.select("#choose_x")
+  //too choose which part showscreateChart up in the x axis
+  var select3  = d3.select("#choose_points")
 			.append("select")
 			.attr("id","pnt_axis")
 			.on("change", change_pnt);
@@ -252,7 +223,8 @@ nv.addGraph(function() {
                 .showDistY(true)
                 .useVoronoi(true)
                 .color(d3.scale.category10().range())
-                .transitionDuration(300);
+                .transitionDuration(300)
+                ;
 
   chart.xAxis.tickFormat(d3.format('.02f'));
   chart.yAxis.tickFormat(d3.format('.02f'));
@@ -260,14 +232,9 @@ nv.addGraph(function() {
       return '<h2>' + key + '</h2>';
   });
 
-
-
-
-
-
-
-
-  d3.select('#test1 svg').datum(randomData(5,50)).call(chart);
+  d3.select('#test1 svg')
+      .datum(randomData(5,50)	)
+      .call(chart);
 
   nv.utils.windowResize(chart.update);
 
@@ -275,6 +242,110 @@ nv.addGraph(function() {
 
   return chart;
 });
+
+
+function fetchData() {
+  d3.csv("cancer.csv",function(d) {
+	  full_dataset = d;
+	  console.log("legnth1 = " + d.length);
+	  createChart(d);
+    });
+}
+
+
+/*see if an value exists in an array*/
+function exists(value,arr){
+  var i = 0;
+  for(;i<arr.length;i++) {
+    if(arr[i] == value)
+      return true;
+  }
+
+  return false;
+}
+
+
+/**
+This function calculates how many distince values 
+there are in a specific field of a dataset
+**/
+function getDataNumber(fieldName,dataSet) {
+   var existing_values = [];
+   var i=0;
+   for(;i<dataSet.length;i++) {
+      var item = dataSet[i];
+      if( exists(item[fieldName],existing_values ) == false) 
+	  existing_values.push(item[fieldName]);
+   }
+   //console.log(existing_values);
+   return existing_values;
+}
+
+
+function createChart(oriData) {
+
+  //Format A
+  var chart;
+  nv.addGraph(function() {
+  chart = nv.models.scatterChart()
+                .showDistX(true)
+                .showDistY(true)
+                .useVoronoi(true)
+                .color(d3.scale.category10().range())
+                .transitionDuration(300)
+                ;
+                
+
+  //chart.xAxis.tickFormat(d3.format('.02f'));
+  //chart.yAxis.tickFormat(d3.format('.02f'));
+  chart.tooltipContent(function(key) {
+      return '<h2>' + key + '</h2>';
+  });
+
+  d3.select('#test1 svg')
+      .datum(generatChartData(oriData))
+      .call(chart);
+
+  nv.utils.windowResize(chart.update);
+
+  chart.dispatch.on('stateChange', function(e) { ('New State:', JSON.stringify(e)); });
+
+  return chart;
+  });
+}
+
+
+function generatChartData(oriData) {
+  alert("I got data, its length is " + oriData.length);
+  var data = [],
+  shapes = ['circle', 'cross', 'triangle-up', 'triangle-down', 'diamond', 'square'],
+  random = d3.random.normal();
+  
+  var pntValueArr = getDataNumber(pnt_field_name,oriData);
+  
+  
+  var i=0;
+  for(;i<pntValueArr.length;i++) {
+      data.push({
+	key: 'Group('+ pntValueArr[i] +')',
+	values: []
+      });
+      var j = 0;
+      while(j<oriData.length) {
+	var item = oriData[j++];
+	if(item[pnt_field_name] == pntValueArr[i]) {
+	    data[i].values.push({
+	      x: item[x_field_name],
+	      y: item[y_field_name],
+	      size: Math.random(),
+	      shape: shapes[j % 6]
+	    });
+	    console.log( " x= " + item[x_field_name] + ", y= " + item[y_field_name]);
+	}
+      }
+  } 
+  return data;
+} 
 
 
 function randomData(groups, points) { //# groups,# points per group
@@ -288,15 +359,16 @@ function randomData(groups, points) { //# groups,# points per group
       values: []
     });
 
-  for (j = 0; j < points; j++) {
-     data[i].values.push({
+    for (j = 0; j < points; j++) {
+      data[i].values.push({
         x: random(), 
-        y: random(), 
+        y: random(),
         size: Math.random(), 
         shape: shapes[j % 6]
       });
     }
   }
+  console.log("asdfasdf");
   console.log(data);
   return data;
 }
