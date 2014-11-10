@@ -170,7 +170,7 @@ div {
 				 "HER2Status",
 				 "TN",
 				 "Age",
-				 "Tstage",
+				 "scatterChartTstage",
  				 "Nstage",
 				 "Final_Grade",
 				 "Final_Not",
@@ -219,17 +219,25 @@ div {
 var chart;
 nv.addGraph(function() {
   chart = nv.models.scatterChart()
-                .showDistX(true)
-                .showDistY(true)
-                .useVoronoi(true)
+                .showDistX(false)
+                .showDistY(false)
+                .useVoronoi(false)
                 .color(d3.scale.category10().range())
-                .transitionDuration(300)
-                ;
+                .transitionDuration(300);
 
+                
+  scaleY = d3.scale.linear()
+                     .domain([0, 150])
+                     .range([0, 150]);		  
   chart.xAxis.tickFormat(d3.format('.02f'));
+  
+  
+  
   chart.yAxis.tickFormat(d3.format('.02f'));
-  chart.tooltipContent(function(key) {
-      return '<h2>' + key + '</h2>';
+  //chart.yAxis.scale(scaleY);
+  
+  chart.tooltipContent(function(key1) {
+      return '<h2>' + key1 + '</h2>';
   });
 
   d3.select('#test1 svg')
@@ -239,13 +247,13 @@ nv.addGraph(function() {
   nv.utils.windowResize(chart.update);
 
   chart.dispatch.on('stateChange', function(e) { ('New State:', JSON.stringify(e)); });
-
+  
   return chart;
 });
 
 
 function fetchData() {
-  d3.csv("cancer.csv",function(d) {
+  d3.csv("cancer.orig.csv",function(d) {
 	  full_dataset = d;
 	  console.log("legnth1 = " + d.length);
 	  createChart(d);
@@ -268,7 +276,7 @@ function exists(value,arr){
 /**
 This function calculates how many distince values 
 there are in a specific field of a dataset
-**/
+**/150
 function getDataNumber(fieldName,dataSet) {
    var existing_values = [];
    var i=0;
@@ -279,6 +287,16 @@ function getDataNumber(fieldName,dataSet) {
    }
    //console.log(existing_values);
    return existing_values;
+}
+
+function arrayContains(a, obj) {
+   var i = a.length;
+   while (i--) {
+      if (a[i] == obj) {
+          return i;
+      }
+   }
+   return false;
 }
 
 
@@ -292,42 +310,88 @@ function createChart(oriData) {
                 .showDistY(true)
                 .useVoronoi(true)
                 .color(d3.scale.category10().range())
-                .transitionDuration(300)
-                ;
+                .transitionDuration(300);
                 
 
-  //chart.xAxis.tickFormat(d3.format('.02f'));
-  //chart.yAxis.tickFormat(d3.format('.02f'));
-  chart.tooltipContent(function(key) {
-      return '<h2>' + key + '</h2>';
+  chart.xAxis.tickFormat(d3.format('.02f'));
+  chart.yAxis.tickFormat(d3.format('.02f'));
+  scaleY = d3.scale.linear()
+                     .domain([0, 150])
+                     .range([0, 150]);
+  chart.forceY(getYRange(oriData));
+  chart.forceX(getXRange(oriData));
+  chart.tooltipContent(function(key, y, e, graph) { 
+      return "Case Number : " + graph['point']['casenum'];
   });
-
-  d3.select('#test1 svg')
+  
+  var chartSvg = d3.select('#test1 svg')
       .datum(generatChartData(oriData))
       .call(chart);
-
+  
+  /*
+  // define the x axis
+  var xAxis = d3.svg.axis()
+	    .orient("bottom")
+            .scale(xScale)
+            .tickFormat(date_format);
+  
+  chartSvg.append("g")
+            .attr("class", "xaxis axis")  // two classes, one for css formatting, one for selection below
+            .attr("transform", "translate(0," + (height - padding) + ")")
+            .call(xAxis);
+  */
   nv.utils.windowResize(chart.update);
-
   chart.dispatch.on('stateChange', function(e) { ('New State:', JSON.stringify(e)); });
-
   return chart;
   });
 }
 
+/**
+  To get the range of x axis(min and max)
+**/
+function getXRange(oriData) {
+    var xvalues = [];
+    var i=0;
+    for(;i<oriData.length;i++) {
+      
+      var tmp = isNaN(oriData[i][x_field_name])?0:parseFloat(oriData[i][x_field_name]);
+      
+      xvalues.push(tmp);
+    }
+    var from = d3.min(xvalues);
+    var to = d3.max(xvalues);
+    var res = d3.extent(xvalues);
+    console.log("xrage from " + from + " to "+ to );
+    return res;
+}
+
+/**
+  To get the range of x axis(min and max)
+**/
+function getYRange(oriData) {
+    var yvalues = [];
+    var i=0;
+    for(;i<oriData.length;i++) {
+      var tmp = isNaN(oriData[i][y_field_name])?0:parseFloat(oriData[i][y_field_name]);
+      yvalues.push(tmp);
+    }
+    var from = d3.min(yvalues);
+    var to = d3.max(yvalues);
+    var res = d3.extent(yvalues);
+    console.log("yrage from " + from + " to "+ to );
+    return res;
+}
+
 
 function generatChartData(oriData) {
-  alert("I got data, its length is " + oriData.length);
   var data = [],
   shapes = ['circle', 'cross', 'triangle-up', 'triangle-down', 'diamond', 'square'],
   random = d3.random.normal();
-  
   var pntValueArr = getDataNumber(pnt_field_name,oriData);
-  
-  
   var i=0;
   for(;i<pntValueArr.length;i++) {
       data.push({
-	key: 'Group('+ pntValueArr[i] +')',
+	key: pnt_field_name+'('+ pntValueArr[i] +')',
 	values: []
       });
       var j = 0;
@@ -335,12 +399,14 @@ function generatChartData(oriData) {
 	var item = oriData[j++];
 	if(item[pnt_field_name] == pntValueArr[i]) {
 	    data[i].values.push({
-	      x: item[x_field_name],
-	      y: item[y_field_name],
+	      x: isNaN(item[x_field_name].trim())?0:item[x_field_name].trim(),
+	      y: isNaN(item[y_field_name].trim())?0:item[y_field_name].trim(),
 	      size: Math.random(),
-	      shape: shapes[j % 6]
+	      shape: shapes[j % 6],
+	      casenum: item['CaseNum']
 	    });
-	    console.log( " x= " + item[x_field_name] + ", y= " + item[y_field_name]);
+	    var len =  data[i].values.length;
+	    //console.log("Data added x = " +   data[i].values[len -1].x +  " y = " + data[i].values[len -1].y);
 	}
       }
   } 
@@ -368,9 +434,8 @@ function randomData(groups, points) { //# groups,# points per group
       });
     }
   }
-  console.log("asdfasdf");
-  console.log(data);
   return data;
 }
+
 
 </script>
