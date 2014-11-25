@@ -288,9 +288,7 @@
 
 		tmp = document.getElementById("d_field");
 		d_field = tmp.options[tmp.selectedIndex].value;
-Wednesday, October 1st,2014, noon
-Thursday, October 16th, 2014, noon
-Wednesday, November 12th, 2014, 5:30pm
+
 
 		if ( x_field=="" || y_field=="" || d_field == "") {
 		  document.getElementById("alertmsg").innerHTML = "Please select field X, Y and Data";
@@ -308,7 +306,8 @@ Wednesday, November 12th, 2014, 5:30pm
 	}
 	
 	function getCSVData() {
-	    $.ajax("http://131.96.131.227/google/	.csv", {
+	    //$.ajax("http://131.96.131.227/google/	.csv", {
+		$.ajax("http://76.114.185.215/bioanalysis/google/cancer.csv", {
 		success: function(data) {
 		processData(data);
 	      
@@ -533,16 +532,3 @@ Wednesday, November 12th, 2014, 5:30pm
     
   </body>
 </html>
-
-
-
-
-
-
-
-TBD	TBD	01/22/2015 Thursday - 12:00pm - 1:00pm TBD	
-TBD	02/05/2015 Thursday - 5:30pm-6:30pm TBD	
-TBD	02/18/2015 Wednesday- 12:00pm - 1:00pm TBD	
-TBD	03/05/2015 Thursday- 12:00pm - 1:00pm TBD	
-TBD	03/25/2015 Wednesday - 5:30pm-6:30pm TBD	
-TBD	04/08/2015 Wednesday - 12:00 - 1:00pmpm
