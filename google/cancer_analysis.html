@@ -23,6 +23,7 @@
 	  
 	  var EMPTY_STRING = "N/A";
 	  var NUM_OF_CHARTS_PER_LINE = 2;
+	  var IF_TABLE_DRAWN = false;
       var x_field = null;
       var y_field = null;
       var z_field = null;
@@ -38,7 +39,7 @@
 	  
 
       // Load the Visualization API and the controls package.
-      google.load('visualization', '1.0', {'packages':['controls']});
+      google.load('visualization', '1.0', {'packages':['controls',"table"]});
 
       // Set a callback to run when the Google Visualization API is loaded.
       //google.setOnLoadCallback(drawDashboarHTML_COLORSd);
@@ -142,6 +143,25 @@
 		//legend_div.style.visibility="visible";
 	}
 	
+	
+	function getTicks(fullDataSet,dataField) {
+		var headLine = fullDataSet[0];
+		var col = getColNum(headLine,dataField);
+		var max = (fullDataSet[col][0]=="" || fullDataSet[col][0]==undefined )?  0:fullDataSet[col][0];
+		var min = (fullDataSet[col][0]=="" || fullDataSet[col][0]==undefined )?  100:fullDataSet[col][0];
+		var i = 1;
+		for(;i<fullDataSet[col].length;i++) {
+			if(fullDataSet[col][i]!=undefined && fullDataSet[col][i] != "" && fullDataSet[col][i]>max)
+				max = fullDataSet[col][i];
+				
+			if(fullDataSet[col][i]!=undefined && fullDataSet[col][i] != "" && fullDataSet[col][i]<max)
+				min = fullDataSet[col][i];
+		}
+		
+		var range = max - min;
+		var res = [min, min+range/5, min + range*2/5, min+range*3/5, min+range*4/5, max];
+		return res;
+	}
 
     // Callback that creates and populates a data table,
     // instantiates a dashboard, a range slider and a pie chart,
@@ -170,7 +190,9 @@
 		var chart_id = "chart_" + allocated_charts + "_div";
 		
 		console.log("legend_id = " + legend_id);
-		$("#"+div_id).append("<div id = '"+ legend_id +"'> </div>");
+		
+		//add the div to hold legends
+		$("#"+div_id).append("<div id = '"+ legend_id +"'  align='center' style='background-color:yellow'> </div>");
 		
 		/*
         var i =1;
@@ -200,7 +222,7 @@
         var dashboard = new google.visualization.Dashboard(document.getElementById(div_id));
 
         // Create a range slider, passing some options
-		$("#"+div_id).append("<div id = '"+ x_filter_id +"'> </div>");
+		$("#"+div_id).append("<div id = '"+ x_filter_id +"' align='center'> </div>");
         var donutRangeSlider = new google.visualization.ControlWrapper({
           'controlType': 'NumberRangeFilter',
           'containerId': x_filter_id,
@@ -209,7 +231,7 @@
           }
         });
         
-		$("#"+div_id).append("<div id = '"+ y_filter_id +"'> </div>");
+		$("#"+div_id).append("<div id = '"+ y_filter_id +"'   align='center'> </div>");
         // Create a range slider, passing some optionsdashboard_div
         var donutRangeSlider1 = new google.visualization.ControlWrapper({
           'controlType': 'NumberRangeFilter',
@@ -232,20 +254,34 @@
 		
 		
 		
-		$("#"+div_id).append("<div id = '"+ chart_id +"'> </div>");
+		$("#"+div_id).append("<div id = '"+ chart_id +"'  align='center'> </div>");
 		
         // Create a pie chart, passing some options
         var pieChart = new google.visualization.ChartWrapper({
           'chartType': 'ScatterChart',
           'containerId': chart_id,
           'options': {
-            'width': 800,
-            'height': 600,
-            'pieSliceText': 'value',
-            'legend': 'right',
-            'align':'right'
+            'width': screen.width * 0.5,
+            'height': screen.height * 0.5,
+            'legend': 'none',
+            'align':'right',
+			'chartArea': {'width': '80%', 'height': '90%'},
+			'hAxis': {
+						//'slantedText': 'true', 
+						//'slantedTextAngle': '90', 
+						//'title': 'titleText',
+						//'viewWindow': { min: 0,max: 25},
+						//'ticks': [0, 7, 14, 21, 28],
+						//title: 'titleText'
+					 },
+			'vAxis': {
+						title: y_field
+					 },
           }
         });
+		
+		
+
 
         // Establish dependencies, declaring that 'filter' drives 'pieChart',
         // so that the pie chart will only display entries that are let through
@@ -259,6 +295,10 @@
         dashboard.draw(data_tbl);
 	
 		createLegend(fullDataSet,legend_id);
+		
+		if(IF_TABLE_DRAWN==false) {
+			drawTable(fullDataSet);
+		}
       }
 
       function draw() {
@@ -307,7 +347,37 @@
 	function processData(data) {
 		dataArray = CSVToArray(data);
 		var div_id = getDivIDInTableCell();
-		drawDashboard(dataArray,div_id);
+		drawDashboard(dataArray,div_id);	
+		
+	}
+	
+	function drawTable(fullDataSet) {
+		IF_TABLE_DRAWN = true;
+		var div_id = getDivIDInTableCell();
+		console.log("div_id = " + div_id);
+		var data = new google.visualization.DataTable();
+		var i=0,j=0;
+		var dim = fullDataSet[0].length;
+		for(;i<fullDataSet[0].length;i++) 
+			data.addColumn('string',fullDataSet[0][i]);
+		for(i=1;i<fullDataSet.length;i++) {
+			var row = [];
+			for(j=0;j<dim;j++) {
+				if(fullDataSet[i][j] == undefined || fullDataSet[i][j] == "")
+					row.push(EMPTY_STRING);
+				else
+					row.push(fullDataSet[i][j]);
+			}
+			data.addRow(row);
+		}
+		
+		
+		var table = new google.visualization.Table(document.getElementById(div_id));
+		var options = {
+            width: screen.width * 0.48,
+            height: screen.height * 0.48
+		}
+		table.draw(data,options);
 	}
 	
 	//To return a div id in table cell to put chart in
@@ -318,14 +388,16 @@
 		
 		var cell_div_num = allocated_charts;
 		
+		
+		
 		//we need to add a new line to the table
 		if( allocated_charts % NUM_OF_CHARTS_PER_LINE  == 1) {
 			var added_html_code = "";
 			var i=0;
-			added_html_code += "<tr>";
+			added_html_code += "<tr style='border: 2px solid black;border-collapse: collapse;'>";
 			for(;i<NUM_OF_CHARTS_PER_LINE;i++){
-				var id = "chart_div_" +  cell_div_num;
-				added_html_code += "<td> <div id='" +   id  + "'> </div></td>";
+				var id = "chart_div_" +  (cell_div_num+i);
+				added_html_code += "<td> <div id='" +   id  + "' style='border: 2px solid black;border-collapse: collapse;'> </div></td>";
 			}
 			added_html_code += "</tr>";
 			$("#main_table").append(added_html_code);
@@ -347,14 +419,14 @@
 		<!-- modal content -->
 		<div id="basic-modal-content">
 			
-		<table class="fixed" style="background-color:#99CCFF;width:100%;height=100%;padding=5px;" align="center">
+		<table class="fixed" style="background-color:#99CCFF;width:100%;height=100%;padding=5px; border: 2px solid black;border-collapse: collapse;" align="center">
 			<col width="50%" />
     		<col width="50%" />
-			<tr>
-				<td> 
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+				<td style="border: 2px solid black;border-collapse: collapse;"> 
 					X: 
 				</td>
-				<td>
+				<td style="border: 2px solid black;border-collapse: collapse;">
 					<select id="x_field">
 						<option></option>
 						<option>NucCount</option>
@@ -368,11 +440,11 @@
 	 				</select>
 				</td>
 			</tr>
-			<tr>
-				<td> 
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+				<td style="border: 2px solid black;border-collapse: collapse;"> 
 					Y:
 				</td>
-				<td>
+				<td style="border: 2px solid black;border-collapse: collapse;">
 					<select id="y_field">
 						<option></option>
 						<option>NucCount</option>
@@ -386,11 +458,11 @@
 	 				</select>
 				</td>
 			</tr>
-			<tr>
-				<td> 
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+				<td style="border: 2px solid black;border-collapse: collapse;"> 
 					Size:
 				</td>
-				<td>
+				<td style="border: 2px solid black;border-collapse: collapse;">
 					<select id="z_field">
 						<option></option>
 						<option>NucCount</option>
@@ -404,11 +476,11 @@
 	 				</select>
 				</td>
 			</tr>
-			<tr>
-				<td> 
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+				<td style="border: 2px solid black;border-collapse: collapse;"> 
 					Color:draw
 				</td>
-				<td>
+				<td style="border: 2px solid black;border-collapse: collapse;">
 					<select id="d_field">
 						<option></option>
 						<option>UpGrade</option>
@@ -435,13 +507,13 @@
 	 				</select>
 				</td>
 			</tr>
-			<tr>
-				<td align='center'  colspan=2>
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+				<td align='center'  colspan=2 style="border: 2px solid black;border-collapse: collapse;">
 					<button id='drawbutton' onclick="draw()"> Draw</button>
 			    </td>
 			</tr>
-			<tr>
-			    <td colspan=2>
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+			    <td colspan=2 style="border: 2px solid black;border-collapse: collapse;">
 				<font color="red" size="5"  face="courier" id="alertmsg"></font> 
 			    </td>
 			</tr>
@@ -493,7 +565,7 @@
     	</div>
     </div>
 	
-	<table id="main_table">
+	<table id="main_table" style="border: 2px solid black;border-collapse: collapse;" >
 		
 	</table>
   </body>
