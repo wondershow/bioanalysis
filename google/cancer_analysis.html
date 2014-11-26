@@ -137,10 +137,8 @@
 		orig_html += "</table>";
 		
 		$("#"+div_id).append(orig_html);
-		
-		console.log("table div legend id " + "#"+div_id);
-		
 		//legend_div.style.visibility="visible";
+		
 	}
 	
 	
@@ -302,6 +300,9 @@
       }
 
       function draw() {
+		
+		
+		
 		//To update the number of charts have been drawn on the screen
 		num_of_charts++;
 		
@@ -330,7 +331,7 @@
 		  document.getElementById("alertmsg").innerHTML = "";
 		  getCSVData();
 		}
-
+		$.modal.close();
 	}
 	
 	function getCSVData(){
@@ -521,9 +522,10 @@
 		</div>
 
 		<!-- preload the images -->
+		
 		<div style='display:none'>
 			<img src='img/basic/x.png' alt='' />
-		</div>
+		</div> 
 	</div>
 	
 	
