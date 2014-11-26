@@ -2,13 +2,17 @@
 <html>
   <head>
   	<link rel="stylesheet" type="text/css" media="all" href="css/style.css">
-  	<link rel="stylesheet" type="text/css" href="css/gsu.css">
+  	<link rel="stylesheet" type="text/css" href="css/gsustyle.css">
 	<!-- Page styles -->
 	<link type='text/css' href='css/demo.css' rel='stylesheet' media='screen' />
 
 	<!-- Contact Form CSS files -->
 	<link type='text/css' href='css/basic.css' rel='stylesheet' media='screen' />
     <!--Load the AJAX API-->
+	<style>
+		.draggable { float: left; background-color:#575757; border-color:#c9c9c9; border-style:solid;}
+	</style>
+	
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript" src="js/gsu.jslib.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -16,10 +20,13 @@
   	<script type='text/javascript' src='js/jquery.js'></script>
 	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
 	<script type='text/javascript' src='js/basic.js'></script>
+	<script type='text/javascript' src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
     
     
 
     <script type="text/javascript">
+	  
+	  
 	  
 	  var EMPTY_STRING = "N/A";
 	  var NUM_OF_CHARTS_PER_LINE = 2;
@@ -30,24 +37,24 @@
       var d_field = null;
 	  
 	  var num_of_charts = 1;
-		
+	  
+	  //for drag and drop use
+	  var dragFromId;
+	  var dragToId;
+	  
+	  
+	  
+	  
 	  //To indicate how many charts have been assigned place to display
 	  var allocated_charts = 0;
 	  
 
-	  var HTML_COLORS = [ "green","orange", "black", "blue","red", "fuchsia", "gray", "lime", "maroon", "navy", "olive", "purple","silver", "teal", "white",  "yellow"];
+	  
 	  
 
       // Load the Visualization API and the controls package.
       google.load('visualization', '1.0', {'packages':['controls',"table"]});
-
-      // Set a callback to run when the Google Visualization API is loaded.
-      //google.setOnLoadCallback(drawDashboarHTML_COLORSd);
-      
-      
-	 
-	
-
+	  
 	  /**
 	  To define the point size and color according to user selected dimension,
 	  the definition is generated according to object literal notation
@@ -108,7 +115,10 @@
 			res += fullDataSet[0][i] + ":" + fullDataSet[row][i] + "\n";
 		return res;
 	}
-
+	
+	/**
+		To create a legend for a given dataset
+	**/
 	function createLegend(fullDataSet,div_id) {
 		var d_dataset = getDistinctiveValues(d_field,fullDataSet);
 		var i=0;
@@ -118,7 +128,7 @@
 		//legend_div.innerHTML = "";
 		//var legend_table = $("#"+div_id).append("<table> </table>");
 		//legend_table.innerHTML = "";
-		var orig_html = "<table>";
+		var orig_html = "<table width='90%'>";
 		for(;i<d_dataset.length;i++) {
 			//orig_html = legend_table.innerHTML;
 			color_name = HTML_COLORS[i];
@@ -133,10 +143,12 @@
 			orig_html = orig_html + tmp;
 			
 		}
-		
 		orig_html += "</table>";
+		orig_html += "<a class='removechrt' >-</a>";
+		
 		
 		$("#"+div_id).append(orig_html);
+		$("#"+div_id).display = 'inline';
 		//legend_div.style.visibility="visible";
 		
 	}
@@ -252,7 +264,7 @@
 		
 		
 		
-		$("#"+div_id).append("<div id = '"+ chart_id +"'  align='center'> </div>");
+		$("#"+div_id).append("<div id = '"+ chart_id +"'  align='center' class='draggable'> </div>");
 		
         // Create a pie chart, passing some options
         var pieChart = new google.visualization.ChartWrapper({
@@ -300,9 +312,6 @@
       }
 
       function draw() {
-		
-		
-		
 		//To update the number of charts have been drawn on the screen
 		num_of_charts++;
 		
@@ -332,6 +341,7 @@
 		  getCSVData();
 		}
 		$.modal.close();
+		enable_draggable();
 	}
 	
 	function getCSVData(){
@@ -348,8 +358,7 @@
 	function processData(data) {
 		dataArray = CSVToArray(data);
 		var div_id = getDivIDInTableCell();
-		drawDashboard(dataArray,div_id);	
-		
+		drawDashboard(dataArray,div_id);
 	}
 	
 	function drawTable(fullDataSet) {
@@ -372,7 +381,6 @@
 			data.addRow(row);
 		}
 		
-		
 		var table = new google.visualization.Table(document.getElementById(div_id));
 		var options = {
             width: screen.width * 0.48,
@@ -384,26 +392,57 @@
 	//To return a div id in table cell to put chart in
 	function getDivIDInTableCell() {
 		allocated_charts++;
-	
 		var lines = Math.ceil (num_of_charts/NUM_OF_CHARTS_PER_LINE);
-		
 		var cell_div_num = allocated_charts;
-		
-		
-		
 		//we need to add a new line to the table
 		if( allocated_charts % NUM_OF_CHARTS_PER_LINE  == 1) {
 			var added_html_code = "";
 			var i=0;
 			added_html_code += "<tr style='border: 2px solid black;border-collapse: collapse;'>";
+			var td_id_prefix = "chart_td_"
 			for(;i<NUM_OF_CHARTS_PER_LINE;i++){
 				var id = "chart_div_" +  (cell_div_num+i);
-				added_html_code += "<td> <div id='" +   id  + "' style='border: 2px solid black;border-collapse: collapse;'> </div></td>";
+				var td_id = "chart_td_" +  (cell_div_num+i);
+				added_html_code += "<td id='" + td_id  + "'> <div id='" +   id  + "' style='border: 2px solid black;border-collapse: collapse;'> </div></td>";
 			}
 			added_html_code += "</tr>";
 			$("#main_table").append(added_html_code);
 		}
 		return "chart_div_" + cell_div_num;
+	}
+	
+	var tmp_drag = {};
+	
+	
+	function enable_draggable() {
+	    console.log("Drag!!!!!!!!!!");
+		$( ".draggable" ).draggable({ grid: [ 5, 5 ], scroll:false});
+		/*
+		$("#main_table td").draggable({
+				
+				helper: "clone",
+				start: function(event, ui) {
+					console.log("Enabling the drag");
+					tmp_drag.td = this;
+					tmp_drag.helper = ui.helper;
+					tmp_drag.id = event.target.id;
+				}
+		});
+		$("#main_table td").droppable({
+			drop: function(event, ui) {
+				console.log("Enabling the droppable");
+				var inventor = ui.draggable.text();
+				
+				var tmp = document.getElementById(tmp_drag.id).innerHTML;
+				document.getElementById(tmp_drag.id).innerHTML = document.getElementById(event.target.id).innerHTML;
+				document.getElementById(event.target.id).innerHTML = tmp;
+				//$(this).
+				//$(this).find("input").val(inventor);
+
+				//$(c.td).remove();
+				//$(c.helper).remove();
+			}
+		});	*/
 	}
     </script>
     
@@ -416,6 +455,9 @@
 		<div id='basic-modal'>
 			<a class="flatbtn" id="modaltrigger">+</a>
 		</div>
+		
+		
+		
 		
 		<!-- modal content -->
 		<div id="basic-modal-content">
