@@ -163,3 +163,28 @@ function getMethods(obj) {
   }
   return result;
 }
+
+/**
+	This function uses items in dataset to 
+	populate an HTML table and append it 
+	to the end of HTML div 
+**/
+function createHTMLTable(div_id,data_set) {
+	//var html_code = "<table  style='width:400;border: 2px solid black;border-collapse: collapse;'>";
+	var html_code = "<table  style='border: 2px solid black;border-collapse: collapse;'>";
+	var i=0;
+	var width = data_set[0].length;
+	var row_id = "";
+	for(;i<data_set.length;i++){
+		row_id = "table_row_id_" + i;
+		html_code += "<tr id='"+row_id+"' style='border: 2px solid black;border-collapse: collapse;'  ondblclick='handle_table_row_selection(\""+i+"\")'>";
+		var j=0;
+		for(;j<width;j++)
+			html_code += "<td style='border: 2px solid black;border-collapse: collapse;'>" + data_set[i][j]+"</td>";
+		html_code += "</tr>";
+	}
+	html_code += "</table>";
+	var tmp = document.getElementById(div_id);
+	tmp.innerHTML = tmp.innerHTML + html_code;
+}
+

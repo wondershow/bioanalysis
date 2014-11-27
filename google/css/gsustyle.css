@@ -22,6 +22,11 @@ table.fixed { table-layout:fixed; }
     border: 30px solid blue;
 }
 
+tr.selected {
+	background-color:grey
+}
+
+
 table.border{
     border: 2px solid black;
     border-collapse: collapse;

@@ -42,7 +42,8 @@
 	  var charts_id_arr = [];
 	  //To hold that div to draw table on
 	  var table_div_id = null;
-	  
+	  //remember the selected tablerow last time.
+	  var selected_table_row_id=null;
 	  
 
       // Load the Visualization API and the controls package.
@@ -359,7 +360,8 @@
 		for(;k<charts_arr.length;k++) {
 			if(charts_arr[k] instanceof google.visualization.Table) {
 				console.log("selectedItem[0].row = " + selectedItem[0].row);
-				drawTable(selectedItem);
+				
+				tableScrollTo(selectedItem[0].row+1);
 			} else
 				charts_arr[k].getChart().setSelection(selectedItem);
 		}
@@ -392,11 +394,10 @@
 		  document.getElementById("alertmsg").innerHTML = "Field X and Z are same";
 		} else {
 		  document.getElementById("alertmsg").innerHTML = "";
-		  getCSVData();
+		  var div_id = getDivIDInTableCell();
+		  drawDashboard(div_id);
 		}
 		$.modal.close();
-		
-		
 		//enable_draggable();
 	}
 	
@@ -415,9 +416,34 @@
 	
 	function processData(data) {
 		dataArray = CSVToArray(data);
-		var div_id = getDivIDInTableCell();
 		full_data_set = dataArray;
-		drawDashboard(div_id);
+		createHTMLTable('table_div',full_data_set);
+	}
+	
+	/**
+		To scroll table to aspecific row
+	**/
+	function tableScrollTo(row_num) {
+		var container = $('#table_div');
+		var scrollTo = $('#table_row_id_'+row_num);
+		console.log(container);
+		console.log(scrollTo);
+		selected_table_row_id = 'table_row_id_' + row_num;
+		//$('#table_div').scrollTop(0.7);
+		container.animate({
+			scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()
+		});
+		scrollTo.css("background-color","grey");
+	}
+	
+	
+	function handle_table_row_selection(row_id) {
+		var new_row_id = "table_row_id_" + row_id;
+		if(selected_table_row_id != null) 
+			$("#"+selected_table_row_id).css("background-color","white");
+		
+		selected_table_row_id = new_row_id;
+		$("#"+selected_table_row_id).css("background-color","grey");
 	}
 	
 	function drawTable(startRow) {
@@ -558,6 +584,11 @@
 	</head>
 	
   <body>
+	<br />
+	<div align='center'>
+		<div id="table_div" style="overflow:auto;height:40%;">		
+		</div>
+	</div>
 	<div id='content'>
 		<div id='basic-modal'>
 			<a class="flatbtn" id="modaltrigger">+</a>
@@ -720,4 +751,7 @@
 		
 	</table>
   </body>
+  <script>
+	getCSVData();
+  </script>
 </html>
