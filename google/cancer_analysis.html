@@ -3,15 +3,9 @@
   <head>
   	<link rel="stylesheet" type="text/css" media="all" href="css/style.css">
   	<link rel="stylesheet" type="text/css" href="css/gsustyle.css">
-	<!-- Page styles -->
 	<link type='text/css' href='css/demo.css' rel='stylesheet' media='screen' />
-
-	<!-- Contact Form CSS files -->
 	<link type='text/css' href='css/basic.css' rel='stylesheet' media='screen' />
-    <!--Load the AJAX API-->
-	<style>
-		.draggable { float: left; background-color:#575757; border-color:#c9c9c9; border-style:solid;}
-	</style>
+	
 	
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript" src="js/gsu.jslib.js"></script>
@@ -20,10 +14,7 @@
   	<script type='text/javascript' src='js/jquery.js'></script>
 	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
 	<script type='text/javascript' src='js/basic.js'></script>
-	<script type='text/javascript' src="http://code.jquery.com/ui/1.9.0/jquery-ui.js"></script>
     
-    
-
     <script type="text/javascript">
 	  
 	  
@@ -36,32 +27,34 @@
       var z_field = null;
       var d_field = null;
 	  
+	  var full_data_set = null;
 	  var num_of_charts = 1;
-	  
-	  //for drag and drop use
-	  var dragFromId;
-	  var dragToId;
-	  
-	  
-	  
 	  
 	  //To indicate how many charts have been assigned place to display
 	  var allocated_charts = 0;
 	  
-
+	  //Tags if the charts are ready for interaction
+	  var ready = {chart1: false, chart2: false};
+	  
+	  //To hold all the generated google charts objects
+	  var charts_arr = [];
+	  //To hold each div which is used to draw charts on
+	  var charts_id_arr = [];
+	  //To hold that div to draw table on
+	  var table_div_id = null;
 	  
 	  
 
       // Load the Visualization API and the controls package.
-      google.load('visualization', '1.0', {'packages':['controls',"table"]});
+      google.load('visualization', '1.0', {'packages':["corechart",'controls',"table"]});
 	  
 	  /**
 	  To define the point size and color according to user selected dimension,
 	  the definition is generated according to object literal notation
 	  **/	
-	  function generatePointDescription(d_value,z_value,fullDataSet) {
+	  function generatePointDescription(d_value,z_value) {
 
-		var d_dataset = getDistinctiveValues(d_field,fullDataSet);
+		var d_dataset = getDistinctiveValues(d_field);
 		
 		var index_of_color;
 		if(d_value == "" || d_value == undefined)	
@@ -75,60 +68,63 @@
 
 		var res = "";
 		if(z_value != null && z_value != "") {
-			pointSize = getPointSize(z_value,fullDataSet);
+			pointSize = getPointSize(z_value);
 			res = 'point { size : ' + pointSize +';fill-color:' + color_name;
 		} else 			
 		res = 'point { fill-color:' + color_name;
 		return res;
 	  }
 
-	function getDistinctiveValues(fieldName,dataSet) {
+	function getDistinctiveValues(fieldName) {
 		var res = [];
-		var index = getColNum(dataSet[0],fieldName);
+		var index = getColNum(full_data_set[0],fieldName);
 		var i = 1;
-		for(;i<dataSet.length;i++) {
-			if(dataSet[i][index]==undefined || dataSet[i][index] == ""){
+		for(;i<full_data_set.length;i++) {
+			if(full_data_set[i][index]==undefined || full_data_set[i][index] == ""){
 				if(arrayContains(res,EMPTY_STRING) == false) {
 					res.push(EMPTY_STRING);
 				}
-			} else if(arrayContains(res,dataSet[i][index]) === false) {
-				//console.log("The array is " + res + ", I am adding " + 	dataSet[i][index] + ",The return value is "
-				//+ arrayContains(r<link rel="stylesheet" type="text/css" href="mystyle.css">es,dataSet[i][index]) )
-				res.push(dataSet[i][index]);
+			} else if(arrayContains(res,full_data_set[i][index]) === false) {
+				//console.log("The array is " + res + ", I am adding " + 	full_data_set[i][index] + ",The return value is "
+				//+ arrayContains(r<link rel="stylesheet" type="text/css" href="mystyle.css">es,full_data_set[i][index]) )
+				res.push(full_data_set[i][index]);
 			}
-		}	
+		}
 		return res;
 	}
 
-	function getPointSize(size,fullDataSet) {
-		var sizeArr = getDistinctiveValues(z_field,fullDataSet);
+	function getPointSize(size) {
+		var sizeArr = getDistinctiveValues(z_field);
 		var max = getMax(sizeArr);
 		var min = getMin(sizeArr);  
 		res = Math.round( 10 * ((size-min)/(max-min)) ) + 3;
 		return res;
 	}
 
-	function getAllInfo(row,fullDataSet) {
+	function getAllInfo(row) {
 		res = "";
+		res += full_data_set[0][0] + ":" + full_data_set[row][0];
+		/*
 		var i=0;
-		for(;i<fullDataSet[0].length;i++)
-			res += fullDataSet[0][i] + ":" + fullDataSet[row][i] + "\n";
+		for(;i<full_data_set[0].length;i++)
+			res += full_data_set[0][i] + ":" + full_data_set[row][i] + "\n";*/
 		return res;
 	}
 	
 	/**
 		To create a legend for a given dataset
 	**/
-	function createLegend(fullDataSet,div_id) {
-		var d_dataset = getDistinctiveValues(d_field,fullDataSet);
+	function createLegend(div_id) {
+		var d_dataset = getDistinctiveValues(d_field);
 		var i=0;
 		var color_name;
 		
-		
+		console.log("222222222222");
 		//legend_div.innerHTML = "";
 		//var legend_table = $("#"+div_id).append("<table> </table>");
 		//legend_table.innerHTML = "";
 		var orig_html = "<table width='90%'>";
+		console.log("3333333333");
 		for(;i<d_dataset.length;i++) {
 			//orig_html = legend_table.innerHTML;
 			color_name = HTML_COLORS[i];
@@ -143,29 +139,31 @@
 			orig_html = orig_html + tmp;
 			
 		}
+		console.log("4444444444444");
 		orig_html += "</table>";
-		orig_html += "<a class='removechrt' >-</a>";
+		//orig_html += "<a class='removechrt' >-</a>";
 		
 		
 		$("#"+div_id).append(orig_html);
+		console.log("5555555555");
 		$("#"+div_id).display = 'inline';
 		//legend_div.style.visibility="visible";
 		
 	}
 	
 	
-	function getTicks(fullDataSet,dataField) {
-		var headLine = fullDataSet[0];
+	function getTicks(dataField) {
+		var headLine = full_data_set[0];
 		var col = getColNum(headLine,dataField);
-		var max = (fullDataSet[col][0]=="" || fullDataSet[col][0]==undefined )?  0:fullDataSet[col][0];
-		var min = (fullDataSet[col][0]=="" || fullDataSet[col][0]==undefined )?  100:fullDataSet[col][0];
+		var max = (full_data_set[col][0]=="" || full_data_set[col][0]==undefined )?  0:full_data_set[col][0];
+		var min = (full_data_set[col][0]=="" || full_data_set[col][0]==undefined )?  100:full_data_set[col][0];
 		var i = 1;
-		for(;i<fullDataSet[col].length;i++) {
-			if(fullDataSet[col][i]!=undefined && fullDataSet[col][i] != "" && fullDataSet[col][i]>max)
-				max = fullDataSet[col][i];
+		for(;i<full_data_set[col].length;i++) {
+			if(full_data_set[col][i]!=undefined && full_data_set[col][i] != "" && full_data_set[col][i]>max)
+				max = full_data_set[col][i];
 				
-			if(fullDataSet[col][i]!=undefined && fullDataSet[col][i] != "" && fullDataSet[col][i]<max)
-				min = fullDataSet[col][i];
+			if(full_data_set[col][i]!=undefined && full_data_set[col][i] != "" && full_data_set[col][i]<max)
+				min = full_data_set[col][i];
 		}
 		
 		var range = max - min;
@@ -176,11 +174,8 @@
     // Callback that creates and populates a data table,
     // instantiates a dashboard, a range slider and a pie chart,
     // passes in the data and draws it.
-    function drawDashboard(fullDataSet,div_id) {
-		console.log("div_id = " + div_id);
-		
-		
-		var headLine = fullDataSet[0];
+    function drawDashboard(div_id) {
+		var headLine = full_data_set[0];
 		var x_col = getColNum(headLine,x_field);
 		var y_col = getColNum(headLine,y_field);
 		var z_col = getColNum(headLine,z_field);
@@ -191,7 +186,7 @@
         data_tbl.addColumn('number', y_field);
 		
 		//Get the enumeration of all the possible values of d_field(no copy values)
-		d_dataset = getDistinctiveValues(d_field,fullDataSet);
+		d_dataset = getDistinctiveValues(d_field);
 		
 		var x_filter_id = "chart_" + allocated_charts + "_x_filter";
 		var y_filter_id = "chart_" + allocated_charts + "_y_filter";
@@ -206,25 +201,25 @@
 		
 		/*
         var i =1;
-        for(;i<fullDataSet.length;i++) {
-	  		data_tbl.addRow([parseInt(fullDataSet[i][x_col]),parseInt(fullDataSet[i][y_col])  ]);
+        for(;i<full_data_set.length;i++) {
+	  		data_tbl.addRow([parseInt(full_data_set[i][x_col]),parseInt(full_data_set[i][y_col])  ]);
         }*/
 		
-		var pntDesc = generatePointDescription(fullDataSet[1][d_col],null,fullDataSet);
+		var pntDesc = generatePointDescription(full_data_set[1][d_col],null,full_data_set);
 		
         data_tbl = google.visualization.arrayToDataTable
             ([[x_field, y_field, {'type': 'string', 'role': 'style'},{type: 'string', role: 'tooltip'}],
-              [parseInt(fullDataSet[1][x_col]), parseInt(fullDataSet[1][y_col]), pntDesc,'xyz']
+              [parseInt(full_data_set[1][x_col]), parseInt(full_data_set[1][y_col]), pntDesc,'xyz']
         ]);
 		
 		var i =2;
 		
-        for(;i<fullDataSet.length;i++) {
+        for(;i<full_data_set.length;i++) {
 			if(z_field!=null)
-				pntDesc = generatePointDescription(fullDataSet[i][d_col],fullDataSet[i][z_col],fullDataSet);
+				pntDesc = generatePointDescription(full_data_set[i][d_col],full_data_set[i][z_col],full_data_set);
 			else
-				pntDesc = generatePointDescription(fullDataSet[i][d_col],null,fullDataSet);
-	  		data_tbl.addRow([parseInt(fullDataSet[i][x_col]),parseInt(fullDataSet[i][y_col]),pntDesc,getAllInfo(i,fullDataSet)]);
+				pntDesc = generatePointDescription(full_data_set[i][d_col],null,full_data_set);
+	  		data_tbl.addRow([parseInt(full_data_set[i][x_col]),parseInt(full_data_set[i][y_col]),pntDesc,getAllInfo(i,full_data_set)]);
         }
 	
 		console.log("asdf " + document.getElementById(div_id));
@@ -264,7 +259,8 @@
 		
 		
 		
-		$("#"+div_id).append("<div id = '"+ chart_id +"'  align='center' class='draggable'> </div>");
+		$("#"+div_id).append("<div id = '"+ chart_id +"'  align='center' > </div>");
+		
 		
         // Create a pie chart, passing some options
         var pieChart = new google.visualization.ChartWrapper({
@@ -291,6 +287,19 @@
         });
 		
 		
+		/*
+		var tmp = document.getElementById(chart_id);
+		var pieChart = new google.visualization.ScatterChart(tmp);
+		var options = {
+							'width': screen.width * 0.5,
+							'height': screen.height * 0.5,
+							'legend': 'none',
+							'chartArea': {'width': '80%', 'height': '90%'},
+							'vAxis': {
+								title: y_field
+							}
+					   };
+			*/		   
 
 
         // Establish dependencies, declaring that 'filter' drives 'pieChart',
@@ -301,15 +310,60 @@
 		dashboard.bind(donutRangeSlider1, pieChart);
 		//dashboard.bind(donutRangeSlider2, pieChart);
 
+		
+		google.visualization.events.addListener(pieChart, 'select', selectHandler);
         // Draw the dashboard.
+		//pieChart.draw(data_tbl,options);
         dashboard.draw(data_tbl);
 	
-		createLegend(fullDataSet,legend_id);
+		console.log("1111111111111111111");
+		createLegend(legend_id);
 		
 		if(IF_TABLE_DRAWN==false) {
-			drawTable(fullDataSet);
+			drawTable();
+		}
+		
+		//remember this chart object in a global var
+		charts_arr.push(pieChart);
+		//remberm the div that holds all the legend,filter,and chart
+		charts_id_arr.push(div_id);
+		
+		function selectHandler() {
+			//console.log(getMethods(pieChart));
+			/*
+			var methods = getMethods(pieChart);
+			var i = 0;
+			for(;i<methods.length;i++) {
+				console.log(methods[i]);
+			}
+			console.log(pieChart.getOptions()) */
+			var selectedItem = pieChart.getChart().getSelection();
+			console.log(selectedItem);
+			
+			setChartSelection(selectedItem);
+			
+			/*
+			if (selectedItem) {
+				var topping = data_tbl.getValue(selectedItem.row, 0);
+				alert('The user selected ' + topping);
+			}*/
 		}
       }
+	  
+	  /**
+		To synchronize each chart's selection when
+		a user select an item in one chart
+	  **/
+	  function setChartSelection(selectedItem) {
+		var k = 0;
+		for(;k<charts_arr.length;k++) {
+			if(charts_arr[k] instanceof google.visualization.Table) {
+				console.log("selectedItem[0].row = " + selectedItem[0].row);
+				drawTable(selectedItem);
+			} else
+				charts_arr[k].getChart().setSelection(selectedItem);
+		}
+	  }
 
       function draw() {
 		//To update the number of charts have been drawn on the screen
@@ -341,8 +395,12 @@
 		  getCSVData();
 		}
 		$.modal.close();
-		enable_draggable();
+		
+		
+		//enable_draggable();
 	}
+	
+	
 	
 	function getCSVData(){
 	    $.ajax("http://76.114.185.215/bioanalysis/google/cancer.csv", {
@@ -358,25 +416,34 @@
 	function processData(data) {
 		dataArray = CSVToArray(data);
 		var div_id = getDivIDInTableCell();
-		drawDashboard(dataArray,div_id);
+		full_data_set = dataArray;
+		drawDashboard(div_id);
 	}
 	
-	function drawTable(fullDataSet) {
+	function drawTable(startRow) {
 		IF_TABLE_DRAWN = true;
-		var div_id = getDivIDInTableCell();
-		console.log("div_id = " + div_id);
+		//table_div_id
+		var div_id;
+		if(startRow == undefined) {
+			div_id = getDivIDInTableCell();
+			//remember the div that where this table is drawn on in a global var
+			table_div_id = div_id;
+		}
+		else
+			div_id = table_div_id;
+		console.log("div_id111111 = " + div_id);
 		var data = new google.visualization.DataTable();
 		var i=0,j=0;
-		var dim = fullDataSet[0].length;
-		for(;i<fullDataSet[0].length;i++) 
-			data.addColumn('string',fullDataSet[0][i]);
-		for(i=1;i<fullDataSet.length;i++) {
+		var dim = full_data_set[0].length;
+		for(;i<full_data_set[0].length;i++)
+			data.addColumn('string',full_data_set[0][i]);
+		for(i=1;i<full_data_set.length;i++) {
 			var row = [];
 			for(j=0;j<dim;j++) {
-				if(fullDataSet[i][j] == undefined || fullDataSet[i][j] == "")
+				if(full_data_set[i][j] == undefined || full_data_set[i][j] == "")
 					row.push(EMPTY_STRING);
 				else
-					row.push(fullDataSet[i][j]);
+					row.push(full_data_set[i][j]);
 			}
 			data.addRow(row);
 		}
@@ -384,9 +451,49 @@
 		var table = new google.visualization.Table(document.getElementById(div_id));
 		var options = {
             width: screen.width * 0.48,
-            height: screen.height * 0.48
+            height: screen.height * 0.48,
+			//page:"enable",
+			//firstRowNumber: startRow==undefined?1:startRow
 		}
+		
+		/*
+		var methods = getMethods(table);
+		var i = 0;
+		for(;i<methods.length;i++) 
+			console.log(methods[i]);*/
+		
 		table.draw(data,options);
+		
+		google.visualization.events.addListener(table, 'select', selectHandler);
+		
+		function selectHandler() {
+			//console.log(getMethods(pieChart));
+			/*
+			var methods = getMethods(pieChart);
+			var i = 0;
+			for(;i<methods.length;i++) {
+				console.log(methods[i]);
+			}
+			console.log(pieChart.getOptions()) */
+			var selectedItem = table.getSelection();
+			console.log(selectedItem);
+			
+			setChartSelection(selectedItem);
+			
+			/*
+			if (selectedItem) {
+				var topping = data_tbl.getValue(selectedItem.row, 0);
+				alert('The user selected ' + topping);
+			}*/
+		}
+		
+		
+		if(startRow == undefined) {
+			console.log("I am pushing item into charts_arr its length is now " + charts_arr.length);
+			charts_arr.push(table);
+		} else {
+			//table.setSelection([{row: 11}]);
+		}
 	}
 	
 	//To return a div id in table cell to put chart in

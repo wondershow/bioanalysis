@@ -145,3 +145,21 @@ function arrayContains(a, obj) {
 	}
 	return false;
 }
+
+/**
+This function returns an array with all the method names of an object
+*/
+function getMethods(obj) {
+  var result = [];
+  for (var id in obj) {
+    try {
+      if (typeof(obj[id]) == "function") {
+        result.push(id + ": " + obj[id].toString() + "\n");
+		//result.push(*);
+      }
+    } catch (err) {
+      result.push(id + ": inaccessible");
+    }
+  }
+  return result;
+}

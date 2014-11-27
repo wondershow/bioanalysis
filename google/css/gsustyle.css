@@ -34,3 +34,5 @@ td.border{
     border: 2px solid black;
     border-collapse: collapse;
 }
+
+.draggable { float: left; background-color:#575757; border-color:#c9c9c9; border-style:solid;}
