@@ -320,9 +320,12 @@
 		console.log("1111111111111111111");
 		createLegend(legend_id);
 		
+		
+		
+		/*
 		if(IF_TABLE_DRAWN==false) {
 			drawTable();
-		}
+		}*/
 		
 		//remember this chart object in a global var
 		charts_arr.push(pieChart);
@@ -339,7 +342,15 @@
 			}
 			console.log(pieChart.getOptions()) */
 			var selectedItem = pieChart.getChart().getSelection();
-			console.log(selectedItem);
+			
+			
+			//console.log("selectedItem[0] is " + selectedItem[0]	);
+			
+			
+			//pieChart.getChart().setSelection([{'row': 5}]);
+			
+			
+			
 			
 			setChartSelection(selectedItem);
 			
@@ -356,14 +367,33 @@
 		a user select an item in one chart
 	  **/
 	  function setChartSelection(selectedItem) {
+		tableScrollTo(selectedItem[0].row+1);
+		
 		var k = 0;
 		for(;k<charts_arr.length;k++) {
 			if(charts_arr[k] instanceof google.visualization.Table) {
-				console.log("selectedItem[0].row = " + selectedItem[0].row);
-				
-				tableScrollTo(selectedItem[0].row+1);
-			} else
+				//console.log("selectedItem[0].row = " + selectedItem[0].row);
+				charts_arr[k].setSelection(selectedItem[0]);
+				//tableScrollTo(selectedItem[0].row+1);
+			} else {
 				charts_arr[k].getChart().setSelection(selectedItem);
+			} 
+		}
+	  }
+	  
+	  function setChartRow(row_num) {
+		var k = 0;
+		for(;k<charts_arr.length;k++) {
+			var selected_item = null;
+			if(!(charts_arr[k] instanceof google.visualization.Table)) {
+				//var selected_item = charts_arr[k].getChart().getSelection()[0];
+				//selected_item.row = row_num;
+				//chart.setSelection();
+				console.log("row_num = " + row_num)
+				
+				//There is one difference, just by try and fail
+				charts_arr[k].getChart().setSelection([{'row': row_num - 1}]);
+			} 
 		}
 	  }
 
@@ -401,8 +431,6 @@
 		//enable_draggable();
 	}
 	
-	
-	
 	function getCSVData(){
 	    $.ajax("http://76.114.185.215/bioanalysis/google/cancer.csv", {
 			success: function(data) {
@@ -434,6 +462,7 @@
 			scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()
 		});
 		scrollTo.css("background-color","grey");
+		
 	}
 	
 	
@@ -444,6 +473,7 @@
 		
 		selected_table_row_id = new_row_id;
 		$("#"+selected_table_row_id).css("background-color","grey");
+		setChartRow(row_id);
 	}
 	
 	function drawTable(startRow) {
