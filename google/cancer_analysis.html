@@ -16,9 +16,6 @@
 	<script type='text/javascript' src='js/basic.js'></script>
     
     <script type="text/javascript">
-	  
-	  
-	  
 	  var EMPTY_STRING = "N/A";
 	  var NUM_OF_CHARTS_PER_LINE = 2;
 	  var IF_TABLE_DRAWN = false;
@@ -54,11 +51,14 @@
 	  the definition is generated according to object literal notation
 	  **/	
 	  function generatePointDescription(d_value,z_value) {
-
-		var d_dataset = getDistinctiveValues(d_field);
+	  
+		//When d_field is not selected at all
+		if(d_value == null )
+			return 'point {}';
 		
+		var d_dataset = getDistinctiveValues(d_field);
 		var index_of_color;
-		if(d_value == "" || d_value == undefined)	
+		if(d_value == "" || d_value == undefined)
 			index_of_color = arrayContains(d_dataset,EMPTY_STRING);
 		else
 			index_of_color = arrayContains(d_dataset,d_value);
@@ -102,7 +102,7 @@
 		return res;
 	}
 
-	function getAllInfo(row) {
+	function generateTooltips(row) {
 		res = "";
 		res += full_data_set[0][0] + ":" + full_data_set[row][0];
 		/*
@@ -198,7 +198,7 @@
 		console.log("legend_id = " + legend_id);
 		
 		//add the div to hold legends
-		$("#"+div_id).append("<div id = '"+ legend_id +"'  align='center' style='background-color:yellow'> </div>");
+		$("#"+div_id).append("<div id = '"+ legend_id +"'  align='center' > </div>");
 		
 		/*
         var i =1;
@@ -206,7 +206,8 @@
 	  		data_tbl.addRow([parseInt(full_data_set[i][x_col]),parseInt(full_data_set[i][y_col])  ]);
         }*/
 		
-		var pntDesc = generatePointDescription(full_data_set[1][d_col],null,full_data_set);
+		
+		var pntDesc = generatePointDescription(full_data_set[1][d_col],null);
 		
         data_tbl = google.visualization.arrayToDataTable
             ([[x_field, y_field, {'type': 'string', 'role': 'style'},{type: 'string', role: 'tooltip'}],
@@ -216,11 +217,13 @@
 		var i =2;
 		
         for(;i<full_data_set.length;i++) {
-			if(z_field!=null)
-				pntDesc = generatePointDescription(full_data_set[i][d_col],full_data_set[i][z_col],full_data_set);
-			else
-				pntDesc = generatePointDescription(full_data_set[i][d_col],null,full_data_set);
-	  		data_tbl.addRow([parseInt(full_data_set[i][x_col]),parseInt(full_data_set[i][y_col]),pntDesc,getAllInfo(i,full_data_set)]);
+			if(d_field !=null && d_field != "" && z_field !=null && z_field != "")
+				pntDesc = generatePointDescription(full_data_set[i][d_col],full_data_set[i][z_col]);
+			else if (  d_field ==null ||   d_field == "" )
+				pntDesc = generatePointDescription(null,full_data_set[i][z_col]);
+			else if (  z_field ==null ||   z_field == "" ) 
+				pntDesc = generatePointDescription(full_data_set[i][d_col],null);
+	  		data_tbl.addRow([parseInt(full_data_set[i][x_col]),parseInt(full_data_set[i][y_col]),pntDesc,generateTooltips(i,full_data_set)]);
         }
 	
 		console.log("asdf " + document.getElementById(div_id));
@@ -257,9 +260,6 @@
           }
         });*/
 		
-		
-		
-		
 		$("#"+div_id).append("<div id = '"+ chart_id +"'  align='center' > </div>");
 		
 		
@@ -280,6 +280,7 @@
 						//'viewWindow': { min: 0,max: 25},
 						//'ticks': [0, 7, 14, 21, 28],
 						//title: 'titleText'
+						title: x_field
 					 },
 			'vAxis': {
 						title: y_field
@@ -381,6 +382,9 @@
 		}
 	  }
 	  
+	  /***
+		
+	  **/
 	  function setChartRow(row_num) {
 		var k = 0;
 		for(;k<charts_arr.length;k++) {
@@ -389,7 +393,7 @@
 				//var selected_item = charts_arr[k].getChart().getSelection()[0];
 				//selected_item.row = row_num;
 				//chart.setSelection();
-				console.log("row_num = " + row_num)
+				console.log("row_num in  setChartRow = " + row_num)
 				
 				//There is one difference, just by try and fail
 				charts_arr[k].getChart().setSelection([{'row': row_num - 1}]);
@@ -414,8 +418,8 @@
 		tmp = document.getElementById("d_field");
 		d_field = tmp.options[tmp.selectedIndex].value;
 
-		if ( x_field=="" || y_field=="" || d_field == "") {
-		  document.getElementById("alertmsg").innerHTML = "Please select field X, Y and Data";
+		if ( x_field=="" || y_field=="") {
+		  document.getElementById("alertmsg").innerHTML = "Please select field X, Y";
 		} else if( x_field == y_field) {
 		  document.getElementById("alertmsg").innerHTML = "Field X and Y are same";
 		} else if( y_field == z_field) {
@@ -426,8 +430,8 @@
 		  document.getElementById("alertmsg").innerHTML = "";
 		  var div_id = getDivIDInTableCell();
 		  drawDashboard(div_id);
+		  $.modal.close();
 		}
-		$.modal.close();
 		//enable_draggable();
 	}
 	
@@ -461,19 +465,38 @@
 		container.animate({
 			scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()
 		});
-		scrollTo.css("background-color","grey");
-		
+		console.log("row_num in tableScrollTo " + row_num);
+		change_table_selected_row(row_num);
+		//scrollTo.css("background-color","grey");
+	}
+	
+	function reset_table_row_bg_color() {
+		var len = full_data_set.length;
+		var i=1;
+		for(;i<len;i++) {
+			var tmp_id = "table_row_id_" + i;
+			$("#"+tmp_id).css("background-color","white");
+		}
 	}
 	
 	
-	function handle_table_row_selection(row_id) {
-		var new_row_id = "table_row_id_" + row_id;
-		if(selected_table_row_id != null) 
-			$("#"+selected_table_row_id).css("background-color","white");
+	function change_table_selected_row(row_num) {
+		var new_row_id = "table_row_id_" + row_num;
 		
+		//this is not efficient, might be improved
+		reset_table_row_bg_color();
+		//if(selected_table_row_id != null)
+		//	$("#"+selected_table_row_id).css("background-color","white");
+		
+		console.log("row_num in change_table_selected_row " + row_num);
 		selected_table_row_id = new_row_id;
 		$("#"+selected_table_row_id).css("background-color","grey");
-		setChartRow(row_id);
+	}
+	
+	function handle_table_row_selection(row_num) {
+		change_table_selected_row(row_num);
+		console.log("row_num in  handle_table_row_selection = " + row_num);
+		setChartRow(row_num);
 	}
 	
 	function drawTable(startRow) {
@@ -689,7 +712,7 @@
 			</tr>
 			<tr style="border: 2px solid black;border-collapse: collapse;">
 				<td style="border: 2px solid black;border-collapse: collapse;"> 
-					Color:draw
+					Color:
 				</td>
 				<td style="border: 2px solid black;border-collapse: collapse;">
 					<select id="d_field">
