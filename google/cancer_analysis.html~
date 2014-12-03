@@ -1,281 +1,410 @@
+
 <html>
   <head>
-    <!--Load the AJAX API-->
+  	<link rel="stylesheet" type="text/css" media="all" href="css/style.css">
+  	<link rel="stylesheet" type="text/css" href="css/gsustyle.css">
+	<link type='text/css' href='css/demo.css' rel='stylesheet' media='screen' />
+	<link type='text/css' href='css/basic.css' rel='stylesheet' media='screen' />
+	
+	
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="js/gsu.jslib.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-	<style>
-		.circleBase {
-    border-radius: 50%;
-    behavior: url(PIE.htc); /* remove if you don't care about IE8 */
-}
-
-.type1 {
-    width: 25px;
-    height: 25px;
-    background: yellow;
-}
-.type2 {
-    width: 50px;
-    height: 50px;
-    background: #ccc;
-}
-.type3 {
-    width: 500px;
-    height: 500px;
-    background: aqua;
-    border: 30px solid blue;
-}
-
-	</style>
+    
+  	<script type='text/javascript' src='js/jquery.js'></script>
+	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
+	<script type='text/javascript' src='js/basic.js'></script>
+    
     <script type="text/javascript">
+	  var EMPTY_STRING = "N/A";
+	  var NUM_OF_CHARTS_PER_LINE = 2;
+	  var IF_TABLE_DRAWN = false;
       var x_field = null;
       var y_field = null;
       var z_field = null;
       var d_field = null;
+	  
+	  var full_data_set = null;
+	  var num_of_charts = 1;
+	  
+	  //To indicate how many charts have been assigned place to display
+	  var allocated_charts = 0;
+	  
+	  //Tags if the charts are ready for interaction
+	  var ready = {chart1: false, chart2: false};
+	  
+	  //To hold all the generated google charts objects
+	  var charts_arr = [];
+	  //To hold each div which is used to draw charts on
+	  var charts_id_arr = [];
+	  //To hold that div to draw table on
+	  var table_div_id = null;
+	  //remember the selected tablerow last time.
+	  var selected_table_row_id=null;
+	  
 
-	  var HTML_COLORS = [ "green","orange", "black", "blue","red", "fuchsia", "gray", "lime", "maroon", "navy", "olive", , "purple", 		   "silver", "teal", "white",  "yellow"];
-	
-
-      
       // Load the Visualization API and the controls package.
-      google.load('visualization', '1.0', {'packages':['controls']});
-
-      // Set a callback to run when the Google Visualization API is loaded.
-      //google.setOnLoadCallback(drawDashboarHTML_COLORSd);
-      
-      
-      function getColNum(colNameArr,colName) {
-	  	var i=0;
-	  	for(;i<colNameArr.length;i++) {
-	   	if(colNameArr[i] == colName) return i;
-	 	}
-	  return -1;
-      }
-
-	  function getMax(a) {
-		var i=0;
-		var res = -1;
-		for(;i<a.length;i++) {
-			if(parseInt(a[i]) > res)
-				res = parseInt(a[i]);		
-		}
-		return res;
-	  }
-
-	  function getMin(a){
-		var i = 0;
-		var res = 10000;
-		for(;i<a.length;i++) {
-			if(parseInt(a[i]) < res)
-				res = parseInt(a[i]);		
-		}
-		return res;
-	  }
-
+      google.load('visualization', '1.0', {'packages':["corechart",'controls',"table"]});
+	  
+	  /**
+	  To define the point size and color according to user selected dimension,
+	  the definition is generated according to object literal notation
+	  **/	
+	  function generatePointDescription(d_value,z_value) {
+	  
+		//When d_field is not selected at all
+		if(d_value == null )
+			return 'point {}';
 		
-	  function generatePointDescription(d_value,z_value,fullDataSet) {
-
-		var d_dataset = getDistinctiveValues(d_field,fullDataSet);
-		var index_of_color = arrayContains(d_dataset,d_value);
+		var d_dataset = getDistinctiveValues(d_field);
+		var index_of_color;
+		if(d_value == "" || d_value == undefined)
+			index_of_color = arrayContains(d_dataset,EMPTY_STRING);
+		else
+			index_of_color = arrayContains(d_dataset,d_value);
+		
 		var color_name = HTML_COLORS[index_of_color];
 
 		var pointSize = -1;
 
 		var res = "";
 		if(z_value != null && z_value != "") {
-			pointSize = getPointSize(z_value,fullDataSet);
+			pointSize = getPointSize(z_value);
 			res = 'point { size : ' + pointSize +';fill-color:' + color_name;
 		} else 			
 		res = 'point { fill-color:' + color_name;
 		return res;
-	}
+	  }
 
-	function getDistinctiveValues(fieldName,dataSet) {
+	function getDistinctiveValues(fieldName) {
 		var res = [];
-		var index = getColNum(dataSet[0],fieldName);
+		var index = getColNum(full_data_set[0],fieldName);
 		var i = 1;
-		for(;i<dataSet.length;i++) {
-			if(arrayContains(res,dataSet[i][index]) === false) {
-				//console.log("The array is " + res + ", I am adding " + 	dataSet[i][index] + ",The return value is "
-				//+ arrayContains(res,dataSet[i][index]) )
-				res.push(dataSet[i][index]);
+		for(;i<full_data_set.length;i++) {
+			if(full_data_set[i][index]==undefined || full_data_set[i][index] == ""){
+				if(arrayContains(res,EMPTY_STRING) == false) {
+					res.push(EMPTY_STRING);
+				}
+			} else if(arrayContains(res,full_data_set[i][index]) === false) {
+				//console.log("The array is " + res + ", I am adding " + 	full_data_set[i][index] + ",The return value is "
+				//+ arrayContains(r<link rel="stylesheet" type="text/css" href="mystyle.css">es,full_data_set[i][index]) )
+				res.push(full_data_set[i][index]);
 			}
-		}	
+		}
 		return res;
 	}
 
-	/*
-		returns if an array contains a key
-	*/
-	function arrayContains(a, obj) {
-		//console.log("I have " + a + ", incoding is " + obj);
-   		var i = a.length;
-   		while (i--) {
-			//console.log("a["+i+"] = " + a[i] + ",obj = " +  obj+ " a[i] == obj = " + (a[i] == obj) );	
-      		if (a[i] == obj) {
-          		return i;
-      		}
-   		}
-   		return false;
-	}
-
-
-	function getPointSize(size,fullDataSet) {
-		var sizeArr = getDistinctiveValues(z_field,fullDataSet);
+	function getPointSize(size) {
+		var sizeArr = getDistinctiveValues(z_field);
 		var max = getMax(sizeArr);
 		var min = getMin(sizeArr);  
 		res = Math.round( 10 * ((size-min)/(max-min)) ) + 3;
 		return res;
 	}
 
-	function getAllInfo(row,fullDataSet) {
+	function generateTooltips(row) {
 		res = "";
+		res += full_data_set[0][0] + ":" + full_data_set[row][0];
+		/*
 		var i=0;
-		for(;i<fullDataSet[0].length;i++)
-			res += fullDataSet[0][i] + ":" + fullDataSet[row][i] + "\n";
-
+		for(;i<full_data_set[0].length;i++)
+			res += full_data_set[0][i] + ":" + full_data_set[row][i] + "\n";*/
 		return res;
 	}
-
-	function createLegend(fullDataSet) {
-		var d_dataset = getDistinctiveValues(d_field,fullDataSet);
-		console.log(d_dataset);
+	
+	/**
+		To create a legend for a given dataset
+	**/
+	function createLegend(div_id) {
+		var d_dataset = getDistinctiveValues(d_field);
 		var i=0;
 		var color_name;
-		var legend_div = document.getElementById("legend");
+		
 		//legend_div.innerHTML = "";
-		var legend_table = document.getElementById("legend_table");
-		var orig_html = legend_table.innerHTML;
+		//var legend_table = $("#"+div_id).append("<table> </table>");
+		//legend_table.innerHTML = "";
+		var orig_html = "<table width='90%'>";
+		console.log("3333333333");
 		for(;i<d_dataset.length;i++) {
-			orig_html = legend_table.innerHTML;
+			//orig_html = legend_table.innerHTML;
 			color_name = HTML_COLORS[i];
-			//'+ d_dataset[i] +'
+			//'+ d_dataset[i] +
 			var tmp;
-			if (d_dataset[i]==undefined)
-				tmp = '<td>undefined</td><td><div class="circleBase type1" style="background-color:'+color_name+'"></div></td>';
-			else if (d_dataset[i]=="")
-				tmp = '<td>N/A</td><td><div class="circleBase type1" style="background-color:'+color_name+'"></div></td>';
-			else tmp = '<td>'+d_dataset[i]+'</td><td><div class="circleBase type1" style="background-color:'+color_name+'"></div></td>';
-			legend_table.innerHTML = orig_html + tmp;
-			console.log("tmp = " + tmp);
+			if (d_dataset[i]==undefined || d_dataset[i]=="")
+				tmp = '<td>'+EMPTY_STRING+'</td><td><div class="circleBase type1" style="background-color:'+color_name+'"></div></td>';
+			else 
+				tmp = '<td>'+d_dataset[i]+'</td><td><div class="circleBase type1" style="background-color:'+color_name+'"></div></td>';
+			//legend_table.innerHTML = orig_html + tmp;
+			//console.log("tmp = " + tmp);
+			orig_html = orig_html + tmp;
+			
 		}
-		legend_div.style.visibility="visible";
-		console.log(legend_div.innerHTML);
+		console.log("4444444444444");
+		orig_html += "</table>";
+		//orig_html += "<a class='removechrt' >-</a>";
+		
+		
+		$("#"+div_id).append(orig_html);
+		console.log("5555555555");
+		$("#"+div_id).display = 'inline';
+		//legend_div.style.visibility="visible";
+		
 	}
 	
+	
+	function getTicks(dataField) {
+		var headLine = full_data_set[0];
+		var col = getColNum(headLine,dataField);
+		var max = (full_data_set[col][0]=="" || full_data_set[col][0]==undefined )?  0:full_data_set[col][0];
+		var min = (full_data_set[col][0]=="" || full_data_set[col][0]==undefined )?  100:full_data_set[col][0];
+		var i = 1;
+		for(;i<full_data_set[col].length;i++) {
+			if(full_data_set[col][i]!=undefined && full_data_set[col][i] != "" && full_data_set[col][i]>max)
+				max = full_data_set[col][i];
+				
+			if(full_data_set[col][i]!=undefined && full_data_set[col][i] != "" && full_data_set[col][i]<max)
+				min = full_data_set[col][i];
+		}
+		
+		var range = max - min;
+		var res = [min, min+range/5, min + range*2/5, min+range*3/5, min+range*4/5, max];
+		return res;
+	}
 
     // Callback that creates and populates a data table,
     // instantiates a dashboard, a range slider and a pie chart,
     // passes in the data and draws it.
-    function drawDashboard(fullDataSet) {
-	
-	var headLine = fullDataSet[0];
-	var x_col = getColNum(headLine,x_field);
-	var y_col = getColNum(headLine,y_field);
-	var z_col = getColNum(headLine,z_field);
-	var d_col = getColNum(headLine,d_field);
+    function drawDashboard(div_id,x_val,y_val) {
+		var headLine = full_data_set[0];
+		var x_col = getColNum(headLine,x_field);
+		var y_col = getColNum(headLine,y_field);
+		var z_col = getColNum(headLine,z_field);
+		var d_col = getColNum(headLine,d_field);
       
-	
-	
-	var data_tbl = new google.visualization.DataTable();
+		var data_tbl = new google.visualization.DataTable();
         data_tbl.addColumn('number', x_field);
         data_tbl.addColumn('number', y_field);
 		
-		d_dataset = getDistinctiveValues(d_field,fullDataSet);
-// Create a range slider, passing some options
-        var donutRangeSlider = new google.visualization.ControlWrapper({
-          'controlType': 'NumberRangeFilter',
-          'containerId': 'filter_div',
-          'options': {
-            'filterColumnLabel': 'Donuts eaten'
-          }
-        });
-
+		//Get the enumeration of all the possible values of d_field(no copy values)
+		d_dataset = getDistinctiveValues(d_field);
+		
+		var x_filter_id = "chart_" + allocated_charts + "_x_filter";
+		var y_filter_id = "chart_" + allocated_charts + "_y_filter";
+		var z_filter_id = "chart_" + allocated_charts + "_z_filter";
+		var legend_id = "chart_" + allocated_charts + "_legend";
+		var chart_id = "chart_" + allocated_charts + "_div";
+		
+		console.log("legend_id = " + legend_id);
+		
+		//add the div to hold legends
+		$("#"+div_id).append("<div id = '"+ legend_id +"'  align='center' > </div>");
 		
 		/*
         var i =1;
-        for(;i<fullDataSet.length;i++) {
-	  		data_tbl.addRow([parseInt(fullDataSet[i][x_col]),parseInt(fullDataSet[i][y_col])  ]);
+        for(;i<full_data_set.length;i++) {
+	  		data_tbl.addRow([parseInt(full_data_set[i][x_col]),parseInt(full_data_set[i][y_col])  ]);
         }*/
 		
-		var pntDesc = generatePointDescription(fullDataSet[1][d_col],null,fullDataSet);
+		
+		var pntDesc = generatePointDescription(full_data_set[1][d_col],null);
 		
         data_tbl = google.visualization.arrayToDataTable
             ([[x_field, y_field, {'type': 'string', 'role': 'style'},{type: 'string', role: 'tooltip'}],
-              [parseInt(fullDataSet[1][x_col]), parseInt(fullDataSet[1][y_col]), pntDesc,'xyz']
+              [parseInt(full_data_set[1][x_col]), parseInt(full_data_set[1][y_col]), pntDesc,'xyz']
         ]);
-
 		
 		var i =2;
-        for(;i<fullDataSet.length;i++) {
-			if(z_field!=null)
-				pntDesc = generatePointDescription(fullDataSet[i][d_col],fullDataSet[i][z_col],fullDataSet);
-			else
-				pntDesc = generatePointDescription(fullDataSet[i][d_col],null,fullDataSet);
-	  		data_tbl.addRow([parseInt(fullDataSet[i][x_col]),parseInt(fullDataSet[i][y_col]),pntDesc,getAllInfo(i,fullDataSet)]);
+		
+        for(;i<full_data_set.length;i++) {
+			if(d_field !=null && d_field != "" && z_field !=null && z_field != "")
+				pntDesc = generatePointDescription(full_data_set[i][d_col],full_data_set[i][z_col]);
+			else if (  d_field ==null ||   d_field == "" )
+				pntDesc = generatePointDescription(null,full_data_set[i][z_col]);
+			else if (  z_field ==null ||   z_field == "" ) 
+				pntDesc = generatePointDescription(full_data_set[i][d_col],null);
+	  		data_tbl.addRow([parseInt(full_data_set[i][x_col]),parseInt(full_data_set[i][y_col]),pntDesc,generateTooltips(i,full_data_set)]);
         }
 	
+		console.log("asdf " + document.getElementById(div_id));
         // Create a dashboard.
-        var dashboard = new google.visualization.Dashboard(
-            document.getElementById('dashboard_div'));
+        var dashboard = new google.visualization.Dashboard(document.getElementById(div_id));
 
         // Create a range slider, passing some options
+		$("#"+div_id).append("<div id = '"+ x_filter_id +"' align='center'> </div>");
         var donutRangeSlider = new google.visualization.ControlWrapper({
           'controlType': 'NumberRangeFilter',
-          'containerId': 'filter_div',
+          'containerId': x_filter_id,
           'options': {
             'filterColumnLabel': x_field
           }
         });
         
+		$("#"+div_id).append("<div id = '"+ y_filter_id +"'   align='center'> </div>");
         // Create a range slider, passing some optionsdashboard_div
         var donutRangeSlider1 = new google.visualization.ControlWrapper({
           'controlType': 'NumberRangeFilter',
-          'containerId': 'filter_div2',
+          'containerId': y_filter_id,
           'options': {
             'filterColumnLabel': y_field
           }
         })
         
-// Create a range slider, passing some options
+		/*
+		// Create a range slider, passing some options
         var donutRangeSlider2 = new google.visualization.ControlWrapper({
           'controlType': 'CategoryFilter',
           'containerId': 'filter_div3',
           'options': {
             'filterColumnLabel': d_field
           }
-        });
-
-        
-        
-        
-
+        });*/
+		
+		$("#"+div_id).append("<div id = '"+ chart_id +"'  align='center' > </div>");
+		
+		
         // Create a pie chart, passing some options
         var pieChart = new google.visualization.ChartWrapper({
           'chartType': 'ScatterChart',
-          'containerId': 'chart_div',
+          'containerId': chart_id,
           'options': {
-            'width': 1000,
-            'height': 600,
-            'pieSliceText': 'value',
-            'legend': 'right',
-            'align':'right'
+            'width': screen.width * 0.45,
+            'height': screen.height * 0.45,
+            'legend': 'none',
+            'align':'right',
+			'chartArea': {'width': '80%', 'height': '90%'},
+			'focusBorderColor':  {stroke:'black', fill:'#eee', strokeSize: 1},
+			'viewWindow':{},
+			'titleY':y_field,
+			//'titleX':"zczcxvzxcvzxvc",
+/*			
+			'hAxis': {
+						//'slantedText': 'true', 
+						//'slantedTextAngle': '90', 
+						//'title': 'titleText',
+						//'viewWindow': { min: 0,max: 25},
+						//'ticks': [0, 7, 14, 21, 28],
+						//title: 'titleText'
+						title: x_field
+					 },
+			'vAxis': {
+						title: y_field
+					 },*/
           }
         });
+		
+		
+		/*
+		var tmp = document.getElementById(chart_id);
+		var pieChart = new google.visualization.ScatterChart(tmp);
+		var options = {
+							'width': screen.width * 0.5,
+							'height': screen.height * 0.5,
+							'legend': 'none',
+							'chartArea': {'width': '80%', 'height': '90%'},
+							'vAxis': {
+								title: y_field
+							}
+					   };
+			*/		   
+
 
         // Establish dependencies, declaring that 'filter' drives 'pieChart',
         // so that the pie chart will only display entries that are let through
         // given the chosen slider range.
-        dashboard.bind(donutRangeSlider, pieChart);
+        dashboard.bind
+        (donutRangeSlider, pieChart);
 		dashboard.bind(donutRangeSlider1, pieChart);
 		//dashboard.bind(donutRangeSlider2, pieChart);
 
+		
+		google.visualization.events.addListener(pieChart, 'select', selectHandler);
         // Draw the dashboard.
+		//pieChart.draw(data_tbl,options);
         dashboard.draw(data_tbl);
-		createLegend(fullDataSet);
+	
+		
+		createLegend(legend_id);
+		
+		
+		
+		/*
+		if(IF_TABLE_DRAWN==false) {
+			drawTable();
+		}*/
+		
+		//remember this chart object in a global var
+		charts_arr.push(pieChart);
+		//remberm the div that holds all the legend,filter,and chart
+		charts_id_arr.push(div_id);
+		
+		function selectHandler() {
+			//console.log(getMethods(pieChart));
+			/*
+			var methods = getMethods(pieChart);
+			var i = 0;
+			for(;i<methods.length;i++) {
+				console.log(methods[i]);
+			}
+			console.log(pieChart.getOptions()) */
+			var selectedItem = pieChart.getChart().getSelection();
+			
+			
+			//console.log("selectedItem[0] is " + selectedItem[0]	);
+			
+			
+			//pieChart.getChart().setSelection([{'row': 5}]);
+			setChartSelection(selectedItem);
+			
+			/*
+			if (selectedItem) {
+				var topping = data_tbl.getValue(selectedItem.row, 0);
+				alert('The user selected ' + topping);
+			}*/
+		}
       }
+	  
+	  /**
+		To synchronize each chart's selection when
+		a user select an item in one chart
+	  **/
+	  function setChartSelection(selectedItem) {
+		tableScrollTo(selectedItem[0].row+1);
+		
+		var k = 0;
+		for(;k<charts_arr.length;k++) {
+			if(charts_arr[k] instanceof google.visualization.Table) {
+				//console.log("selectedItem[0].row = " + selectedItem[0].row);
+				charts_arr[k].setSelection(selectedItem[0]);
+				//tableScrollTo(selectedItem[0].row+1);
+			} else {
+				charts_arr[k].getChart().setSelection(selectedItem);
+			} 
+		}
+	  }
+	  
+	  /***
+		
+	  **/
+	  function setChartRow(row_num) {
+		var k = 0;
+		for(;k<charts_arr.length;k++) {
+			var selected_item = null;
+			if(!(charts_arr[k] instanceof google.visualization.Table)) {
+				//var selected_item = charts_arr[k].getChart().getSelection()[0];
+				//selected_item.row = row_num;
+				//chart.setSelection();
+				console.log("row_num in  setChartRow = " + row_num)
+				
+				//There is one difference, just by try and fail
+				charts_arr[k].getChart().setSelection([{'row': row_num - 1}]);
+			} 
+		}
+	  }
 
       function draw() {
+		//To update the number of charts have been drawn on the screen
+		num_of_charts++;
+		
 		var tmp;
 		tmp = document.getElementById("x_field");
 		x_field = tmp.options[tmp.selectedIndex].value;
@@ -288,12 +417,9 @@
 
 		tmp = document.getElementById("d_field");
 		d_field = tmp.options[tmp.selectedIndex].value;
-Wednesday, October 1st,2014, noon
-Thursday, October 16th, 2014, noon
-Wednesday, November 12th, 2014, 5:30pm
 
-		if ( x_field=="" || y_field=="" || d_field == "") {
-		  document.getElementById("alertmsg").innerHTML = "Please select field X, Y and Data";
+		if ( x_field=="" || y_field=="") {
+		  document.getElementById("alertmsg").innerHTML = "Please select field X, Y";
 		} else if( x_field == y_field) {
 		  document.getElementById("alertmsg").innerHTML = "Field X and Y are same";
 		} else if( y_field == z_field) {
@@ -302,127 +428,239 @@ Wednesday, November 12th, 2014, 5:30pm
 		  document.getElementById("alertmsg").innerHTML = "Field X and Z are same";
 		} else {
 		  document.getElementById("alertmsg").innerHTML = "";
-		  getCSVData();
+		  var div_id = getDivIDInTableCell();
+		  drawDashboard(div_id);
+		  $.modal.close();
 		}
-
+		//enable_draggable();
 	}
 	
-	function getCSVData() {
-	    $.ajax("http://131.96.131.227/google/	.csv", {
-		success: function(data) {
-		processData(data);
-	      
-	    },
-	    error: function() {
-	    // Show some error message, couldn't get the CSV file
-	    }
+	function getCSVData(){
+	    $.ajax("http://131.96.131.227/google/cancer.csv", {
+			success: function(data) {
+				processData(data);
+			},
+			error: function() {
+			// Show some error message, couldn't get the CSV file
+			}
 	    });
 	}
 	
 	function processData(data) {
-	  dataArray = CSVToArray(data);
-	  drawDashboard(dataArray);
+		dataArray = CSVToArray(data);
+		full_data_set = dataArray;
+		createHTMLTable('table_div',full_data_set);
+	}
+	
+	/**
+		To scroll table to aspecific row
+	**/
+	function tableScrollTo(row_num) {
+		var container = $('#table_div');
+		var scrollTo = $('#table_row_id_'+row_num);
+		console.log(container);
+		console.log(scrollTo);
+		selected_table_row_id = 'table_row_id_' + row_num;
+		//$('#table_div').scrollTop(0.7);
+		container.animate({
+			scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()
+		});
+		console.log("row_num in tableScrollTo " + row_num);
+		change_table_selected_row(row_num);
+		//scrollTo.css("background-color","grey");
+	}
+	
+	function reset_table_row_bg_color() {
+		var len = full_data_set.length;
+		var i=1;
+		for(;i<len;i++) {
+			var tmp_id = "table_row_id_" + i;
+			$("#"+tmp_id).css("background-color","white");
+		}
+	}
+	
+	
+	function change_table_selected_row(row_num) {
+		var new_row_id = "table_row_id_" + row_num;
+		
+		//this is not efficient, might be improved
+		reset_table_row_bg_color();
+		//if(selected_table_row_id != null)
+		//	$("#"+selected_table_row_id).css("background-color","white");
+		
+		console.log("row_num in change_table_selected_row " + row_num);
+		selected_table_row_id = new_row_id;
+		$("#"+selected_table_row_id).css("background-color","grey");
+	}
+	
+	function handle_table_row_selection(row_num) {
+		change_table_selected_row(row_num);
+		console.log("row_num in  handle_table_row_selection = " + row_num);
+		setChartRow(row_num);
+	}
+	
+	function drawTable(startRow) {
+		IF_TABLE_DRAWN = true;
+		//table_div_id
+		var div_id;
+		if(startRow == undefined) {
+			div_id = getDivIDInTableCell();
+			//remember the div that where this table is drawn on in a global var
+			table_div_id = div_id;
+		}
+		else
+			div_id = table_div_id;
+		console.log("div_id111111 = " + div_id);
+		var data = new google.visualization.DataTable();
+		var i=0,j=0;
+		var dim = full_data_set[0].length;
+		for(;i<full_data_set[0].length;i++)
+			data.addColumn('string',full_data_set[0][i]);
+		for(i=1;i<full_data_set.length;i++) {
+			var row = [];
+			for(j=0;j<dim;j++) {
+				if(full_data_set[i][j] == undefined || full_data_set[i][j] == "")
+					row.push(EMPTY_STRING);
+				else
+					row.push(full_data_set[i][j]);
+			}
+			data.addRow(row);
+		}
+		
+		var table = new google.visualization.Table(document.getElementById(div_id));
+		var options = {
+            width: screen.width * 0.48,
+            height: screen.height * 0.48,
+			//page:"enable",
+			//firstRowNumber: startRow==undefined?1:startRow
+		}
+		
+		/*
+		var methods = getMethods(table);
+		var i = 0;
+		for(;i<methods.length;i++) 
+			console.log(methods[i]);*/
+		
+		table.draw(data,options);
+		
+		google.visualization.events.addListener(table, 'select', selectHandler);
+		
+		function selectHandler() {
+			//console.log(getMethods(pieChart));
+			/*
+			var methods = getMethods(pieChart);
+			var i = 0;
+			for(;i<methods.length;i++) {
+				console.log(methods[i]);
+			}
+			console.log(pieChart.getOptions()) */
+			var selectedItem = table.getSelection();
+			console.log(selectedItem);
+			
+			setChartSelection(selectedItem);
+			
+			/*
+			if (selectedItem) {
+				var topping = data_tbl.getValue(selectedItem.row, 0);
+				alert('The user selected ' + topping);
+			}*/
+		}
+		
+		
+		if(startRow == undefined) {
+			console.log("I am pushing item into charts_arr its length is now " + charts_arr.length);
+			charts_arr.push(table);
+		} else {
+			//table.setSelection([{row: 11}]);
+		}
+	}
+	
+	//To return a div id in table cell to put chart in
+	function getDivIDInTableCell() {
+		allocated_charts++;
+		var lines = Math.ceil (num_of_charts/NUM_OF_CHARTS_PER_LINE);
+		var cell_div_num = allocated_charts;
+		//we need to add a new line to the table
+		if( allocated_charts % NUM_OF_CHARTS_PER_LINE  == 1) {
+			var added_html_code = "";
+			var i=0;
+			added_html_code += "<tr style='border: 2px solid black;border-collapse: collapse;'>";
+			var td_id_prefix = "chart_td_"
+			for(;i<NUM_OF_CHARTS_PER_LINE;i++){
+				var id = "chart_div_" +  (cell_div_num+i);
+				var td_id = "chart_td_" +  (cell_div_num+i);
+				added_html_code += "<td id='" + td_id  + "'> <div id='" +   id  + "' style='border: 2px solid black;border-collapse: collapse;'> </div></td>";
+			}
+			added_html_code += "</tr>";
+			$("#main_table").append(added_html_code);
+		}
+		return "chart_div_" + cell_div_num;
+	}
+	
+	var tmp_drag = {};
+	
+	
+	function enable_draggable() {
+	    console.log("Drag!!!!!!!!!!");
+		$( ".draggable" ).draggable({ grid: [ 5, 5 ], scroll:false});
+		/*
+		$("#main_table td").draggable({
+				
+				helper: "clone",
+				start: function(event, ui) {
+					console.log("Enabling the drag");
+					tmp_drag.td = this;
+					tmp_drag.helper = ui.helper;
+					tmp_drag.id = event.target.id;
+				}
+		});
+		$("#main_table td").droppable({
+			drop: function(event, ui) {
+				console.log("Enabling the droppable");
+				var inventor = ui.draggable.text();
+				
+				var tmp = document.getElementById(tmp_drag.id).innerHTML;
+				document.getElementById(tmp_drag.id).innerHTML = document.getElementById(event.target.id).innerHTML;
+				document.getElementById(event.target.id).innerHTML = tmp;
+				//$(this).
+				//$(this).find("input").val(inventor);
+
+				//$(c.td).remove();
+				//$(c.helper).remove();
+			}
+		});	*/
 	}
     </script>
     
     
-    <script type="text/javascript">
-    // ref: http://stackoverflow.com/a/1293163/2343
-    // This will parse a delimited string into an array of
-    // arrays. The default delimiter is the comma, but this
-    // can be overriden in the second argument.
-    function CSVToArray( strData, strDelimiter ){
-        // Check to see if the delimiter is defined. If not,
-        // then default to comma.
-        strDelimiter = (strDelimiter || ",");
-
-        // Create a regular expression to parse the CSV values.
-        var objPattern = new RegExp(
-            (
-                // Delimiters.
-                "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
-
-                // Quoted fields.
-                "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-
-                // Standard fields.
-                "([^\"\\" + strDelimiter + "\\r\\n]*))"
-            ),
-            "gi"
-            );
-
-
-        // Create an array to hold our data. Give the array
-        // a default empty first row.
-        var arrData = [[]];
-
-        // Create an array to hold our individual pattern
-        // matching groups.
-        var arrMatches = null;
-
-
-        // Keep looping over the regular expression matches
-        // until we can no longer find a match.
-        while (arrMatches = objPattern.exec( strData )){
-
-            // Get the delimiter that was found.
-            var strMatchedDelimiter = arrMatches[ 1 ];
-
-            // Check to see if the given delimiter has a length
-            // (is not the start of string) and if it matches
-            // field delimiter. If id does not, then we know
-            // that this delimiter is a row delimiter.
-            if (
-                strMatchedDelimiter.length &&
-                strMatchedDelimiter !== strDelimiter
-                ){
-
-                // Since we have reached a new row of data,
-                // add an empty row to our data array.
-                arrData.push( [] );
-
-            }
-
-            var strMatchedValue;
-
-            // Now that we have our delimiter out of the way,
-            // let's check to see which kind of value we
-            // captured (quoted or unquoted).
-            if (arrMatches[ 2 ]){
-
-                // We found a quoted value. When we capture
-                // this value, unescape any double quotes.
-                strMatchedValue = arrMatches[ 2 ].replace(
-                    new RegExp( "\"\"", "g" ),
-                    "\""
-                    );
-
-            } else {
-
-                // We found a non-quoted value.
-                strMatchedValue = arrMatches[ 3 ];
-
-            }
-
-
-            // Now that we have our value string, let's add
-            // it to the data array.
-            arrData[ arrData.length - 1 ].push( strMatchedValue );
-        }
-
-        // Return the parsed data.
-        return( arrData );
-    }
-
-</script>	
-  </head>
+  
+	</head>
 	
   <body>
-	<div style = "background-color:#99CCFF;width:100%;height:100;align:center"> 
-		<table style="width:80%">
-			<tr>
-				<td> 
-					X  : 
+	<br />
+	<div align='center'>
+		<div id="table_div" style="overflow:auto;height:40%;">		
+		</div>
+	</div>
+	<div id='content'>
+		<div id='basic-modal'>
+			<a class="flatbtn" id="modaltrigger">+</a>
+		</div>
+		
+		
+		
+		
+		<!-- modal content -->
+		<div id="basic-modal-content">
+			
+		<table class="fixed" style="background-color:#99CCFF;width:100%;height=100%;padding=5px; border: 2px solid black;border-collapse: collapse;" align="center">
+			<col width="50%" />
+    		<col width="50%" />
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+				<td style="border: 2px solid black;border-collapse: collapse;"> 
+					X: 
+				</td>
+				<td style="border: 2px solid black;border-collapse: collapse;">
 					<select id="x_field">
 						<option></option>
 						<option>NucCount</option>
@@ -435,8 +673,12 @@ Wednesday, November 12th, 2014, 5:30pm
 						<option>PH3_Percent</option>
 	 				</select>
 				</td>
-				<td> 
-					Y  :
+			</tr>
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+				<td style="border: 2px solid black;border-collapse: collapse;"> 
+					Y:
+				</td>
+				<td style="border: 2px solid black;border-collapse: collapse;">
 					<select id="y_field">
 						<option></option>
 						<option>NucCount</option>
@@ -449,8 +691,12 @@ Wednesday, November 12th, 2014, 5:30pm
 						<option>PH3_Percent</option>
 	 				</select>
 				</td>
-				<td> 
-					Z (optional):
+			</tr>
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+				<td style="border: 2px solid black;border-collapse: collapse;"> 
+					Size:
+				</td>
+				<td style="border: 2px solid black;border-collapse: collapse;">
 					<select id="z_field">
 						<option></option>
 						<option>NucCount</option>
@@ -463,14 +709,18 @@ Wednesday, November 12th, 2014, 5:30pm
 						<option>PH3_Percent</option>
 	 				</select>
 				</td>
-				<td> 
-					data :
+			</tr>
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+				<td style="border: 2px solid black;border-collapse: collapse;"> 
+					Color:
+				</td>
+				<td style="border: 2px solid black;border-collapse: collapse;">
 					<select id="d_field">
 						<option></option>
 						<option>UpGrade</option>
 						<option>UpNot</option>
 						<option>Grade</option>
-						<option>Notin</option>10
+						<option>Notin</option>
 						<option>gland</option>
 						<option>mi</option>
 						<option>checkNot</option>
@@ -479,70 +729,82 @@ Wednesday, November 12th, 2014, 5:30pm
 						<option>Race</option>
 						<option>ER</option>
 						<option>PR</option>
-						<option>HER2</option>10
+						<option>HER2</option>
 						<option>HER2Status</option>
 						<option>TN</option>
 						<option>Tstage</option>
-						<option>Nstage</option>
+						<option>Nstage</option'center'>
 						<option>Final_Grade</option>
 						<option>Final_Not</option>
 						<option>AdjustedNot</option>
 						<option>Adjusted1</option>
 	 				</select>
 				</td>
-				<td align='right'>
+			</tr>
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+				<td align='center'  colspan=2 style="border: 2px solid black;border-collapse: collapse;">
 					<button id='drawbutton' onclick="draw()"> Draw</button>
 			    </td>
 			</tr>
-			<tr>
-			    <th colspan=5>
+			<tr style="border: 2px solid black;border-collapse: collapse;">
+			    <td colspan=2 style="border: 2px solid black;border-collapse: collapse;">
 				<font color="red" size="5"  face="courier" id="alertmsg"></font> 
-			    </th>
+			    </td>
 			</tr>
 		</table>
+		</div>
+
+		<!-- preload the images -->
 		
+		<div style='display:none'>
+			<img src='img/basic/x.png' alt='' />
+		</div> 
 	</div>
 	
+	
+	
+
+	
+	
+	
+	<!--  
+    <h1>User Login</h1>
+    <form id="loginform" name="loginform" method="post" action="index.html">
+      <label for="username">Username:</label>
+      <input type="text" name="username" id="username" class="txtfield" tabindex="1">
+      
+      <label for="password">Password:</label>
+      <input type="password" name="password" id="password" class="txtfield" tabindex="2">
+      
+      <div class="center"><input type="submit" name="loginbtn" id="loginbtn" class="flatbtn-blu hidemodal" value="Log In" tabindex="3"></div>
+    </form>-->
+
     <!--Div that will hold the dashboard-->
-    <div id="dashboard_div">
-		<table>
-			<tr>
-				<td>
-	<div id="filter_div"></div>
-				</td>
-				<td>
-	<div id="filter_div2"></div>
-				</td>
-				<td>
-	<div id="filter_div3"></div>
-				</td>
-			</tr>
-		</table>
-	<div id='legend' style="visibility: hidden; display:inline;">
-		<table>
+    <div id="dashboard_div"> </div>
+	<div id='legend' style="visibility: hidden; display:inline; width:80%" align = "center">
+		<table style="background-color:#99CCFF;" align = "center" >
 			<tr id = 'legend_table'>
 				<td>
-					Legend:
+					
 				</td>
 			</tr>
 		</table>
 	</div>
-
-	<div id="chart_div"></div>
+	
+	
+	<div id='firstchart'>
+		<div id="filter_div"></div>
+		<div id="filter_div2"></div>
+		<div id="filter_div3"></div>
+		<div id="chart_div"></div>
+    	</div>
     </div>
-    
+	
+	<table id="main_table" style="border: 2px solid black;border-collapse: collapse;" >
+		
+	</table>
   </body>
+  <script>
+	getCSVData();
+  </script>
 </html>
-
-
-
-
-
-
-
-TBD	TBD	01/22/2015 Thursday - 12:00pm TBD	
-TBD	02/05/2015 - 5:30pm TBD	
-TBD	02/18/2015 - 12:00pm TBD	
-TBD	03/05/2015 - 12:00pm TBD	
-TBD	03/25/2015 - 5:30pm TBD	
-TBD	04/08/2015 - 12:00pm

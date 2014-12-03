@@ -183,6 +183,43 @@ function createHTMLTable(div_id,data_set) {
 			html_code += "<td style='border: 2px solid black;border-collapse: collapse;'>" + data_set[i][j]+"</td>";
 		html_code += "</tr>";
 	}
+	
+	html_code += "</table>";
+	var tmp = document.getElementById(div_id);
+	tmp.innerHTML = tmp.innerHTML + html_code;
+}
+
+function createHTMLTable1(div_id,data_set) {
+	//var html_code = "<table  style='width:400;border: 2px solid black;border-collapse: collapse;'>";
+	var html_code = "<div style='overflow:auto;'><table style='border: 2px solid black;border-collapse: collapse;'>";
+	var i=0;
+	var width = data_set[0].length;
+	var row_id = "";
+	for(;i<data_set.length;i++){
+		row_id = "table_row_id_" + i;
+		if(i==0) { // to add the head table
+			html_code += "<tr id='"+row_id+"' style='border: 2px solid black;border-collapse: collapse;'  >";
+			var j=0;
+			for(;j<width;j++)
+				html_code += "<td  style='border: 2px solid black;border-collapse: collapse; '>" + data_set[i][j]+"</td>";
+			
+			html_code += "</tr><tr id='"+row_id+"' style='border: 2px solid black;border-collapse: collapse;'  >";
+			for(j=0;j<width;j++)
+				html_code += "<th  height='1' style='border: 2px solid black;border-collapse: collapse; '>" + data_set[1][j]+"</th>";
+				
+			html_code += "</tr> </table>";
+			
+			
+			
+			html_code += "<table  style='border: 2px solid black;border-collapse: collapse;'>";
+		} else {
+			html_code += "<tr id='"+row_id+"' style='border: 2px solid black;border-collapse: collapse;'  ondblclick='handle_table_row_selection(\""+i+"\")'>";
+			var j=0;
+			for(;j<width;j++)
+				html_code += "<td style='border: 2px solid black;border-collapse: collapse;'>" + data_set[i][j]+"</td>";
+		}
+		html_code += "</tr>";
+	}
 	html_code += "</table>";
 	var tmp = document.getElementById(div_id);
 	tmp.innerHTML = tmp.innerHTML + html_code;

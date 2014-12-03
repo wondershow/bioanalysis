@@ -175,7 +175,7 @@
     // Callback that creates and populates a data table,
     // instantiates a dashboard, a range slider and a pie chart,
     // passes in the data and draws it.
-    function drawDashboard(div_id) {
+    function drawDashboard(div_id,x_val,y_val) {
 		var headLine = full_data_set[0];
 		var x_col = getColNum(headLine,x_field);
 		var y_col = getColNum(headLine,y_field);
@@ -268,11 +268,16 @@
           'chartType': 'ScatterChart',
           'containerId': chart_id,
           'options': {
-            'width': screen.width * 0.5,
-            'height': screen.height * 0.5,
+            'width': screen.width * 0.45,
+            'height': screen.height * 0.45,
             'legend': 'none',
             'align':'right',
 			'chartArea': {'width': '80%', 'height': '90%'},
+			'focusBorderColor':  {stroke:'black', fill:'#eee', strokeSize: 1},
+			'viewWindow':{},
+			'titleY':y_field,
+			//'titleX':"zczcxvzxcvzxvc",
+/*			
 			'hAxis': {
 						//'slantedText': 'true', 
 						//'slantedTextAngle': '90', 
@@ -284,7 +289,7 @@
 					 },
 			'vAxis': {
 						title: y_field
-					 },
+					 },*/
           }
         });
 		
@@ -436,7 +441,7 @@
 	}
 	
 	function getCSVData(){
-	    $.ajax("http://76.114.185.215/bioanalysis/google/cancer.csv", {
+	    $.ajax("http://grid.cs.gsu.edu/~lzhang14/bio/cancer.csv", {
 			success: function(data) {
 				processData(data);
 			},
