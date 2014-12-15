@@ -11,6 +11,31 @@ BioDataCase.prototype.getAllPropNames = function () {
 	return this.props;
 }
 
+BioDataCase.prototype.getAllNumericalProps = function () {
+	var res = [], 
+		i=0, 
+		//pattern1 = "_c",
+		pattern = "n";
+	var regex = new RegExp(pattern+"$")
+	for(i=0; i<this.props.length; i++) {
+		 if(regex.test(this.props[i]))
+			res.push(this.props[i]);
+	}
+	return res;
+}
+
+BioDataCase.prototype.getAllNumeratedProps = function () {
+	var res = [], 
+		i=0,
+		pattern = "c";
+	var regex = new RegExp(pattern+"$")
+	for(i=0; i<this.props.length; i++) {
+		 if(regex.test(this.props[i]))
+			res.push(this.props[i]);
+	}
+	return res;
+}
+
 BioDataCase.prototype.getAllValues = function () {
 	var res = [], i=0,tmpStr;
 	for(i=0;i<this.props.length;i++) {
@@ -21,3 +46,4 @@ BioDataCase.prototype.getAllValues = function () {
 	}
 	return res;
 }
+

@@ -63,3 +63,4 @@ HTMLTable.prototype.addTable = function()  {
 	var tmp = document.getElementById(this.bodyDivId);
 	tmp.innerHTML = tmp.innerHTML + htmlcode;
 }
+

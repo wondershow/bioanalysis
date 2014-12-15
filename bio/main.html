@@ -1,10 +1,15 @@
 <html>
   <head>
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="css/bio.css">
+	
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type="text/javascript" src="js/biodataobj.js"></script>
 	<script type="text/javascript" src="js/parseobject.js"></script>
 	<script type="text/javascript" src="js/htmltablobj.js"></script>
+	<script type="text/javascript" src="js/popupdialog.js"></script>
+	
+	<script type='text/javascript' src='js/jquery.js'></script>
+	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
     <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
     <script type="text/javascript">
 		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
@@ -30,6 +35,9 @@
 		
 		function configuratePage() {
 			addTable();
+			var popup = new PopUpDialog("content", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps());
+			popup.addPopup();
+			setupListner();
 		}
 		
 		function addTable() {
@@ -38,50 +46,10 @@
 			for(i=0;i<dataCases.length;i++) {
 				tableData.push(dataCases[i].getAllValues());
 			}
-			
 			var dataTable = new HTMLTable(tableData,dataCases[0].getAllPropNames(),"table_header_div","table_body_div");
 			dataTable.addTable();
 		}
-		/*
-		$.ajax(google_spreadsheet_url).done(function(result){
-			console.log(result);
-		}); 
 		
-		function createCORSRequest(method, url) {
-			var xhr = new XMLHttpRequest();
-			if ("withCredentials" in xhr) {
-				// Check if the XMLHttpRequest object has a "withCredentials" property.
-				// "withCredentials" only exists on XMLHTTPRequest2 objects.
-				xhr.open(method, url, true);
-			} else if (typeof XDomainRequest != "undefined") {
-				// Otherwise, check if XDomainRequest.
-				// XDomainRequest only exists in IE, and is IE's way of making CORS requests.
-				xhr = new XDomainRequest();
-				xhr.open(method, url);
-			} else {
-				// Otherwise, CORS is not supported by the browser.
-				xhr = null;
-			}
-			return xhr;
-		}
-
-		var xhr = createCORSRequest('GET', google_spreadsheet_url);
-		if (!xhr) {
-		  console.log('CORS not supported');
-		}
-		
-		xhr.onload = function() {
-			var responseText = xhr.responseText;
-			console.log("returned")
-			console.log(responseText);
-			// process the response.
-		};
-
-		xhr.onerror = function() {
-		  console.log('There was an error!');
-		};
-		//xhr.send();
-		console.log("wating....")*/
 		$(document).ready(function()
 		{
 			$("#table_header_div").scroll(function () { 
@@ -94,6 +62,19 @@
 			});
 
 		});
+		
+		function setupListner() {
+			jQuery(function ($) {
+			// Load dialog on page load
+			//$('#basic-modal-content').modal();
+			//$('#basic-modal-content').modal();
+			// Load dialog on click
+			$('#basic-modal .flatbtn').click(function (e) {
+				$('#basic-modal-content').modal();
+				return false;
+				});
+			});
+		}
     </script>
   </head>
   <body>
@@ -102,6 +83,9 @@
 	</div>
 	<div id="table_body_div" style="overflow:auto;height:40%;">
 			
+	</div>
+	<div id="content">
+	
 	</div>
     <!-- YOUR CONTENT -->
   </body>
