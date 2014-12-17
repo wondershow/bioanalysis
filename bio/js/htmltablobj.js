@@ -8,6 +8,9 @@ var HTMLTable  = function(data,head,head_div,body_div) {
 	this.tableHd = head;
 	this.tableData = data;
 	
+	//console.log(data);
+	
+	
 	//by default table width/height is 100% of its container
 	this.tableWidth = "100%";
 	this.tableHeight = "100%";

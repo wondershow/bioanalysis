@@ -2,15 +2,21 @@
   <head>
 	<link rel="stylesheet" type="text/css" href="css/bio.css">
 	
-	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	 <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>-->
 	<script type="text/javascript" src="js/biodataobj.js"></script>
 	<script type="text/javascript" src="js/parseobject.js"></script>
 	<script type="text/javascript" src="js/htmltablobj.js"></script>
 	<script type="text/javascript" src="js/popupdialog.js"></script>
+	<script type="text/javascript" src="js/svgcanvas.js"></script>
+	<script type="text/javascript" src="js/svgscatterchart.js"></script>
+	<script type="text/javascript" src="js/svgchart.js"></script>
 	
 	<script type='text/javascript' src='js/jquery.js'></script>
 	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
-    <script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>
+    <!--<script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>-->
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
     <script type="text/javascript">
 		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
 		var fullData;
@@ -38,6 +44,7 @@
 			var popup = new PopUpDialog("content", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps());
 			popup.addPopup();
 			setupListner();
+			testCanvas();
 		}
 		
 		function addTable() {
@@ -75,6 +82,38 @@
 				});
 			});
 		}
+		
+		/**
+			To draw 
+		**/
+		function draw() {
+		
+		}
+		
+		function testCanvas() {
+			var mainCanvas = new SVGCanvas("test");
+			var x = [];
+			var y = [];
+			var z = [];
+			var c = [];
+			var i = 0;
+			for(i=0;i<dataCases.length;i++) {
+				x.push(dataCases[i].ph3n);
+				y.push(dataCases[i].ki67n);
+				z.push(dataCases[i].mfin);
+				c.push(dataCases[i].racec);
+			}
+			console.log($(window).width());
+			var params = {x_data:x,y_data:y,z_data:z,c_data:c,x_axis:"ph3n",y_axis:"ki67n",z_axis:"mfin",c_axis:"racec",type:"scatter"};
+			mainCanvas.add(params);
+			
+			
+			//mainCanvas.add(params);
+			
+			//mainCanvas.add(params);
+			
+			mainCanvas.add(params);
+		}
     </script>
   </head>
   <body>
@@ -87,6 +126,9 @@
 	<div id="content">
 	
 	</div>
+	<svg width='100%' height='1000' id='test' style='background-color:grey'>
+		
+	</svg>
     <!-- YOUR CONTENT -->
   </body>
 </html>

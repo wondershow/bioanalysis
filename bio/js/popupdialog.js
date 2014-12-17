@@ -74,18 +74,28 @@ PopUpDialog.prototype.genModalDiv = function(){
 	html += "<td style='border: 2px solid black;border-collapse: collapse;'>\n";
 	html += this.genNumerateSelections("d_field");
 	html += "</td></tr> \n";
+	
+	html += "<tr style='border: 2px solid black;border-collapse: collapse;'> \
+				<td align='center'  colspan=2 style='border: 2px solid black;border-collapse: collapse;'> \
+					<input type='radio' name='group2' value='scatter' checked> ScatterPlot  \
+					<input type='radio' name='group2' value='heatmap'> HeatMap  \
+					<input type='radio' name='group2' value='parallel'> Parallel \
+				</td>  \
+			</tr> ";
+	
 	html += "<tr style='border: 2px solid black;border-collapse: collapse;'> \
 				<td align='center'  colspan=2 style='border: 2px solid black;border-collapse: collapse;'> \
 					<button id='drawbutton' onclick='draw()'> Draw</button> \
 				</td>  \
 			</tr> ";
-
+			
 	html += "<tr style='border: 2px solid black;border-collapse: collapse;'> \
 				<td align='center'  colspan=2 style='border: 2px solid black;border-collapse: collapse;'> \
 					<font color='red' size='5'  face='courier' id='alertmsg'></font>  \
 				</td>  \
 			</tr> ";
 
+	 		
 	html += "</table> \n";
 	html += "</div> \n";
 	return html;

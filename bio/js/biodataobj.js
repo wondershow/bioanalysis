@@ -8,6 +8,7 @@ var BioDataCase = function(propertyList,valueList) {
 };
 
 BioDataCase.prototype.getAllPropNames = function () {
+	//console.log(this.props);
 	return this.props;
 }
 
@@ -44,6 +45,7 @@ BioDataCase.prototype.getAllValues = function () {
 		eval(tmpStr);
 		res.push(tmpVal);
 	}
+	//console.log(res);
 	return res;
 }
 
