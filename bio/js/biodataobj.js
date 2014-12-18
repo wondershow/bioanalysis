@@ -12,6 +12,13 @@ BioDataCase.prototype.getAllPropNames = function () {
 	return this.props;
 }
 
+BioDataCase.prototype.getPropVal = function (propVal) {
+	var tmp ;
+	var evalStr = "tmp = this." + propVal;
+	eval(evalStr);
+	return tmp;
+}
+
 BioDataCase.prototype.getAllNumericalProps = function () {
 	var res = [], 
 		i=0, 

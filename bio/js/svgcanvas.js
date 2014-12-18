@@ -47,18 +47,19 @@ SVGCanvas.prototype.refresh = function() {
 **/
 SVGCanvas.prototype.getChartWidth = function() {
 	var widow_width = $(window).width(),window_height = $(window).height();
+	console.log("$(window).width() = " + $(window).width() + ",$(window).height() = " + $(window).height())
 	if( widow_width > 2000)
 		return Math.floor(window_height/300)*100;
 	else 
-		return  Math.floor( window_height * 0.45 ) * 1.35;
+		return  Math.floor( screen.height * 0.45 ) * 1.35;
 }
 
 SVGCanvas.prototype.getChartHeight = function() {
 	var widow_width = $(window).width(),window_height = $(window).height();
 	if( widow_width > 2000)
-		return Math.floor(window_height * 0.45);
+		return Math.floor(screen.height * 0.45);
 	else 
-		return  Math.floor(window_height * 0.45);
+		return  Math.floor(screen.height * 0.45);
 }
 
 /**

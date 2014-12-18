@@ -121,7 +121,7 @@ SVGScatterChart.prototype.plot = function () {
 			  .attr("cy", yMap)
 			  .on('mouseover', tip.show)
 			  .on('mouseout', tip.hide)
-			  .on('dblclick',function{})
+			  .on('dblclick',function(){ return d})
 			  .style("fill", function(d) { return color(cValue(d));}) 
 			  /*
 			  .on("mouseover", function(d) {
