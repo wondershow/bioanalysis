@@ -106,47 +106,49 @@
 			d_field = tmp.options[tmp.selectedIndex].value;
 
 			if ( x_field=="" || y_field=="") {
-			  document.getElementById("alertmsg").innerHTML = "Please select field X, Y";
+				document.getElementById("alertmsg").innerHTML = "Please select field X, Y";
 			} else if( x_field == y_field) {
-			  document.getElementById("alertmsg").innerHTML = "Field X and Y are same";
+				document.getElementById("alertmsg").innerHTML = "Field X and Y are same";
 			} else if( y_field == z_field) {
-			  document.getElementById("alertmsg").innerHTML = "Field Y and Z are same";
+				document.getElementById("alertmsg").innerHTML = "Field Y and Z are same";
 			} else if( x_field == z_field) {
-			  document.getElementById("alertmsg").innerHTML = "Field X and Z are same";
+				document.getElementById("alertmsg").innerHTML = "Field X and Z are same";
 			} else {
-			  document.getElementById("alertmsg").innerHTML = "";
-			  var x = [];
-			  var y = [];
-			  var z = [];
-			  var c = [];
-			  for(i=0;i<dataCases.length;i++) {
-				x.push(dataCases[i].getPropVal(x_field));
-				y.push(dataCases[i].getPropVal(y_field));
-				if(z_field != undefined && z_field != null && z_field.trim() != "")
-					z.push(dataCases[i].getPropVal(z_field));
-				if(d_field != undefined && d_field != null && d_field.trim() != "")
-					c.push(dataCases[i].getPropVal(d_field));
-			}
+				document.getElementById("alertmsg").innerHTML = "";
+				var x = [];
+				var y = [];
+				var z = [];
+				var c = [];
+				for(i=0;i<dataCases.length;i++) {
+					x.push(dataCases[i].getPropVal(x_field));
+					y.push(dataCases[i].getPropVal(y_field));
+					if(z_field != undefined && z_field != null && z_field.trim() != "")
+						z.push(dataCases[i].getPropVal(z_field));
+					if(d_field != undefined && d_field != null && d_field.trim() != "")
+						c.push(dataCases[i].getPropVal(d_field));
+				}
+				var params = {x_data:x,y_data:y,x_axis:x_field,y_axis:y_field,type:"scatter"};
 			  
-			var params = {x_data:x,y_data:y,x_axis:x_field,y_axis:y_field,type:"scatter"};
-			  
-			if(z_field != undefined && z_field != null && z_field.trim() != ""){
-				params.z_data = z;
-				params.z_axis = z_field;
-			}
+				if(z_field != undefined && z_field != null && z_field.trim() != ""){
+					params.z_data = z;
+					params.z_axis = z_field;
+				} else {
+					params.z_data = null;
+					params.z_axis = null;
+				}
 			
-			if(d_field != undefined && d_field != null && d_field.trim() != ""){
-				params.c_data = c;
-				params.c_axis = d_field;
+				if(d_field != undefined && d_field != null && d_field.trim() != ""){
+					params.c_data = c;
+					params.c_axis = d_field;
+				} else {
+					params.c_data = null;
+					params.c_axis = null;
+				}
+				console.log("++++++++++++++++++");
+				console.log(params);
+				mainCanvas.add(params);
+				$.modal.close();
 			}
-			console.log("++++++++++++++++++");
-			console.log(params);
-			mainCanvas.add(params);
-			
-			
-			  $.modal.close();
-			}
-			//enable_draggable();
 		}
 		
 		function addDiagram() {

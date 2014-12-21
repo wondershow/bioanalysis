@@ -47,6 +47,12 @@ SVGScatterChart.prototype.plot = function () {
 	
 	var sizeMap = null;
 	var sizeScale = null;
+	
+	
+	console.log("1111:");
+	console.log("this.axisZ = " + this.axisZ);
+	console.log("this.dataZ = " + this.dataZ);
+	
 	//If the user selected "size" option
 	if(this.axisZ != null && this.axisZ != undefined && this.axisZ.trim() != ""  ) {
 		sizeScale = d3.scale.linear()
@@ -55,9 +61,11 @@ SVGScatterChart.prototype.plot = function () {
 	} else {
 		sizeScale = d3.scale.linear()
 							.range([3,3])
-							.domain([d3.min(this.dataZ,function(d){return parseInt(d)==NaN? 0:parseInt(d);}),d3.max(this.dataZ,function(d){return parseInt(d)==NaN? 0:parseInt(d);}) ])	
+							.domain([-10000,100000])
 	}
 	
+	
+	console.log("22222222222:");
 	// setup fill color
 	var cValue = function(d) { return d[3];}
     color = d3.scale.category10();
@@ -75,15 +83,26 @@ SVGScatterChart.prototype.plot = function () {
 				.html(function(d) {
 					return (d[0] + "," + d[1]);
 				})
+	console.log("33333333333333333:");
 	
 	this.svgContainer.call(tip);
 	
 	var i = 0;
 	var dataums = []
 	for(i=0;i<this.dataX.length;i++) {
-		dataums.push([this.dataX[i],this.dataY[i],this.dataZ[i],this.dataC[i]]);
+		if(this.dataZ != null && this.dataC != null ) {
+			dataums.push([this.dataX[i],this.dataY[i],this.dataZ[i],this.dataC[i]]);
+		}else if( this.dataZ != null && this.dataC == null ) {
+			dataums.push([this.dataX[i],this.dataY[i],this.dataZ[i],null]);
+		}else if ( this.dataZ == null && this.dataC != null ) {
+			dataums.push([this.dataX[i],this.dataY[i],null,this.dataC[i]]);
+		} else {
+			dataums.push([this.dataX[i],this.dataY[i],null,null]);
+		}
 	}
 	
+	
+	console.log("444444444444:");
 	// x-axis
 	this.svgContainer.append("g")
       .attr("class", "x axis")
@@ -116,13 +135,13 @@ SVGScatterChart.prototype.plot = function () {
 			  .data(dataums)
 			.enter().append("circle")
 			  .attr("class", "dot")
-			  .attr("r", function(d){return sizeScale(d[2])})
+			  .attr("r", function(d){return d[2]==undefined? 3:sizeScale(d[2])})
 			  .attr("cx", xMap)
 			  .attr("cy", yMap)
 			  .on('mouseover', tip.show)
 			  .on('mouseout', tip.hide)
 			  .on('dblclick',function(){ return d})
-			  .style("fill", function(d) { return color(cValue(d));}) 
+			  .style("fill", function(d) { return d[3]==undefined?"black":color(cValue(d));}) 
 			  /*
 			  .on("mouseover", function(d) {
 				  console.log("d3.event.pageX = " + d3.event.pageX + ",d3.event.pageY="+d3.event.pageY);
@@ -142,34 +161,35 @@ SVGScatterChart.prototype.plot = function () {
 			  
 		
 
-
-	rightOffset = this.plotwidth ;
 	
-	var legend = this.svgContainer.selectAll(".legend")
-					.data(color.domain())
-					.enter().append("g")
-					.attr("class", "legend")
-					.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
-					//.attr("transform", function(d, i) { return "translate("+rightOffset+"," + i * 20 + ")"; });
+	if(this.dataC != null) {
+		rightOffset = this.plotwidth;
+		var legend = this.svgContainer.selectAll(".legend")
+						.data(color.domain())
+						.enter().append("g")
+						.attr("class", "legend")
+						.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+						//.attr("transform", function(d, i) { return "translate("+rightOffset+"," + i * 20 + ")"; });
 
-	// draw legend colored rectangles
-	
-	legend.append("rect")
-		.attr("x", rightOffset)
-		.attr("width", 18)
-		.attr("height", 18)
-		.style("fill", color)
-		.on("click", function(d) {
-			console.log("This color is clicked")
-		});
+		// draw legend colored rectangles
+		
+		legend.append("rect")
+			.attr("x", rightOffset)
+			.attr("width", 18)
+			.attr("height", 18)
+			.style("fill", color)
+			.on("click", function(d) {
+				console.log("This color is clicked")
+			});
 
-	// draw legend text
-	legend.append("text")
-		.attr("x", rightOffset - 6)
-		.attr("y", 9)
-		.attr("dy", ".35em")
-		.style("text-anchor", "end")
-		.text(function(d) { return d;});
+		// draw legend text
+		legend.append("text")
+			.attr("x", rightOffset - 6)
+			.attr("y", 9)
+			.attr("dy", ".35em")
+			.style("text-anchor", "end")
+			.text(function(d) { return d;});
+	}
 }
 
 SVGScatterChart.prototype.getCircleSize = function () {

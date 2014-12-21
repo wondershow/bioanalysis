@@ -50,16 +50,26 @@ SVGCanvas.prototype.getChartWidth = function() {
 	console.log("$(window).width() = " + $(window).width() + ",$(window).height() = " + $(window).height())
 	if( widow_width > 2000)
 		return Math.floor(window_height/300)*100;
-	else 
-		return  Math.floor( screen.height * 0.45 ) * 1.35;
+	else {
+		var standardHeight = screen.height * 0.45;
+		if($(window).width() < standardHeight * 2.7)
+			return  Math.floor( $(window).width() / 2.2 );
+		else
+			return  Math.floor( screen.height * 0.45 ) * 1.35;
+	}
 }
 
 SVGCanvas.prototype.getChartHeight = function() {
 	var widow_width = $(window).width(),window_height = $(window).height();
 	if( widow_width > 2000)
 		return Math.floor(screen.height * 0.45);
-	else 
-		return  Math.floor(screen.height * 0.45);
+	else  {
+		var standardHeight = screen.height * 0.45;
+		if($(window).width() < standardHeight * 2.7) 
+			return  Math.floor( $(window).width()* 0.75 / 2.2 );
+		else
+			return  Math.floor(screen.height * 0.45);
+	}
 }
 
 /**
