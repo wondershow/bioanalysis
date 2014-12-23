@@ -9,8 +9,6 @@ var HTMLTable  = function(data,head,head_div,body_div) {
 	this.tableData = data;
 	
 	//console.log(data);
-	
-	
 	//by default table width/height is 100% of its container
 	this.tableWidth = "100%";
 	this.tableHeight = "100%";
@@ -24,6 +22,7 @@ var HTMLTable  = function(data,head,head_div,body_div) {
 	
 	//width of each cell
 	this.cellWidth = "100px";
+	
 };
 
 HTMLTable.prototype.addTableHeader = function() {
@@ -67,3 +66,21 @@ HTMLTable.prototype.addTable = function()  {
 	tmp.innerHTML = tmp.innerHTML + htmlcode;
 }
 
+HTMLTable.prototype.selected = function(index)  {
+	var row_id = "table_row_id_" + index;
+	d3.select("#"+row_id).attr("class","table_selected_row");
+	this.scrollTo(index);
+}
+
+HTMLTable.prototype.deSelected = function(index)  {
+	var row_id = "table_row_id_" + index;
+	d3.select("#"+row_id).attr("class","table_normal_row");
+}
+
+HTMLTable.prototype.scrollTo = function (row_num) {
+	var container = $('#'+this.bodyDivId);
+	var scrollTo = $('#table_row_id_'+row_num);
+	container.animate({
+		scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()
+	});
+}

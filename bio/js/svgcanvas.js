@@ -1,4 +1,4 @@
-var SVGCanvas = function(id) {
+var SVGCanvas = function(id,table) {
 	this.canvasId = id;
 	
 	//The array to keep references to all the 
@@ -29,6 +29,11 @@ var SVGCanvas = function(id) {
 	this.allocatedAnchors = [];
 	
 	this.horizPadding = 20;
+	
+	
+	this.selectedItems = [];
+	
+	this.tableObj = table;
 }
 
 /**
@@ -36,6 +41,7 @@ var SVGCanvas = function(id) {
 **/
 SVGCanvas.prototype.refresh = function() {
 	this.allocatedAnchors = [];
+	this.selectedItems = [];
 	var i = 0;
 	//var len = this.chartsArr.length;
 	
@@ -50,7 +56,7 @@ SVGCanvas.prototype.refresh = function() {
 	console.log("before : tmpArr.length " + tmpArr.length);
 	for(i=0;i<tmpArr.length;i++) {
 		console.log("Adding id = " + tmpArr[i].id )
-		this.add(tmpArr[i].param);
+		this.add(tmpArr[i].param);		
 	}
 }
 
@@ -93,7 +99,7 @@ SVGCanvas.prototype.addOneGridRow = function() {
 	var i = 0,anchor_x,anchor_y;
 	var window_width = $(window).width();
 	var grid_width = window_width/this.chartsPerRow;
-	var grid_height = this.chartHeight + 2*this.horizPadding;
+	var grid_height = this.chartHeight + 2 * this.horizPadding;
 	for(i=0;i<this.chartsPerRow;i++) {
 		anchor_x = i* grid_width + (grid_width - this.chartWidth)/2;
 		anchor_y = this.gridRow * grid_height  + this.horizPadding;
@@ -113,7 +119,7 @@ SVGCanvas.prototype.delete = function(chart_id) {
 	console.log(this.chartsArr);
 	for(i = 0;i < this.chartsArr.length;i++) {
 		//console.log("Id = " + this.chartsArr[i].id);
-		if(this.chartsArr[i].id != chart_id)
+		if( this.chartsArr[i].id != chart_id )
 			tmpArr.push(this.chartsArr[i]);
 		//this.chartsArr.splice(i, 1);
 	}
@@ -121,6 +127,62 @@ SVGCanvas.prototype.delete = function(chart_id) {
 	console.log(this.chartsArr);
 	this.refresh();
 }
+
+/**
+	Handle the event when an item is selected
+**/
+SVGCanvas.prototype.selected = function (item_id) {
+	var id_pieces = item_id.split("_");
+	var chart_id = id_pieces[0];
+	var item_index = id_pieces[1];
+	var i = 0;
+	for(i = 0;i<this.chartsArr.length;i++) {
+		this.chartsArr[i].selected(item_index);
+		this.tableObj.selected(item_index);
+	}
+	this.selectedItems.push(item_index);
+}
+
+/**
+	Handle the event when an item is de_selected
+**/
+SVGCanvas.prototype.deSelected = function (item_id) {
+	var id_pieces = item_id.split("_");
+	var chart_id = id_pieces[0];
+	var item_index = id_pieces[1];
+	var i = 0;
+	for(i = 0;i<this.chartsArr.length;i++) {
+		this.chartsArr[i].deSelected(item_index);
+		this.tableObj.deSelected(item_index);
+	}
+	this.selectedItems.splice(item_index, 1);
+}
+
+/**
+	To toggle the status of an item, if its 
+	selected, to deselected, if its deselected, 
+	to selected.
+**/
+SVGCanvas.prototype.toggle = function(index) {
+	var i = 0;
+	
+	if(inArrayGSU(index, this.selectedItems)) {
+		console.log("Removing table index = " + index + ", this.selectedItems  " + this.selectedItems);
+		for(i = 0;i<this.chartsArr.length;i++) {
+			this.chartsArr[i].deSelected(index);
+			this.tableObj.deSelected(index);
+		}
+		this.selectedItems  = arrayRemove(index, this.selectedItems);
+	} else {
+		console.log("Adding table");
+		for(i = 0;i<this.chartsArr.length;i++) {
+			this.chartsArr[i].selected(index);
+			this.tableObj.selected(index);
+		}
+		this.selectedItems.push(index);
+	}
+}
+
 
 /**
 	To delete a diagram from this canvas
@@ -157,8 +219,8 @@ SVGCanvas.prototype.add = function(params) {
 	var chart_id = "chart" + Math.floor(Math.random()*10000);
 	
 	if(params.type == "scatter") {
-		var chart = new SVGChart(g,"scatter",params,anchor,chart_id,this);
-		this.chartsArr.push(chart);
-		chart.plot();
+		var chart1 = new SVGChart(g,"scatter",params,anchor,chart_id,this);
+		chart1.plot();
+		this.chartsArr.push(chart1);
 	}
 }

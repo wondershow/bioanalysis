@@ -1,4 +1,4 @@
-var SVGScatterChart = function (params,svg) {
+var SVGScatterChart = function (params,svg,chart_id) {
 
 	this.dataX = params.x_data;
 	this.dataY = params.y_data;
@@ -15,6 +15,7 @@ var SVGScatterChart = function (params,svg) {
 	this.plotHeight = params.chartHeight - this.margin.top - this.margin.bottom;
 	
 	this.svgContainer = svg;
+	this.chartId = chart_id;
 }
 
 /* 
@@ -27,8 +28,10 @@ SVGScatterChart.prototype.plot = function () {
     xScale = d3.scale.linear()
 					 .range([this.margin.left, this.plotwidth-this.margin.left-this.margin.right])
 					 .domain([0,d3.max(this.dataX, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})]);				 
-
-    xMap = function(d) {return xScale(d[0]);}; // data -> display
+					 
+	var evalStr =  "xMap = function(d) {return isNumeric(d[0])? xScale(d[0]):0};"
+    //xMap = function(d) {return xScale(d[0]);}; // data -> display
+	eval(evalStr);
     xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
     yScale = d3.scale.linear()
@@ -59,8 +62,6 @@ SVGScatterChart.prototype.plot = function () {
 							.domain([-10000,100000])
 	}
 	
-	
-	
 	// setup fill color
 	var cValue = function(d) { return d[3];}
     color = d3.scale.category10();
@@ -78,8 +79,7 @@ SVGScatterChart.prototype.plot = function () {
 				.html(function(d) {
 					return (d[0] + "," + d[1]);
 				})
-	
-	
+				
 	this.svgContainer.call(tip);
 	
 	var i = 0;
@@ -95,7 +95,6 @@ SVGScatterChart.prototype.plot = function () {
 			dataums.push([this.dataX[i],this.dataY[i],null,null]);
 		}
 	}
-	
 	
 	// x-axis
 	this.svgContainer.append("g")
@@ -123,18 +122,32 @@ SVGScatterChart.prototype.plot = function () {
 		.style("text-anchor", "end")
 		.text(this.axisY);
 
-	var i = 0;
-		  // draw dots
-		  this.svgContainer.selectAll(".dot")
-			  .data(dataums)
+		chart_id = this.chartId;
+		// draw dots
+		this.svgContainer.selectAll(".dot")
+			.data(dataums)
 			.enter().append("circle")
-			  .attr("class", "dot")
-			  .attr("r", function(d){return d[2]==undefined? 3:sizeScale(d[2])})
-			  .attr("cx", xMap)
-			  .attr("cy", yMap)
+			.attr("class", "dot")
+			.attr("r", function(d){return d[2]==undefined? 3:sizeScale(d[2])})
+			.attr("cx", xMap)
+			.attr("cy", yMap)
+			.attr("id", function(d,i){
+					return chart_id + "_" + i;
+				})
 			  .on('mouseover', tip.show)
 			  .on('mouseout', tip.hide)
-			  .on('dblclick',function(){ return d})
+			  .on('click',function(d,i){
+					var cir_id = chart_id + "_" + i;
+					//console.log(cir_id);
+					//d3.select("#"+cir_id).attr("class","dot_selected");
+					mainCanvas.selected(cir_id);
+			  })
+			  .on('dblclick',function(d,i){ 
+					//var cir_id = chart_id + "_" + d[0] + "_" + d[1] + "_" + i;
+					var cir_id = chart_id + "_" + i;
+					d3.select("#"+cir_id).attr("class","dot");
+					mainCanvas.deSelected(cir_id);
+				  })
 			  .style("fill", function(d) { return d[3]==undefined?"black":color(cValue(d));}) 
 			  /*
 			  .on("mouseover", function(d) {
@@ -153,9 +166,6 @@ SVGScatterChart.prototype.plot = function () {
 					   .style("opacity", 0);
 			  });*/
 			  
-		
-
-	
 	if(this.dataC != null) {
 		rightOffset = this.plotwidth;
 		var legend = this.svgContainer.selectAll(".legend")
@@ -184,6 +194,21 @@ SVGScatterChart.prototype.plot = function () {
 			.style("text-anchor", "end")
 			.text(function(d) { return d;});
 	}
+}
+
+SVGScatterChart.prototype.generateCirId = function (x,y,index) {
+	var res = this.chartId + "_" + x + "_" + y + "_" + index;
+	return res; 
+}
+
+SVGScatterChart.prototype.selected = function (index) {
+	var cir_id = this.chartId + "_" + index;
+	d3.select("#" + cir_id). attr("class","dot_selected");
+}
+
+SVGScatterChart.prototype.deSelected = function (index) {
+	var cir_id = this.chartId + "_" + index;
+	d3.select("#" + cir_id) . attr("class","dot");
 }
 
 SVGScatterChart.prototype.getCircleSize = function () {

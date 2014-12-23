@@ -20,9 +20,16 @@ var SVGChart = function (g,type,p,anchor,id,parent){
 	this.type = type;
 	this.id = id;
 	this.parent = parent;
+	this.plotObj = null;
 }
 
+SVGChart.prototype.selected = function(index) {
+	this.plotObj.selected(index);
+}
 
+SVGChart.prototype.deSelected = function(index) {
+	this.plotObj.deSelected(index);
+}
 
 SVGChart.prototype.plot = function() {
 
@@ -41,11 +48,11 @@ SVGChart.prototype.plot = function() {
 		.attr("fill","white");
 	var remove = svg_ele.append("text")
 		.text("X")
-		.attr("x",0) //this has included anchorX
-		.attr("y",this.anchorY)
+		.attr("x",0)//this has included anchorX
+		.attr("y",20)
 		.attr("font-size", "20")
 		.attr("fill","red")
-	remove.on("click",   tmp    );
+		remove.on("click",   tmp    );
 //		.on("mouseover",function() {} )
 	
 	//console.log(remove.size());
@@ -56,7 +63,9 @@ SVGChart.prototype.plot = function() {
 	console.log("this.anchorY = " + this.anchorY);
 	
 	if(this.type=="scatter") {
-		var sct = new SVGScatterChart(this.param,svg_ele);
+		var sct = new SVGScatterChart(this.param,svg_ele,this.id);
 		sct.plot();
+		this.plotObj = sct;
 	}
 }
+

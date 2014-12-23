@@ -18,13 +18,14 @@
 	<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>-->
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
-	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="js/d3.v3.min.js"> </script>
 	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
     <script type="text/javascript">
 		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
 		var fullData;
 		var dataCases;
 		var mainCanvas;
+		var dataTable;
 		$.ajax({
 				url:   google_spreadsheet_url,
 				type:     "GET",
@@ -48,8 +49,7 @@
 			var popup = new PopUpDialog("content", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps());
 			popup.addPopup();
 			setupListner();
-			
-			mainCanvas = new SVGCanvas("test");
+			mainCanvas = new SVGCanvas("test",dataTable);
 			//testCanvas();
 		}
 		
@@ -59,7 +59,7 @@
 			for(i=0;i<dataCases.length;i++) {
 				tableData.push(dataCases[i].getAllValues());
 			}
-			var dataTable = new HTMLTable(tableData,dataCases[0].getAllPropNames(),"table_header_div","table_body_div");
+			dataTable = new HTMLTable(tableData,dataCases[0].getAllPropNames(),"table_header_div","table_body_div");
 			dataTable.addTable();
 		}
 		
@@ -168,7 +168,6 @@
 			var params = {x_data:x,y_data:y,z_data:z,c_data:c,x_axis:"ph3n",y_axis:"ki67n",z_axis:"mfin",c_axis:"racec",type:"scatter"};
 			console.log(params);
 			mainCanvas.add(params);
-		
 		}
 		
 		function testCanvas() {
@@ -194,6 +193,12 @@
 			//mainCanvas.add(params);
 			
 			mainCanvas.add(params);
+		}
+		
+		//
+		function handle_table_row_selection(index) {
+			//console.log("index is " + index);
+			mainCanvas.toggle(index);
 		}
     </script>
   </head>
