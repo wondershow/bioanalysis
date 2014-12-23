@@ -40,18 +40,13 @@ SVGScatterChart.prototype.plot = function () {
 	If you want to change the constant here, 
 	you may want to change the margin.top together, it should be a bug
 	**/
-	var evalStr =  "yMap = function(d) {return yScale(d[1]) + " + this.margin.top  +"};"
+	var evalStr =  "yMap = function(d) {return isNumeric(d[1])? (yScale(d[1]) + " + this.margin.top  +"):0};"
     //yMap = function(d) {return yScale(d[1]) + 20};// data -> display
 	eval(evalStr);
     yAxis = d3.svg.axis().scale(yScale).orient("left");
 	
 	var sizeMap = null;
 	var sizeScale = null;
-	
-	
-	console.log("1111:");
-	console.log("this.axisZ = " + this.axisZ);
-	console.log("this.dataZ = " + this.dataZ);
 	
 	//If the user selected "size" option
 	if(this.axisZ != null && this.axisZ != undefined && this.axisZ.trim() != ""  ) {
@@ -65,7 +60,7 @@ SVGScatterChart.prototype.plot = function () {
 	}
 	
 	
-	console.log("22222222222:");
+	
 	// setup fill color
 	var cValue = function(d) { return d[3];}
     color = d3.scale.category10();
@@ -83,7 +78,7 @@ SVGScatterChart.prototype.plot = function () {
 				.html(function(d) {
 					return (d[0] + "," + d[1]);
 				})
-	console.log("33333333333333333:");
+	
 	
 	this.svgContainer.call(tip);
 	
@@ -102,7 +97,6 @@ SVGScatterChart.prototype.plot = function () {
 	}
 	
 	
-	console.log("444444444444:");
 	// x-axis
 	this.svgContainer.append("g")
       .attr("class", "x axis")

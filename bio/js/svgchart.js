@@ -1,11 +1,10 @@
 /***
 	A svg chart with 
 **/
-var SVGChart = function (g,type,p,anchor){
+var SVGChart = function (g,type,p,anchor,id,parent){
 	//svg g element
 	this.g = g;
 	this.param = p;
-	
 	
 	this.chartWidth = p.chartWidth;
 	this.chartHeight = p.chartHeight;
@@ -19,17 +18,42 @@ var SVGChart = function (g,type,p,anchor){
 	
 	//The type of the chart, e.g. scatter, heatmap ....
 	this.type = type;
+	this.id = id;
+	this.parent = parent;
 }
 
+
+
 SVGChart.prototype.plot = function() {
+
+	var evalStr =  "tmp = function() { mainCanvas.delete('"+ this.id +"') }";
+	//.delete('" +this.id + "');}
+	//var evalStr =  "console.log('ok')";
+	eval(evalStr);
+	console.log(evalStr);
+
 	var svg_ele = this.g.append("svg")
 		  .attr("width", this.chartWidth )
 		  .attr("height",this.chartHeight);
 	svg_ele.append("rect")
 		.attr("width", this.chartWidth)
 		.attr("height",this.chartHeight)
-		.attr("fill","CadetBlue");
+		.attr("fill","white");
+	var remove = svg_ele.append("text")
+		.text("X")
+		.attr("x",0) //this has included anchorX
+		.attr("y",this.anchorY)
+		.attr("font-size", "20")
+		.attr("fill","red")
+	remove.on("click",   tmp    );
+//		.on("mouseover",function() {} )
+	
+	//console.log(remove.size());
+
 	this.g.attr("transform","translate("+this.anchorX+","+this.anchorY+")");
+	
+	console.log("this.anchorX = " + this.anchorX);
+	console.log("this.anchorY = " + this.anchorY);
 	
 	if(this.type=="scatter") {
 		var sct = new SVGScatterChart(this.param,svg_ele);

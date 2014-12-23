@@ -2,7 +2,7 @@ var SVGCanvas = function(id) {
 	this.canvasId = id;
 	
 	//The array to keep references to all the 
-	this.chartArr = [];
+	this.chartsArr = [];
 	
 	/*how many charts we put on a row, 
 	  this might be changed when we take
@@ -31,23 +31,35 @@ var SVGCanvas = function(id) {
 	this.horizPadding = 20;
 }
 
-
-
 /**
 	To re-draw everything on this canvas
 **/
 SVGCanvas.prototype.refresh = function() {
-
-
+	this.allocatedAnchors = [];
+	var i = 0;
+	//var len = this.chartsArr.length;
+	
+	//clean canvas
+	document.getElementById(this.canvasId).innerHTML = "";
+	//var tmpArr = this.chartsArr;
+	console.log("before : " + this.chartsArr);
+	var tmpArr = this.chartsArr.slice(0);//jQuery.extend({}, this.chartsArr);
+	console.log("before : tmpArr " + tmpArr);
+	this.chartsArr = [];
+	console.log("before : tmpArr111 " + tmpArr);
+	console.log("before : tmpArr.length " + tmpArr.length);
+	for(i=0;i<tmpArr.length;i++) {
+		console.log("Adding id = " + tmpArr[i].id )
+		this.add(tmpArr[i].param);
+	}
 }
-
 
 /**
 	To re-draw everything on this canvas
 **/
 SVGCanvas.prototype.getChartWidth = function() {
 	var widow_width = $(window).width(),window_height = $(window).height();
-	console.log("$(window).width() = " + $(window).width() + ",$(window).height() = " + $(window).height())
+	//console.log("$(window).width() = " + $(window).width() + ",$(window).height() = " + $(window).height())
 	if( widow_width > 2000)
 		return Math.floor(window_height/300)*100;
 	else {
@@ -94,9 +106,20 @@ SVGCanvas.prototype.addOneGridRow = function() {
 /**
 	To delete a diagram from this canvas
 **/
-SVGCanvas.prototype.delete = function() {
-	
-
+SVGCanvas.prototype.delete = function(chart_id) {
+	console.log("Deleting id = " + chart_id);
+	var tmpArr = [];
+	var i = 0;
+	console.log(this.chartsArr);
+	for(i = 0;i < this.chartsArr.length;i++) {
+		//console.log("Id = " + this.chartsArr[i].id);
+		if(this.chartsArr[i].id != chart_id)
+			tmpArr.push(this.chartsArr[i]);
+		//this.chartsArr.splice(i, 1);
+	}
+	this.chartsArr = tmpArr;
+	console.log(this.chartsArr);
+	this.refresh();
 }
 
 /**
@@ -107,7 +130,7 @@ SVGCanvas.prototype.getNextAnchorPoint = function() {
 	if( this.existingAnchors.length == this.allocatedAnchors.length ) //
 		this.addOneGridRow();
 	for(i=0;i<this.existingAnchors.length;i++) {
-		console.log(this.existingAnchors[i]);
+		//console.log(this.existingAnchors[i]);
 		//console.log(this.allocatedAnchors);
 		//console.log($.inArray(this.existingAnchors[i], this.allocatedAnchors));
 		if( ($.inArray(this.existingAnchors[i], this.allocatedAnchors)) < 0  ) {
@@ -129,11 +152,13 @@ SVGCanvas.prototype.add = function(params) {
 	params.anchor_x = anchor[0];
 	params.anchor_y = anchor[1];
 	
-	
 	var g = d3.select("#"+this.canvasId).append("g");
 	
+	var chart_id = "chart" + Math.floor(Math.random()*10000);
+	
 	if(params.type == "scatter") {
-		var chart = new SVGChart(g,"scatter",params,anchor);
+		var chart = new SVGChart(g,"scatter",params,anchor,chart_id,this);
+		this.chartsArr.push(chart);
 		chart.plot();
 	}
 }
