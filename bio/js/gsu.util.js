@@ -34,3 +34,35 @@ function arrayRemove(index,arr) {
 	}
 	return res;
 }
+
+/**
+To get the position of an element
+**/
+function getPos(el) {
+    // yay readability
+    for (var lx=0, ly=0;
+         el != null;
+         lx += el.offsetLeft, ly += el.offsetTop, el = el.offsetParent);
+    return {x: lx,y: ly};
+}
+/**
+	get two numbers in an expression/string
+	"translate(30,40)"
+	will return [30,40]
+**/
+function getParameters(strStr) {
+	var numberPattern = /\d+/g;
+	var numbers = strStr.match(numberPattern);
+	if(numbers == null || numbers == undefined || numbers.length != 2)
+		return null;
+	return numbers;
+}
+
+/**
+To get a corresponding tick on a specific position on a slider
+length: the length of the slider
+pos:the position on the slider
+**/
+function getTickOnSlider(min,max,length,pos) {
+	return min + Math.floor( (pos/length )*(max-min) );
+}

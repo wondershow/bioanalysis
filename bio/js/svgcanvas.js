@@ -171,8 +171,8 @@ SVGCanvas.prototype.toggle = function(index) {
 		for(i = 0;i<this.chartsArr.length;i++) {
 			this.chartsArr[i].deSelected(index);
 			this.tableObj.deSelected(index);
+			this.selectedItems  = arrayRemove(index, this.selectedItems);
 		}
-		this.selectedItems  = arrayRemove(index, this.selectedItems);
 	} else {
 		console.log("Adding table");
 		for(i = 0;i<this.chartsArr.length;i++) {
@@ -202,7 +202,6 @@ SVGCanvas.prototype.getNextAnchorPoint = function() {
 	}
 	console.log("Ooops, nothing allocated")
 }
-
 
 /**
 	To add a new diagram to this canvas

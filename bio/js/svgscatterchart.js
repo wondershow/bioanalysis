@@ -9,7 +9,7 @@ var SVGScatterChart = function (params,svg,chart_id) {
 	this.axisZ = params.z_axis;
 	this.axisC = params.c_axis;
 	
-	this.margin = {top:20,right:10,bottom:10,left:30};
+	this.margin = {top:20,right:20,bottom:10,left:40};
 	
 	this.plotwidth = params.chartWidth - this.margin.right - this.margin.left;
 	this.plotHeight = params.chartHeight - this.margin.top - this.margin.bottom;
@@ -28,8 +28,8 @@ SVGScatterChart.prototype.plot = function () {
     xScale = d3.scale.linear()
 					 .range([this.margin.left, this.plotwidth-this.margin.left-this.margin.right])
 					 .domain([0,d3.max(this.dataX, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})]);				 
-					 
-	var evalStr =  "xMap = function(d) {return isNumeric(d[0])? xScale(d[0]):0};"
+	
+	var evalStr =  "xMap = function(d) {return $.isNumeric(d[0])? xScale(d[0]):(xScale(0)+ " + this.margin.left +" ) };"
     //xMap = function(d) {return xScale(d[0]);}; // data -> display
 	eval(evalStr);
     xAxis = d3.svg.axis().scale(xScale).orient("bottom");
@@ -43,7 +43,8 @@ SVGScatterChart.prototype.plot = function () {
 	If you want to change the constant here, 
 	you may want to change the margin.top together, it should be a bug
 	**/
-	var evalStr =  "yMap = function(d) {return isNumeric(d[1])? (yScale(d[1]) + " + this.margin.top  +"):0};"
+	var evalStr =  "yMap = function(d) {return $.isNumeric(d[1])? (yScale(d[1]) + " + this.margin.top  +"): (yScale(0) +" + this.margin.top  +")};"
+	//var evalStr =  "yMap = function(d) {var res; if ($.isNumeric(d[1])) res = d[1]+20; else res = 20; return res; return $.isNumeric(d[1])? (yScale(d[1]) + " + this.margin.top  +"):" + this.margin.top + "};"
     //yMap = function(d) {return yScale(d[1]) + 20};// data -> display
 	eval(evalStr);
     yAxis = d3.svg.axis().scale(yScale).orient("left");
@@ -54,7 +55,7 @@ SVGScatterChart.prototype.plot = function () {
 	//If the user selected "size" option
 	if(this.axisZ != null && this.axisZ != undefined && this.axisZ.trim() != ""  ) {
 		sizeScale = d3.scale.linear()
-							.range([2,5])
+							.range([0,8])
 							.domain([d3.min(this.dataZ,function(d){return parseInt(d)==NaN? 0:parseInt(d);}),d3.max(this.dataZ,function(d){return parseInt(d)==NaN? 0:parseInt(d);}) ])
 	} else {
 		sizeScale = d3.scale.linear()
@@ -128,7 +129,7 @@ SVGScatterChart.prototype.plot = function () {
 			.data(dataums)
 			.enter().append("circle")
 			.attr("class", "dot")
-			.attr("r", function(d){return d[2]==undefined? 3:sizeScale(d[2])})
+			.attr("r", function(d){return (d[2]==undefined || !isNumeric(d[2]) )? 3:sizeScale(d[2])})
 			.attr("cx", xMap)
 			.attr("cy", yMap)
 			.attr("id", function(d,i){
@@ -194,6 +195,8 @@ SVGScatterChart.prototype.plot = function () {
 			.style("text-anchor", "end")
 			.text(function(d) { return d;});
 	}
+	
+	this.addSliders();
 }
 
 SVGScatterChart.prototype.generateCirId = function (x,y,index) {
@@ -212,7 +215,38 @@ SVGScatterChart.prototype.deSelected = function (index) {
 }
 
 SVGScatterChart.prototype.getCircleSize = function () {
+	
 }
 
 SVGScatterChart.prototype.getCircleColor = function () {
+}
+
+SVGScatterChart.prototype.addSliders = function() {
+	
+	slider_height =  this.plotHeight / 2;
+	slider_width = Math.floor(this.plotwidth*0.05);
+	
+	
+	//var eval_str = "var refresh_function = function() {mainCanvas.refresh("+this.id+")};";
+	//eval(eval_str);
+	
+	var min_val = d3.min(this.dataX, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})
+	var max_val = d3.max(this.dataX, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})
+	var anchor1 = { x:Math.floor(this.plotwidth * 0.8 + this.margin.left + 5 ), y : Math.floor(this.plotHeight*0.3) } 
+	var params1 = {anchor:anchor1,w:slider_width,h:slider_height,svg:this.svgContainer,label:this.axisX,min:min_val,max:max_val,type:'v',chart_id:this.chartId}; 
+	var slider = new SVGSlider(params1);
+	slider.generate();
+	
+	
+	var min_val = d3.min(this.dataY, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})
+	var max_val = d3.max(this.dataY, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})
+	var anchor2 = { x:Math.floor(this.plotwidth * 0.9 + this.margin.left + 5 ), y : Math.floor(this.plotHeight*0.3) } 
+	var params2 = {anchor:anchor2,w:slider_width,h:slider_height,svg:this.svgContainer,label:this.axisY,min:min_val,max:max_val,type:'v',chart_id:this.chartId}; 
+	var slider2 = new SVGSlider(params2);
+	slider2.generate();
+	
+	//if the size option is selected
+	//if(this.axisZ != null && this.axisZ != undefined && this.axisZ.trim() != "" ) 
+	//var anchor2 = {x:Math.floor(this.plotwidth*0.85),y:Math.floor(this.plotHeight*0.3)} 
+	//else
 }

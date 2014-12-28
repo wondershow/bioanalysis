@@ -1,6 +1,7 @@
 <html>
   <head>
 	<link rel="stylesheet" type="text/css" href="css/bio.css">
+	<link rel="stylesheet" href="css/d3.slider.css"> 
 	
 	 <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>-->
 	<script type="text/javascript" src="js/gsu.util.js"></script>
@@ -11,15 +12,18 @@
 	<script type="text/javascript" src="js/svgcanvas.js"></script>
 	<script type="text/javascript" src="js/svgscatterchart.js"></script>
 	<script type="text/javascript" src="js/svgchart.js"></script>
+	<script type="text/javascript" src="js/gsu.slider.js"></script>
+	
+	
 	
 	<!--<script type='text/javascript' src='js/jquery.js'></script>-->
-	
     <!--<script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>-->
 	<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>-->
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
-	<script src="js/d3.v3.min.js"> </script>
+	<script src="js/d3.js"> </script>
 	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+	<script src="js/d3.slider.js"></script>
     <script type="text/javascript">
 		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
 		var fullData;
@@ -200,6 +204,8 @@
 			//console.log("index is " + index);
 			mainCanvas.toggle(index);
 		}
+		
+		//console.log(isNumeric("."))
     </script>
   </head>
   <body>
@@ -215,6 +221,62 @@
 	<svg width='100%' height='1000' id='test' style='background-color:grey'>
 		
 	</svg>
-    <!-- YOUR CONTENT -->
+
+	
+	<svg width='300' height='300' style='background-color:yellow'>
+		<h2>Range Slider with event, values: <span id="slider3textmin">10</span>, <span id="slider3textmax">25</span></h2>
+    
+		<div id="slider3"></div>
+
+	</svg>
+	
+	
+	<script>
+		d3.select('#slider3').call(d3.slider().axis(true).value( [ 10, 25 ] ).orientation("vertical").on("slide", function(evt, value) {
+			d3.select('#slider3textmin').text(value[ 0 ]);
+			d3.select('#slider3textmax').text(value[ 1 ]);
+		}));
+	</script>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<svg width='300' height='300' >
+		<g transform="translate(10,50)">
+			<g transform="translate(0,0)">
+				<line x2='5' y2='0'> </line>
+				<text dy=".32em" x="9" y="0" style="text-anchor: start;">0</text>
+			</g>
+			<g transform="translate(0,100)">
+				<line x2='5' y2='0'> </line>
+				<text dy=".32em" x="9" y="0" style="text-anchor: start;">100</text>
+			</g>
+			<path class="domain" d="M9,0H1V100H9"></path>
+			<rect x="0" y="0" rx="1" ry="1" width="10" height="10"
+				style="fill:red;stroke:yellow;stroke-width:1;opacity:1.0" 
+				onmousedown="if()" onmouseup = "console.log()" onmousemove=""    
+			/>
+		</g>
+	</svg>
+	
+	<svg id="testsvg" width = "500" height="500" style='background-color:red'>
+		
+	</svg>
+	
+	<script>
+		var svg_parent = $("#testsvg");
+		params = {anchor:{x:50,y:50},w:200,h:40,svg:svg_parent,label:"testsvg",min:0,max:100,type:'h'}; 
+		//var slider = new SVGSlider(params);
+		//slider.generate();
+		
+		params = {anchor:{x:100,y:100},w:40,h:200,svg:svg_parent,label:"vertical",min:30,max:160,type:'v'}; 
+		//var slider = new SVGSlider(params);
+		//slider.generate();
+	</script>
   </body>
 </html>

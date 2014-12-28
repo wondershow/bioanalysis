@@ -37,7 +37,6 @@ SVGChart.prototype.plot = function() {
 	//.delete('" +this.id + "');}
 	//var evalStr =  "console.log('ok')";
 	eval(evalStr);
-	console.log(evalStr);
 
 	var svg_ele = this.g.append("svg")
 		  .attr("width", this.chartWidth )
@@ -52,15 +51,10 @@ SVGChart.prototype.plot = function() {
 		.attr("y",20)
 		.attr("font-size", "20")
 		.attr("fill","red")
-		remove.on("click",   tmp    );
-//		.on("mouseover",function() {} )
+		
+	remove.on("click", tmp );
 	
-	//console.log(remove.size());
-
 	this.g.attr("transform","translate("+this.anchorX+","+this.anchorY+")");
-	
-	console.log("this.anchorX = " + this.anchorX);
-	console.log("this.anchorY = " + this.anchorY);
 	
 	if(this.type=="scatter") {
 		var sct = new SVGScatterChart(this.param,svg_ele,this.id);
@@ -69,3 +63,6 @@ SVGChart.prototype.plot = function() {
 	}
 }
 
+SVGChart.prototype.refresh = function(){
+	console.log("I am refreshing");
+}
