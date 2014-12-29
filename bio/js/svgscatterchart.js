@@ -9,14 +9,83 @@ var SVGScatterChart = function (params,svg,chart_id) {
 	this.axisZ = params.z_axis;
 	this.axisC = params.c_axis;
 	
-	this.margin = {top:20,right:20,bottom:10,left:40};
+	this.margin = {top:20,right:10,bottom:10,left:40};
 	
 	this.plotwidth = params.chartWidth - this.margin.right - this.margin.left;
 	this.plotHeight = params.chartHeight - this.margin.top - this.margin.bottom;
 	
 	this.svgContainer = svg;
 	this.chartId = chart_id;
+	
+	this.XFilter = params.x_filter;
+	this.YFilter = params.y_filter;
+	this.ZFilter = params.z_filter;
+	this.CFilter = params.c_filter;
 }
+
+
+
+
+/**
+To check if a given data is ruled out or not
+*/
+SVGScatterChart.prototype.isValidData = function (index) {
+	
+	if(this.XFilter != undefined && this.XFilter != null) {
+		var val = parseExcelNumber(this.dataX[index]);
+		if(val<this.XFilter.from || val>this.XFilter.to)
+			return false;
+	}
+	if(this.YFilter != undefined && this.YFilter != null) {
+		var val = parseExcelNumber(this.dataY[index]);
+		if(val<this.YFilter.from || val>this.YFilter.to)
+			return false;
+	}
+	if(this.ZFilter != undefined && this.ZFilter != null) {
+		var val = parseExcelNumber(this.dataZ[index]);
+		if(val<this.ZFilter.from || val>this.ZFilter.to)
+			return false;
+	}
+	return true;
+}
+
+/**
+	Get max value of datax,datay or dataz
+**/
+SVGScatterChart.prototype.getMaxVal = function(type) {
+	var tmpVals = [];
+	var i = 0;
+	for(i=0;i<this.dataX.length;i++) {
+		if(this.isValidData(i)) {
+			if(type == 'x')
+				tmpVals.push(this.dataX[i]);
+			else if (type == 'y')
+				tmpVals.push(this.dataY[i]);
+			else if (type == 'z')
+				tmpVals.push(this.dataZ[i]);
+		}
+	}
+	return d3.max(tmpVals, function(d){ return parseExcelNumber(d)});
+}
+
+SVGScatterChart.prototype.getMinVal= function(type) {
+	var tmpVals = [];
+	var i = 0;
+	for(i=0;i<this.dataX.length;i++) {
+		if(this.isValidData(i)) {
+			if(type == 'x')
+				tmpVals.push(this.dataX[i]);
+			else if (type == 'y')
+				tmpVals.push(this.dataY[i]);
+			else if (type == 'z')
+				tmpVals.push(this.dataZ[i]);
+		}
+	}
+	return d3.min(tmpVals, function(d){ return parseExcelNumber(d)});
+}
+
+
+
 
 /* 
  * value accessor - returns the value to encode for a given data object.
@@ -27,7 +96,7 @@ var SVGScatterChart = function (params,svg,chart_id) {
 SVGScatterChart.prototype.plot = function () {
     xScale = d3.scale.linear()
 					 .range([this.margin.left, this.plotwidth-this.margin.left-this.margin.right])
-					 .domain([0,d3.max(this.dataX, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})]);				 
+					 .domain([this.getMinVal('x'),this.getMaxVal('x')]);				 
 	
 	var evalStr =  "xMap = function(d) {return $.isNumeric(d[0])? xScale(d[0]):(xScale(0)+ " + this.margin.left +" ) };"
     //xMap = function(d) {return xScale(d[0]);}; // data -> display
@@ -36,7 +105,7 @@ SVGScatterChart.prototype.plot = function () {
 
     yScale = d3.scale.linear()
 				     .range([this.plotHeight-this.margin.top-this.margin.bottom, this.margin.top])
-					 .domain([0,d3.max(this.dataY, function(d){return parseInt(d)==NaN? 0:parseInt(d);})]);
+					 .domain([this.getMinVal('y'),this.getMaxVal('y')]);
 	// value -> display
 	
 	/**
@@ -124,12 +193,30 @@ SVGScatterChart.prototype.plot = function () {
 		.text(this.axisY);
 
 		chart_id = this.chartId;
+		
+		
+		//console.log('d = ' + d + ', i = ' + i ); 
+		var eval_str = "var test_function = function (d,i) {  \
+						\
+						if ( $.inArray(i,["
+		var j=0;
+		for(j=0;j<this.dataX.length;j++) {
+			if(this.isValidData(j)==false)
+				eval_str += j + " ,";
+		}
+		eval_str += "]) >= 0 )       \
+				return 0;  \
+			else  \
+				return (d[2]==undefined || !isNumeric(d[2]) )? 3:sizeScale(d[2]);  \
+		}"
+		
+		eval(eval_str);
 		// draw dots
 		this.svgContainer.selectAll(".dot")
 			.data(dataums)
 			.enter().append("circle")
 			.attr("class", "dot")
-			.attr("r", function(d){return (d[2]==undefined || !isNumeric(d[2]) )? 3:sizeScale(d[2])})
+			.attr("r", test_function)
 			.attr("cx", xMap)
 			.attr("cy", yMap)
 			.attr("id", function(d,i){
@@ -139,9 +226,9 @@ SVGScatterChart.prototype.plot = function () {
 			  .on('mouseout', tip.hide)
 			  .on('click',function(d,i){
 					var cir_id = chart_id + "_" + i;
-					//console.log(cir_id);
-					//d3.select("#"+cir_id).attr("class","dot_selected");
-					mainCanvas.selected(cir_id);
+					//console.log(cir_id +" is selected");
+					d3.select("#"+cir_id).attr("class","dot_selected");
+					//mainCanvas.selected(cir_id);
 			  })
 			  .on('dblclick',function(d,i){ 
 					//var cir_id = chart_id + "_" + d[0] + "_" + d[1] + "_" + i;
@@ -196,7 +283,7 @@ SVGScatterChart.prototype.plot = function () {
 			.text(function(d) { return d;});
 	}
 	
-	this.addSliders();
+	//this.addSliders();
 }
 
 SVGScatterChart.prototype.generateCirId = function (x,y,index) {
@@ -206,7 +293,8 @@ SVGScatterChart.prototype.generateCirId = function (x,y,index) {
 
 SVGScatterChart.prototype.selected = function (index) {
 	var cir_id = this.chartId + "_" + index;
-	d3.select("#" + cir_id). attr("class","dot_selected");
+	d3.select("#" + cir_id).attr("class","dot_selected");
+	console.log(d3.select("#" + cir_id));
 }
 
 SVGScatterChart.prototype.deSelected = function (index) {
@@ -214,39 +302,17 @@ SVGScatterChart.prototype.deSelected = function (index) {
 	d3.select("#" + cir_id) . attr("class","dot");
 }
 
-SVGScatterChart.prototype.getCircleSize = function () {
+SVGScatterChart.prototype.getCircleSize = function (data,index) {
+	var res_function = function (d,i) {
+		
+	
+	
+	}
+	
+	
 	
 }
 
 SVGScatterChart.prototype.getCircleColor = function () {
 }
 
-SVGScatterChart.prototype.addSliders = function() {
-	
-	slider_height =  this.plotHeight / 2;
-	slider_width = Math.floor(this.plotwidth*0.05);
-	
-	
-	//var eval_str = "var refresh_function = function() {mainCanvas.refresh("+this.id+")};";
-	//eval(eval_str);
-	
-	var min_val = d3.min(this.dataX, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})
-	var max_val = d3.max(this.dataX, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})
-	var anchor1 = { x:Math.floor(this.plotwidth * 0.8 + this.margin.left + 5 ), y : Math.floor(this.plotHeight*0.3) } 
-	var params1 = {anchor:anchor1,w:slider_width,h:slider_height,svg:this.svgContainer,label:this.axisX,min:min_val,max:max_val,type:'v',chart_id:this.chartId}; 
-	var slider = new SVGSlider(params1);
-	slider.generate();
-	
-	
-	var min_val = d3.min(this.dataY, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})
-	var max_val = d3.max(this.dataY, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})
-	var anchor2 = { x:Math.floor(this.plotwidth * 0.9 + this.margin.left + 5 ), y : Math.floor(this.plotHeight*0.3) } 
-	var params2 = {anchor:anchor2,w:slider_width,h:slider_height,svg:this.svgContainer,label:this.axisY,min:min_val,max:max_val,type:'v',chart_id:this.chartId}; 
-	var slider2 = new SVGSlider(params2);
-	slider2.generate();
-	
-	//if the size option is selected
-	//if(this.axisZ != null && this.axisZ != undefined && this.axisZ.trim() != "" ) 
-	//var anchor2 = {x:Math.floor(this.plotwidth*0.85),y:Math.floor(this.plotHeight*0.3)} 
-	//else
-}

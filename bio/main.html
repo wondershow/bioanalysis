@@ -265,10 +265,18 @@
 	</svg>
 	
 	<svg id="testsvg" width = "500" height="500" style='background-color:red'>
-		
+		<svg id="testsvg1" x="0" width="200" height="500" style='background-color:blue'>
+			<rect x="10" y="10" height="100" width="100"
+				style="stroke:#009900; fill: #00cc00"/>
+		</svg>
+		<svg id="testsvg2" x="300" width="200" height="500" style='background-color:black'>
+			<rect x="10" y="10" height="100" width="100"
+				style="stroke:#009900; fill: #00cc00"/>
+		</svg>
 	</svg>
 	
 	<script>
+		/*
 		var svg_parent = $("#testsvg");
 		params = {anchor:{x:50,y:50},w:200,h:40,svg:svg_parent,label:"testsvg",min:0,max:100,type:'h'}; 
 		//var slider = new SVGSlider(params);
@@ -276,7 +284,7 @@
 		
 		params = {anchor:{x:100,y:100},w:40,h:200,svg:svg_parent,label:"vertical",min:30,max:160,type:'v'}; 
 		//var slider = new SVGSlider(params);
-		//slider.generate();
+		//slider.generate();*/
 	</script>
   </body>
 </html>

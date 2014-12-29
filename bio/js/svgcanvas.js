@@ -43,19 +43,12 @@ SVGCanvas.prototype.refresh = function() {
 	this.allocatedAnchors = [];
 	this.selectedItems = [];
 	var i = 0;
-	//var len = this.chartsArr.length;
 	
 	//clean canvas
 	document.getElementById(this.canvasId).innerHTML = "";
-	//var tmpArr = this.chartsArr;
-	console.log("before : " + this.chartsArr);
-	var tmpArr = this.chartsArr.slice(0);//jQuery.extend({}, this.chartsArr);
-	console.log("before : tmpArr " + tmpArr);
+	var tmpArr = this.chartsArr.slice(0);
 	this.chartsArr = [];
-	console.log("before : tmpArr111 " + tmpArr);
-	console.log("before : tmpArr.length " + tmpArr.length);
 	for(i=0;i<tmpArr.length;i++) {
-		console.log("Adding id = " + tmpArr[i].id )
 		this.add(tmpArr[i].param);		
 	}
 }
@@ -207,8 +200,11 @@ SVGCanvas.prototype.getNextAnchorPoint = function() {
 	To add a new diagram to this canvas
 **/
 SVGCanvas.prototype.add = function(params) {
-	params.chartWidth = this.chartWidth;
+	params.chartWidth = this.chartWidth * 0.9;
 	params.chartHeight = this.chartHeight;
+	params.legendWidth = this.chartWidth * 0.1;
+	params.legendHeight = this.chartHeight;
+	
 	var anchor = this.getNextAnchorPoint();
 	params.anchor_x = anchor[0];
 	params.anchor_y = anchor[1];
@@ -221,5 +217,30 @@ SVGCanvas.prototype.add = function(params) {
 		var chart1 = new SVGChart(g,"scatter",params,anchor,chart_id,this);
 		chart1.plot();
 		this.chartsArr.push(chart1);
+	}
+}
+
+SVGCanvas.prototype.updateChart = function(id,type,from,to) {
+	console.log("id = "+ id +"type = " + type + ", from = " + from + ", to = " + to);
+	
+	
+	//document.getElementById(this.canvasId).innerHTML = "";
+	//return;
+	//this.allocatedAnchors = [];
+	//this.selectedItems = [];
+	//var tmpArr = this.chartsArr.slice(0);
+	//this.chartsArr = [];
+	for(i=0;i<this.chartsArr.length;i++) {
+		//console.log("Adding id = " + tmpArr[i].id )
+		if(this.chartsArr[i].id == id) {
+			if(type == 'x')
+				this.chartsArr[i].param.x_filter = {from:from,to:to}
+			else if(type == 'y')
+				this.chartsArr[i].param.y_filter = {from:from,to:to}
+			else
+				this.chartsArr[i].param.z_filter = {from:from,to:to}
+			this.chartsArr[i].refresh();
+			//console.log("we found that diagram!");
+		}
 	}
 }

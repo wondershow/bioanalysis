@@ -66,3 +66,12 @@ pos:the position on the slider
 function getTickOnSlider(min,max,length,pos) {
 	return min + Math.floor( (pos/length )*(max-min) );
 }
+
+/**
+to return a number from an excel string, 
+sometimes this number string is ".","-"," ",
+we return 0;
+**/
+function parseExcelNumber(numStr) {
+	return parseInt(numStr)==NaN? 0:parseInt(numStr);;
+}
