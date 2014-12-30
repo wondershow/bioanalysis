@@ -222,23 +222,20 @@ SVGCanvas.prototype.add = function(params) {
 
 SVGCanvas.prototype.updateChart = function(id,type,from,to) {
 	console.log("id = "+ id +"type = " + type + ", from = " + from + ", to = " + to);
-	
-	
-	//document.getElementById(this.canvasId).innerHTML = "";
-	//return;
-	//this.allocatedAnchors = [];
-	//this.selectedItems = [];
-	//var tmpArr = this.chartsArr.slice(0);
-	//this.chartsArr = [];
+
 	for(i=0;i<this.chartsArr.length;i++) {
 		//console.log("Adding id = " + tmpArr[i].id )
 		if(this.chartsArr[i].id == id) {
-			if(type == 'x')
+			if (type == 'x')
 				this.chartsArr[i].param.x_filter = {from:from,to:to}
-			else if(type == 'y')
+			else if( type == 'y')
 				this.chartsArr[i].param.y_filter = {from:from,to:to}
-			else
+			else if (type == 'z')
 				this.chartsArr[i].param.z_filter = {from:from,to:to}
+			else if (type == 'c') {
+				console.log("I am here 11112222");
+				this.chartsArr[i].param.c_filter = {filter_type:from,item:to}
+			}
 			this.chartsArr[i].refresh();
 			//console.log("we found that diagram!");
 		}

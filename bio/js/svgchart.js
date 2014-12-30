@@ -33,6 +33,8 @@ var SVGChart = function (g,type,p,anchor,id,parent){
 	this.id = id;
 	this.parent = parent;
 	this.plotObj = null;
+	
+	this.ruleOutCItems = [];
 }
 
 SVGChart.prototype.selected = function(index) {
@@ -94,6 +96,21 @@ SVGChart.prototype.draw = function() {
 SVGChart.prototype.refresh = function(){
 	console.log("Refreshing");
 	document.getElementById(this.chart_svg_id).innerHTML = "";
+	
+	//To setup the filter for the enumerative values
+	if(this.param.c_filter != undefined && this.param.c_filter != null) {
+		if(this.param.c_filter.filter_type =='RESUME') {
+			var tmpArr = this.ruleOutCItems;
+			console.log("before: " + this.ruleOutCItems )
+			this.ruleOutCItems = arrayRemoveVal(this.param.c_filter.item,tmpArr);
+			console.log("after: " + this.ruleOutCItems )
+		} else {
+			if($.inArray(this.param.c_filter.item,this.ruleOutCItems)<0 )
+				this.ruleOutCItems.push(this.param.c_filter.item);
+		}
+		console.log("this.ruleOutCItems = " + this.ruleOutCItems);
+	}
+	this.param.ruleOutCItems = this.ruleOutCItems;
 	this.draw();
 }
 

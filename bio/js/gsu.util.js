@@ -36,6 +36,19 @@ function arrayRemove(index,arr) {
 }
 
 /**
+To remove an item from an array
+**/
+function arrayRemoveVal(val,arr) {
+	var i = 0;
+	var res = [];
+	for(;i<arr.length;i++) {
+		if(arr[i] != val)
+			res.push(arr[i]);
+	}
+	return res;
+}
+
+/**
 To get the position of an element
 **/
 function getPos(el) {
@@ -74,4 +87,27 @@ we return 0;
 **/
 function parseExcelNumber(numStr) {
 	return parseInt(numStr)==NaN? 0:parseInt(numStr);;
+}
+
+/**
+To return all the elements connected by ","
+**/
+function arrayToString(arr) {
+	var i = 0,res = "";
+	
+	for(i=0;i<arr.length;i++) 
+		res += arr[i] + ","
+	
+	return res;
+}
+
+/**
+To preprocess string values, if they are empty or else,
+return N/A
+**/
+function processStr(str) {
+	if(str == null || str == undefined || str.trim() == "")
+		return "N/A";
+	else
+		return str;
 }

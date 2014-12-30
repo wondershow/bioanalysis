@@ -21,6 +21,10 @@ var SVGScatterChart = function (params,svg,chart_id) {
 	this.YFilter = params.y_filter;
 	this.ZFilter = params.z_filter;
 	this.CFilter = params.c_filter;
+	
+	this.ruleOutCItems = params.ruleOutCItems;
+	
+	
 }
 
 
@@ -46,6 +50,10 @@ SVGScatterChart.prototype.isValidData = function (index) {
 		if(val<this.ZFilter.from || val>this.ZFilter.to)
 			return false;
 	}
+	if(this.CFilter != undefined && this.CFilter != null) {
+		if($.inArray(this.dataC[index],this.ruleOutCItems) >= 0) 
+			return false;
+	}
 	return true;
 }
 
@@ -58,11 +66,11 @@ SVGScatterChart.prototype.getMaxVal = function(type) {
 	for(i=0;i<this.dataX.length;i++) {
 		if(this.isValidData(i)) {
 			if(type == 'x')
-				tmpVals.push(this.dataX[i]);
+				tmpVals.push( this.dataX[i] );
 			else if (type == 'y')
-				tmpVals.push(this.dataY[i]);
+				tmpVals.push( this.dataY[i] );
 			else if (type == 'z')
-				tmpVals.push(this.dataZ[i]);
+				tmpVals.push( this.dataZ[i] );
 		}
 	}
 	return d3.max(tmpVals, function(d){ return parseExcelNumber(d)});
@@ -94,6 +102,7 @@ SVGScatterChart.prototype.getMinVal= function(type) {
  * axis - sets up axis
  */
 SVGScatterChart.prototype.plot = function () {
+	
     xScale = d3.scale.linear()
 					 .range([this.margin.left, this.plotwidth-this.margin.left-this.margin.right])
 					 .domain([this.getMinVal('x'),this.getMaxVal('x')]);				 
@@ -133,7 +142,7 @@ SVGScatterChart.prototype.plot = function () {
 	}
 	
 	// setup fill color
-	var cValue = function(d) { return d[3];}
+	var cValue = function(d) { return d[3]; }
     color = d3.scale.category10();
 	
 	//TODO add the tooltip area to the webpage
@@ -156,11 +165,11 @@ SVGScatterChart.prototype.plot = function () {
 	var dataums = []
 	for(i=0;i<this.dataX.length;i++) {
 		if(this.dataZ != null && this.dataC != null ) {
-			dataums.push([this.dataX[i],this.dataY[i],this.dataZ[i],this.dataC[i]]);
+			dataums.push([this.dataX[i],this.dataY[i],this.dataZ[i],processStr(this.dataC[i])]);
 		}else if( this.dataZ != null && this.dataC == null ) {
 			dataums.push([this.dataX[i],this.dataY[i],this.dataZ[i],null]);
 		}else if ( this.dataZ == null && this.dataC != null ) {
-			dataums.push([this.dataX[i],this.dataY[i],null,this.dataC[i]]);
+			dataums.push([this.dataX[i],this.dataY[i],null,processStr(this.dataC[i])]);
 		} else {
 			dataums.push([this.dataX[i],this.dataY[i],null,null]);
 		}
@@ -228,7 +237,7 @@ SVGScatterChart.prototype.plot = function () {
 					var cir_id = chart_id + "_" + i;
 					//console.log(cir_id +" is selected");
 					d3.select("#"+cir_id).attr("class","dot_selected");
-					//mainCanvas.selected(cir_id);
+					mainCanvas.selected(cir_id);
 			  })
 			  .on('dblclick',function(d,i){ 
 					//var cir_id = chart_id + "_" + d[0] + "_" + d[1] + "_" + i;
@@ -237,6 +246,7 @@ SVGScatterChart.prototype.plot = function () {
 					mainCanvas.deSelected(cir_id);
 				  })
 			  .style("fill", function(d) { return d[3]==undefined?"black":color(cValue(d));}) 
+			  
 			  /*
 			  .on("mouseover", function(d) {
 				  console.log("d3.event.pageX = " + d3.event.pageX + ",d3.event.pageY="+d3.event.pageY);
@@ -256,6 +266,7 @@ SVGScatterChart.prototype.plot = function () {
 			  
 	if(this.dataC != null) {
 		rightOffset = this.plotwidth;
+		//console.log(color);
 		var legend = this.svgContainer.selectAll(".legend")
 						.data(color.domain())
 						.enter().append("g")
@@ -264,14 +275,35 @@ SVGScatterChart.prototype.plot = function () {
 						//.attr("transform", function(d, i) { return "translate("+rightOffset+"," + i * 20 + ")"; });
 
 		// draw legend colored rectangles
+		var ruled_out_arr = this.ruleOutCItems;
+		
+		
+		
+		var eval_str = " var agent_function = function(value) { \
+			if($.inArray(value,ruled_out_arr) < 0 ) \
+				mainCanvas.updateChart('"+this.chartId +"','c', 'REMOVE', value); \
+			else \
+				mainCanvas.updateChart('"+this.chartId +"','c', 'RESUME', value); \
+		};" 
+		
+		eval(eval_str)
 		
 		legend.append("rect")
 			.attr("x", rightOffset)
-			.attr("width", 18)
-			.attr("height", 18)
-			.style("fill", color)
-			.on("click", function(d) {
-				console.log("This color is clicked")
+			.attr("width", 15)
+			.attr("height", 15)
+			.style("fill", function(d,i){ var rangeArr = color.range(); return rangeArr[i];})
+			.attr("stroke-width", function(d,i){var domainArr = color.domain();if($.inArray(domainArr[i],ruled_out_arr)>=0) return 2; else return 0  })
+			.attr("stroke", "black")
+			.on("click", function(d,i) {
+				
+				//console.log(color.domain())
+				//var rangeArr = color.range();
+				var domainArr = color.domain();
+				//console.log("This color is clicked, " + domainArr[i]);
+				//mainCanvas.updateChart('"+this.chartId +"','"+this.axis_name+"', "+this.containerid+"_range_from ,"+this.containerid+"_range_to );
+				//console.log(super);
+				agent_function(domainArr[i]);
 			});
 
 		// draw legend text

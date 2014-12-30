@@ -23,7 +23,6 @@
 	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
 	<script src="js/d3.js"> </script>
 	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-	<script src="js/d3.slider.js"></script>
     <script type="text/javascript">
 		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
 		var fullData;
@@ -231,12 +230,7 @@
 	</svg>
 	
 	
-	<script>
-		d3.select('#slider3').call(d3.slider().axis(true).value( [ 10, 25 ] ).orientation("vertical").on("slide", function(evt, value) {
-			d3.select('#slider3textmin').text(value[ 0 ]);
-			d3.select('#slider3textmax').text(value[ 1 ]);
-		}));
-	</script>
+	
 	
 	
 	
@@ -266,12 +260,8 @@
 	
 	<svg id="testsvg" width = "500" height="500" style='background-color:red'>
 		<svg id="testsvg1" x="0" width="200" height="500" style='background-color:blue'>
-			<rect x="10" y="10" height="100" width="100"
-				style="stroke:#009900; fill: #00cc00"/>
 		</svg>
 		<svg id="testsvg2" x="300" width="200" height="500" style='background-color:black'>
-			<rect x="10" y="10" height="100" width="100"
-				style="stroke:#009900; fill: #00cc00"/>
 		</svg>
 	</svg>
 	
