@@ -32,6 +32,7 @@ function arrayRemove(index,arr) {
 		if(i != index)
 			res.push[arr[i]];
 	}
+	console.log("Remove " + index + " from " + arr + " is " + res);
 	return res;
 }
 
@@ -45,6 +46,7 @@ function arrayRemoveVal(val,arr) {
 		if(arr[i] != val)
 			res.push(arr[i]);
 	}
+	console.log("Remove " + val + " from " + arr + " is " + res);
 	return res;
 }
 

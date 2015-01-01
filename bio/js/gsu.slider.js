@@ -128,6 +128,7 @@ SVGSlider.prototype.drawLeftHandle = function () {
 
 	var evalStr = "var tmp_function1 = function(e){ \
 			if( (typeof "+from_handle_id+"slider_on !== 'undefined')  && "+from_handle_id+"slider_on) { \
+				e.preventDefault();\
 				dx = e.clientX - slider_orig_left_x; \
 				slider_orig_left_x =  e.clientX; \
 				var tmpStr = $('#" + from_handle_id + "').attr('transform');\
@@ -210,6 +211,7 @@ SVGSlider.prototype.drawUpperHandle = function () {
 
 	var evalStr = "var tmp_function1 = function(e){ \
 			if( (typeof "+from_handle_id+"slider_on !== 'undefined')  && "+from_handle_id+"slider_on) { \
+				e.preventDefault();\
 				dy = e.clientY - slider_orig_upper_y; \
 				slider_orig_upper_y =  e.clientY; \
 				var tmpStr = $('#" + from_handle_id + "').attr('transform');\
@@ -238,7 +240,7 @@ SVGSlider.prototype.drawUpperHandle = function () {
 }
 
 SVGSlider.prototype.drawRightHandle = function () {
-	var offset = this.sliderWidth - this.handleWidth + 2;
+	var offset = this.sliderWidth - this.handleWidth + this.handleWidthOffset/2;
 	var to_handle_id = "handle_to_" + Math.floor(Math.random()*10000)
 	d3.select("#"+this.containerid).append('rect')
 								.attr("x",this.barAnchorX - this.handleWidthOffset/2)
@@ -280,6 +282,7 @@ SVGSlider.prototype.drawRightHandle = function () {
 
 	var evalStr = "var tmp_function1 = function(e){ \
 			if( (typeof "+to_handle_id+"slider_on !== 'undefined')  && "+to_handle_id+"slider_on) { \
+				e.preventDefault();\
 				dx = e.clientX - slider_orig_right_x; \
 				slider_orig_right_x =  e.clientX; \
 				var tmpStr = $('#" + to_handle_id + "').attr('transform');\
@@ -311,7 +314,7 @@ SVGSlider.prototype.drawLowerHandle = function () {
 
 	var to_handle_id = "handle_to_" + Math.floor(Math.random()*10000)
 	var to_text_id = "to_text_" + Math.floor(Math.random()*10000);
-	var offset = this.sliderHeight - this.handleHeight + 2;
+	var offset = this.sliderHeight - this.handleHeight + this.handleWidthOffset/2;
 	
 	d3.select("#"+this.containerid).append('rect')
 								.attr("x",this.barAnchorX - this.handleWidthOffset/2)
@@ -351,6 +354,7 @@ SVGSlider.prototype.drawLowerHandle = function () {
 
 	var evalStr = "var tmp_function1 = function(e){ \
 			if( (typeof "+to_handle_id+"slider_on !== 'undefined')  && "+to_handle_id+"slider_on) { \
+				e.preventDefault();\
 				dy = e.clientY - slider_orig_lower_y; \
 				slider_orig_lower_y =  e.clientY; \
 				var tmpStr = $('#" + to_handle_id + "').attr('transform');\

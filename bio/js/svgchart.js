@@ -38,7 +38,6 @@ var SVGChart = function (g,type,p,anchor,id,parent){
 }
 
 SVGChart.prototype.selected = function(index) {
-	console.log("here i am in the SVGChart selected function");
 	this.plotObj.selected(index);
 }
 
@@ -70,10 +69,6 @@ SVGChart.prototype.draw = function() {
 		.attr("height",this.chartHeight)
 		.attr("fill","white");
 		
-	
-		
-		
-		
 	var remove = this.mainChartSvg.append("text")
 		.text("X")
 		.attr("x",0)//this has included anchorX
@@ -87,7 +82,7 @@ SVGChart.prototype.draw = function() {
 	
 	
 	if(this.type=="scatter") {
-		var sct = new SVGScatterChart(this.param,this.mainChartSvg,this.id);
+		var sct = new SVGScatterChart(this.param,this.mainChartSvg,this.parent,this.id);
 		sct.plot();
 		this.plotObj = sct;
 	}
@@ -150,9 +145,5 @@ SVGChart.prototype.addSliders = function() {
 	var params2 = {anchor:anchor2,w:slider_width,h:slider_height,svg:this.legend_svg,label:this.axisY,min:min_val,max:max_val,type:'v',chart_id:this.id,axis_name:'y'}; 
 	var slider2 = new SVGSlider(params2);
 	slider2.generate();
-	
-	//if the size option is selected
-	//if(this.axisZ != null && this.axisZ != undefined && this.axisZ.trim() != "" ) 
-	//var anchor2 = {x:Math.floor(this.plotwidth*0.85),y:Math.floor(this.plotHeight*0.3)} 
-	//else
+
 }

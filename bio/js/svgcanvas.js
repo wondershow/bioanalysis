@@ -129,11 +129,14 @@ SVGCanvas.prototype.selected = function (item_id) {
 	var chart_id = id_pieces[0];
 	var item_index = id_pieces[1];
 	var i = 0;
+	if($.inArray(item_index,this.selectedItems) < 0)
+		this.selectedItems.push(item_index);
 	for(i = 0;i<this.chartsArr.length;i++) {
 		this.chartsArr[i].selected(item_index);
 		this.tableObj.selected(item_index);
+		this.chartsArr[i].refresh();
 	}
-	this.selectedItems.push(item_index);
+	console.log("Select " + item_index);
 }
 
 /**
@@ -144,11 +147,15 @@ SVGCanvas.prototype.deSelected = function (item_id) {
 	var chart_id = id_pieces[0];
 	var item_index = id_pieces[1];
 	var i = 0;
+	console.log("before: canvas.selectedItems = " + this.selectedItems);
+	this.selectedItems  = arrayRemoveVal(item_index, this.selectedItems);
+	console.log("after: canvas.selectedItems = " + this.selectedItems);
 	for(i = 0;i<this.chartsArr.length;i++) {
-		this.chartsArr[i].deSelected(item_index);
+		//this.chartsArr[i].deSelected(item_index);
 		this.tableObj.deSelected(item_index);
+		this.chartsArr[i].refresh();
 	}
-	this.selectedItems.splice(item_index, 1);
+	console.log("Deselect " + item_index);
 }
 
 /**
@@ -162,17 +169,19 @@ SVGCanvas.prototype.toggle = function(index) {
 	if(inArrayGSU(index, this.selectedItems)) {
 		console.log("Removing table index = " + index + ", this.selectedItems  " + this.selectedItems);
 		for(i = 0;i<this.chartsArr.length;i++) {
-			this.chartsArr[i].deSelected(index);
+			//this.chartsArr[i].deSelected(index);
 			this.tableObj.deSelected(index);
-			this.selectedItems  = arrayRemove(index, this.selectedItems);
+			this.selectedItems  = arrayRemoveVal(index, this.selectedItems);
+			this.chartsArr[i].refresh();
 		}
 	} else {
 		console.log("Adding table");
+		if($.inArray(index,this.selectedItems) < 0)
+			this.selectedItems.push(index);
 		for(i = 0;i<this.chartsArr.length;i++) {
-			this.chartsArr[i].selected(index);
+			this.chartsArr[i].refresh();
 			this.tableObj.selected(index);
 		}
-		this.selectedItems.push(index);
 	}
 }
 

@@ -1,4 +1,4 @@
-var SVGScatterChart = function (params,svg,chart_id) {
+var SVGScatterChart = function (params,svg,canvas_obj,chart_id) {
 
 	this.dataX = params.x_data;
 	this.dataY = params.y_data;
@@ -24,11 +24,9 @@ var SVGScatterChart = function (params,svg,chart_id) {
 	
 	this.ruleOutCItems = params.ruleOutCItems;
 	
-	
+	this.canvasObj = canvas_obj;
+	this.selectedItems = this.canvasObj.selectedItems;
 }
-
-
-
 
 /**
 To check if a given data is ruled out or not
@@ -155,8 +153,8 @@ SVGScatterChart.prototype.plot = function () {
 	var tip = d3.tip()
 				.attr('class', 'd3-tip')
 				.offset([-10, 0])
-				.html(function(d) {
-					return (d[0] + "," + d[1]);
+				.html(function(d,i) {
+					return ("case" + i + ":" + d[0] + "," + d[1]);
 				})
 				
 	this.svgContainer.call(tip);
@@ -220,11 +218,16 @@ SVGScatterChart.prototype.plot = function () {
 		}"
 		
 		eval(eval_str);
+		
+		var selectedItems = this.selectedItems;
+		
+		console.log("The selected items are " + selectedItems);
+		//console.log($.inArray(225,selectedItems));
 		// draw dots
 		this.svgContainer.selectAll(".dot")
 			.data(dataums)
 			.enter().append("circle")
-			.attr("class", "dot")
+			.attr("class", function(d,i) {if( $.inArray(i+"",selectedItems) >=0 ) return "dot_selected"; else return "dot";} )
 			.attr("r", test_function)
 			.attr("cx", xMap)
 			.attr("cy", yMap)
@@ -235,7 +238,7 @@ SVGScatterChart.prototype.plot = function () {
 			  .on('mouseout', tip.hide)
 			  .on('click',function(d,i){
 					var cir_id = chart_id + "_" + i;
-					//console.log(cir_id +" is selected");
+					console.log(cir_id +" is selected");
 					d3.select("#"+cir_id).attr("class","dot_selected");
 					mainCanvas.selected(cir_id);
 			  })
@@ -326,7 +329,9 @@ SVGScatterChart.prototype.generateCirId = function (x,y,index) {
 SVGScatterChart.prototype.selected = function (index) {
 	var cir_id = this.chartId + "_" + index;
 	d3.select("#" + cir_id).attr("class","dot_selected");
-	console.log(d3.select("#" + cir_id));
+	var eval_str = 'd3.select("#" + cir_id).attr("class","dot_selected");';
+	//console.log(eval_str);
+	//console.log(d3.select("#" + cir_id));
 }
 
 SVGScatterChart.prototype.deSelected = function (index) {
