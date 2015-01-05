@@ -9,12 +9,13 @@
 	<script type="text/javascript" src="js/parseobject.js"></script>
 	<script type="text/javascript" src="js/htmltablobj.js"></script>
 	<script type="text/javascript" src="js/popupdialog.js"></script>
+	<script type="text/javascript" src="js/popupdialog1.js"></script>
 	<script type="text/javascript" src="js/svgcanvas.js"></script>
 	<script type="text/javascript" src="js/svgscatterchart.js"></script>
+	<script type="text/javascript" src="js/svgheatmap.js"></script>
 	<script type="text/javascript" src="js/svgchart.js"></script>
 	<script type="text/javascript" src="js/gsu.slider.js"></script>
-	
-	
+	<script type="text/javascript" src="js/colormix-2.0.0.js"></script>
 	
 	<!--<script type='text/javascript' src='js/jquery.js'></script>-->
     <!--<script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>-->
@@ -93,10 +94,52 @@
 			});
 		}
 		
+		function draw() {
+			if (document.getElementById("group2_1").checked){
+					drawScatter();
+					$.modal.close();
+			}
+			else if (document.getElementById("group2_2").checked) {
+					tmp = document.getElementById("x_field");
+					x_field = tmp.options[tmp.selectedIndex].value;
+
+					tmp = document.getElementById("y_field");
+					y_field = tmp.options[tmp.selectedIndex].value;
+					if ( x_field=="" || y_field=="") {
+						document.getElementById("alertmsg").innerHTML = "Please select field X, Y";
+					} else {
+						$.modal.close();
+						g_equation_config = new EquationDialog("equation", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps(),x_field,y_field,"g_equation_config");
+						g_equation_config.addEquEditor();	
+					}
+			} else if(document.getElementById("group3_1").checked){
+					drawPCG();
+			}
+		}
+		
+		function drawHeatmap(params) {
+			var x = [];
+			var y = [];
+			for(i=0;i<dataCases.length;i++) {
+					x.push(dataCases[i].getPropVal(params.x_axis));
+					y.push(dataCases[i].getPropVal(params.y_axis));
+			}
+			
+			params.x_data = x;
+			params.y_data = y;
+			params.full_data = dataCases;
+			$.modal.close();
+			mainCanvas.add(params)
+		}
+		
+		function drawPCG() {
+				
+		}
+		
 		/**
 			To draw 
 		**/
-		function draw() {
+		function drawScatter() {
 			var tmp;
 			tmp = document.getElementById("x_field");
 			x_field = tmp.options[tmp.selectedIndex].value;
@@ -149,10 +192,7 @@
 					params.c_data = null;
 					params.c_axis = null;
 				}
-				//console.log("++++++++++++++++++");
-				//console.log(params);
 				mainCanvas.add(params);
-				$.modal.close();
 			}
 		}
 		
@@ -190,8 +230,6 @@
 			//console.log($(window).width());
 			var params = {x_data:x,y_data:y,z_data:z,c_data:c,x_axis:"ph3n",y_axis:"ki67n",z_axis:"mfin",c_axis:"racec",type:"scatter"};
 			mainCanvas.add(params);
-			
-			
 			//mainCanvas.add(params);
 			
 			//mainCanvas.add(params);
@@ -199,13 +237,13 @@
 			mainCanvas.add(params);
 		}
 		
-		//
 		function handle_table_row_selection(index) {
-			//console.log("index is " + index);
 			mainCanvas.toggle(index);
 		}
 		
-		//console.log(isNumeric("."))
+		//var color = ColorMix.blend(69);
+		//console.log(color);
+		//alert('Your blended color is: rgb(' + color.red + ', ' + color.green + ', ' + color.blue + ')');
     </script>
   </head>
   <body>
@@ -218,28 +256,19 @@
 	<div id="content">
 	
 	</div>
+	<div id="equation">
+	
+	</div>
+	
 	<svg width='100%' height='1000' id='test' style='background-color:grey'>
 		
 	</svg>
 
 	
-	<svg width='300' height='300' style='background-color:yellow'>
-		<h2>Range Slider with event, values: <span id="slider3textmin">10</span>, <span id="slider3textmax">25</span></h2>
-    
-		<div id="slider3"></div>
+	<svg width='300' height='3000' style='background-color:white' id = "color_test">
+		
 
 	</svg>
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	<svg width='300' height='300' >
 		<g transform="translate(10,50)">
@@ -253,8 +282,8 @@
 			</g>
 			<path class="domain" d="M9,0H1V100H9"></path>
 			<rect x="0" y="0" rx="1" ry="1" width="10" height="10"
-				style="fill:red;stroke:yellow;stroke-width:1;opacity:1.0" 
-				onmousedown="if()" onmouseup = "console.log()" onmousemove=""    
+				style="fill:red;stroke:yellow;stroke-width:1;opacity:1.0"
+				onmousedown="" onmouseup = "console.log()" onmousemove=""  
 			/>
 		</g>
 	</svg>
@@ -266,16 +295,40 @@
 		</svg>
 	</svg>
 	
+	<svg xmlns = "http://www.w3.org/2000/svg" width="100%" height="100%">
+		<rect x="25" y="25" width="250" height="200" fill="#ff0000" stroke="#000000"/>
+			<foreignObject x="50" y="50" width="200" height="150">
+				<body xmlns="http://www.w3.org/1999/xhtml">
+					<form>
+						<input type="text"/>
+						<input type="text"/>
+					</form>
+				</body>
+			</foreignObject>
+		<circle cx="60" cy="80" r="30" fill="#00ff00" fill-opacity="0.5"/>
+	</svg>
+	
 	<script>
-		/*
-		var svg_parent = $("#testsvg");
-		params = {anchor:{x:50,y:50},w:200,h:40,svg:svg_parent,label:"testsvg",min:0,max:100,type:'h'}; 
-		//var slider = new SVGSlider(params);
-		//slider.generate();
+		var i = 0;
+		var color = ColorMix.blend(69);
+		console.log(d3.select("#color_test"));
 		
-		params = {anchor:{x:100,y:100},w:40,h:200,svg:svg_parent,label:"vertical",min:30,max:160,type:'v'}; 
-		//var slider = new SVGSlider(params);
-		//slider.generate();*/
+		var color_hot = new ColorMix.Color('#FF0000');
+		var color_cold = new ColorMix.Color('#0000FF');
+		
+		for(i=0;i<=256;i++) {
+			//color1 = ColorMix.blend(i);
+			//console.log("color1 : " + color1);
+			d3.select("#color_test").append("circle")
+				.attr("cx",5)
+				.attr("cy",5*i)
+				.attr("r",2)
+				//.attr("fill",ColorMix.mix([color_hot,color_cold],[ Math.floor(i*100/256),100-Math.floor(i*100/256)]));
+				.attr("fill",rgbToHex(i,256-i,256-i));
+				
+				//.attr("fill","#"+i.toString(16));
+			//console.log("#"+i.toString(16));
+		}
 	</script>
   </body>
 </html>

@@ -106,7 +106,6 @@ SVGScatterChart.prototype.plot = function () {
 					 .domain([this.getMinVal('x'),this.getMaxVal('x')]);				 
 	
 	var evalStr =  "xMap = function(d) {return $.isNumeric(d[0])? xScale(d[0]):(xScale(0)+ " + this.margin.left +" ) };"
-    //xMap = function(d) {return xScale(d[0]);}; // data -> display
 	eval(evalStr);
     xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
@@ -120,8 +119,6 @@ SVGScatterChart.prototype.plot = function () {
 	you may want to change the margin.top together, it should be a bug
 	**/
 	var evalStr =  "yMap = function(d) {return $.isNumeric(d[1])? (yScale(d[1]) + " + this.margin.top  +"): (yScale(0) +" + this.margin.top  +")};"
-	//var evalStr =  "yMap = function(d) {var res; if ($.isNumeric(d[1])) res = d[1]+20; else res = 20; return res; return $.isNumeric(d[1])? (yScale(d[1]) + " + this.margin.top  +"):" + this.margin.top + "};"
-    //yMap = function(d) {return yScale(d[1]) + 20};// data -> display
 	eval(evalStr);
     yAxis = d3.svg.axis().scale(yScale).orient("left");
 	

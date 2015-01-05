@@ -85,6 +85,10 @@ SVGChart.prototype.draw = function() {
 		var sct = new SVGScatterChart(this.param,this.mainChartSvg,this.parent,this.id);
 		sct.plot();
 		this.plotObj = sct;
+	} else if(this.type=="heatmap") {
+		var sct = new SVGHeatMap(this.param,this.mainChartSvg,this.parent,this.id);
+		sct.plot();
+		this.plotObj = sct;
 	}
 }
 

@@ -77,9 +77,9 @@ PopUpDialog.prototype.genModalDiv = function(){
 	
 	html += "<tr style='border: 2px solid black;border-collapse: collapse;'> \
 				<td align='center'  colspan=2 style='border: 2px solid black;border-collapse: collapse;'> \
-					<input type='radio' name='group2' value='scatter' checked> ScatterPlot  \
-					<input type='radio' name='group2' value='heatmap'> HeatMap  \
-					<input type='radio' name='group2' value='parallel'> Parallel \
+					<input type='radio' name='group2_name' id='group2_1' value='scatter' checked> ScatterPlot  \
+					<input type='radio' name='group2_name' id='group2_2' value='heatmap'> HeatMap  \
+					<input type='radio' name='group2_name' id='group2_3' value='parallel'> Parallel \
 				</td>  \
 			</tr> ";
 	
@@ -137,4 +137,3 @@ PopUpDialog.prototype.genNumerateSelections = function(id) {
 	html += "</select> \n";
 	return html;
 }
-

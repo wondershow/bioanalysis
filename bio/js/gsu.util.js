@@ -21,7 +21,6 @@ function inArrayGSU(ele,arr) {
 	false;
 }
 
-
 /**
 To remove an item from an array
 **/
@@ -112,4 +111,38 @@ function processStr(str) {
 		return "N/A";
 	else
 		return str;
+}
+
+function componentToHex(c) {
+	//c = parseInt(c);
+	//console.log()
+    var hex = c.toString(16);
+    return hex.length == 1 ? "0" + hex : hex;
+}
+
+function rgbToHex(r, g, b) {
+    return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+/**
+This returns a heatmap color when a value
+is given. 
+**/
+function getColorFromVal(val,min,max) {
+	var i = Math.floor(256*(val-min)/(max-min));
+	return rgbToHex(i,256-i,256-i);
+}
+
+function getHazadasratio(coef,biocase) {
+	var all_props = biocase.getAllPropNames();
+	var i = 0;
+	var res = 0;
+	//console.log()
+	//console.log(biocase);
+	for(i=0;i<coef.length;i++) {
+		var prop_val = biocase.getPropVal(coef[i].option);
+		//console.log(coef[i].option + ":" + coef[i].coef + ":" + prop_val );
+		res += parseFloat(prop_val) * parseFloat(coef[i].coef);
+	}
+	return res;
 }

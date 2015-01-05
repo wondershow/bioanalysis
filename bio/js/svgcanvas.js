@@ -226,6 +226,12 @@ SVGCanvas.prototype.add = function(params) {
 		var chart1 = new SVGChart(g,"scatter",params,anchor,chart_id,this);
 		chart1.plot();
 		this.chartsArr.push(chart1);
+	}else if(params.type == "heatmap") {
+		console.log(params);
+		console.log()
+		var chart1 = new SVGChart(g,"heatmap",params,anchor,chart_id,this);
+		chart1.plot();
+		this.chartsArr.push(chart1);
 	}
 }
 
@@ -242,7 +248,6 @@ SVGCanvas.prototype.updateChart = function(id,type,from,to) {
 			else if (type == 'z')
 				this.chartsArr[i].param.z_filter = {from:from,to:to}
 			else if (type == 'c') {
-				console.log("I am here 11112222");
 				this.chartsArr[i].param.c_filter = {filter_type:from,item:to}
 			}
 			this.chartsArr[i].refresh();
