@@ -323,7 +323,6 @@ SVGScatterChart.prototype.generateCirId = function (x,y,index) {
 SVGScatterChart.prototype.selected = function (index) {
 	var cir_id = this.chartId + "_" + index;
 	d3.select("#" + cir_id).attr("class","dot_selected");
-	var eval_str = 'd3.select("#" + cir_id).attr("class","dot_selected");';
 	//console.log(eval_str);
 	//console.log(d3.select("#" + cir_id));
 }

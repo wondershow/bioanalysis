@@ -1,7 +1,7 @@
 <html>
   <head>
 	<link rel="stylesheet" type="text/css" href="css/bio.css">
-	<link rel="stylesheet" type="text/css" href="css/d3.parcoords.css">
+	
 	<link rel="stylesheet" href="css/d3.slider.css">
 	
 	 <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>-->
@@ -28,7 +28,7 @@
 	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
 	<script src="js/d3.js"> </script>
 	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-	<script type="text/javascript" src="js/d3.parcoords.js"></script>
+	
     <script type="text/javascript">
 		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
 		var fullData;
@@ -281,121 +281,8 @@
 		
 	</svg>
 	
-	
-	
-		
 	<svg id='test_zcd' width='700' height='400' >
-	
+		
 	</svg>
 	</body>
-	<script>
-
-	
-
-
-	var g_data;
-	d3.csv("cars.csv", function(error, cars) {
-	//console.log(cars);
-	g_data = cars;
-	//draw1(cars);
-	});
-	
-	
-	
-function draw1(svg_id,cars,total_width,total_height) {
-	
-	console.log("draw1 is drawing");
-	
-	var margin = {top: 30, right: 10, bottom: 10, left: 10},
-    width = total_width - margin.left - margin.right,
-    height = total_height - margin.top - margin.bottom;
-
-	var x = d3.scale.ordinal().rangePoints([0, width], 1),
-    y = {};
-
-	var line = d3.svg.line(),
-    axis = d3.svg.axis().orient("left"),
-    background,
-    foreground;
-
-	var svg = d3.select("#"+svg_id)
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-  // Extract the list of dimensions and create a scale for each.
-  x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
-    return d != "name" && (y[d] = d3.scale.linear()
-        .domain(d3.extent(cars, function(p) { return +p[d]; }))
-        .range([height, 0]));
-  }));
-	
-  
-  // Add grey background lines for context.
-  background = svg.append("g")
-      .attr("class", "background")
-    .selectAll("path")
-      .data(cars)
-    .enter().append("path")
-      .attr("d", path);
-
-  // Add blue foreground lines for focus.
-  foreground = svg.append("g")
-      .attr("class", "foreground")
-    .selectAll("path")
-      .data(cars)
-    .enter().append("path")
-      .attr("d", path);
-
-  // Add a group element for each dimension.
-  var g = svg.selectAll(".dimension")
-      .data(dimensions)
-    .enter().append("g")
-      .attr("class", "dimension")
-      .attr("transform", function(d) { return "translate(" + x(d) + ")"; });
-
-  // Add an axis and title.
-  g.append("g")
-      .attr("class", "axis")
-      .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
-    .append("text")
-      .style("text-anchor", "middle")
-      .attr("y", -9)
-      .text(function(d) { return d; });
-
-  // Add and store a brush for each axis.
-  g.append("g")
-      .attr("class", "brush")
-      .each(function(d) { d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brush", brush)); })
-    .selectAll("rect")
-      .attr("x", -8)
-      .attr("width", 16);
-	
-	
-	
-	
-	
-	// Returns the path for a given data point.
-	function path(d) {
-	  return line(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
-	}
-
-	// Handles a brush event, toggling the display of foreground lines.
-	function brush() {
-	  var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }),
-		  extents = actives.map(function(p) { return y[p].brush.extent(); });
-	  foreground.style("display", function(d) {
-		return actives.every(function(p, i) {
-		  return extents[i][0] <= d[p] && d[p] <= extents[i][1];
-		}) ? null : "none";
-	  });
-	}
-}
-
-
-
-
-	</script>
-  
 </html>

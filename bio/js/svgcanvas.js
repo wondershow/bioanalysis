@@ -133,7 +133,7 @@ SVGCanvas.prototype.delete = function(chart_id) {
 SVGCanvas.prototype.selected = function (item_id) {
 	var id_pieces = item_id.split("_");
 	var chart_id = id_pieces[0];
-	var item_index = id_pieces[1];
+	var item_index = id_pieces[id_pieces.length-1];
 	var i = 0;
 	if($.inArray(item_index,this.selectedItems) < 0)
 		this.selectedItems.push(item_index);
@@ -153,9 +153,9 @@ SVGCanvas.prototype.deSelected = function (item_id) {
 	var chart_id = id_pieces[0];
 	var item_index = id_pieces[1];
 	var i = 0;
-	console.log("before: canvas.selectedItems = " + this.selectedItems);
+	//console.log("before: canvas.selectedItems = " + this.selectedItems);
 	this.selectedItems  = arrayRemoveVal(item_index, this.selectedItems);
-	console.log("after: canvas.selectedItems = " + this.selectedItems);
+	//console.log("after: canvas.selectedItems = " + this.selectedItems);
 	for(i = 0;i<this.chartsArr.length;i++) {
 		//this.chartsArr[i].deSelected(item_index);
 		this.tableObj.deSelected(item_index);
@@ -167,7 +167,8 @@ SVGCanvas.prototype.deSelected = function (item_id) {
 /**
 	To toggle the status of an item, if its 
 	selected, to deselected, if its deselected, 
-	to selected.
+	to selected. This function is mainly called when
+	an item in the table is doubleclicked. 
 **/
 SVGCanvas.prototype.toggle = function(index) {
 	var i = 0;
@@ -299,23 +300,23 @@ SVGCanvas.prototype.add = function(params) {
 	}
 }
 
+/**
+Handles the filter(slider bar) drag event.
+**/
 SVGCanvas.prototype.updateChart = function(id,type,from,to) {
 	console.log("id = "+ id +"type = " + type + ", from = " + from + ", to = " + to);
 
 	for(i=0;i<this.chartsArr.length;i++) {
-		//console.log("Adding id = " + tmpArr[i].id )
 		if(this.chartsArr[i].id == id) {
 			if (type == 'x')
-				this.chartsArr[i].param.x_filter = {from:from,to:to}
+				this.chartsArr[i].param.x_filter = {from:from,to:to};
 			else if( type == 'y')
-				this.chartsArr[i].param.y_filter = {from:from,to:to}
+				this.chartsArr[i].param.y_filter = {from:from,to:to};
 			else if (type == 'z')
-				this.chartsArr[i].param.z_filter = {from:from,to:to}
-			else if (type == 'c') {
-				this.chartsArr[i].param.c_filter = {filter_type:from,item:to}
-			}
+				this.chartsArr[i].param.z_filter = {from:from,to:to};
+			else if (type == 'c') 
+				this.chartsArr[i].param.c_filter = {filter_type:from,item:to};
 			this.chartsArr[i].refresh();
-			//console.log("we found that diagram!");
 		}
 	}
 }

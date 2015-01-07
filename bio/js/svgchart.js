@@ -103,6 +103,7 @@ SVGChart.prototype.refresh = function(){
 	console.log("Refreshing");
 	
 	document.getElementById(this.chart_svg_id).innerHTML = "";
+	$('#'+this.chart_svg_id).remove();
 	
 	//To setup the filter for the enumerative values
 	if(this.param.c_filter != undefined && this.param.c_filter != null) {
