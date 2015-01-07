@@ -259,7 +259,7 @@ SVGCanvas.prototype.add = function(params) {
 		params.chartWidth = this.chartWidth * 2;
 		params.chartHeight = this.chartHeight;
 		
-		params.legendWidth = this.chartWidth * 0.1;
+		params.legendWidth = this.chartWidth * 0.3;
 		params.legendHeight = this.chartHeight;
 		
 		var anchor = this.getNextAnchorPoint(2);
@@ -319,4 +319,24 @@ SVGCanvas.prototype.updateChart = function(id,type,from,to) {
 			this.chartsArr[i].refresh();
 		}
 	}
+}
+
+SVGCanvas.prototype.addAxis = function(chart_id,axis_name) {
+	var i=0;
+	for(i=0;i<this.chartsArr.length;i++) {
+		if( this.chartsArr[i].chart_svg_id == chart_id )
+			this.chartsArr[i].addAxis(axis_name);
+	}
+	console.log("addAxis: chart_id = " + chart_id + ", axis_name = " + axis_name );
+}
+
+
+SVGCanvas.prototype.delAxis = function(chart_id,axis_name) {
+	var i=0;
+	for(i=0;i<this.chartsArr.length;i++) {
+		if( this.chartsArr[i].chart_svg_id == chart_id )
+			this.chartsArr[i].delAxis(axis_name);
+	}
+	
+	console.log("delAxis: chart_id = " + chart_id + ", axis_name = " + axis_name );
 }

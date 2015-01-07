@@ -87,6 +87,14 @@ SVGParallelCoord.prototype.deSelected = function(index) {
 	//a dummy function;
 }
 
+SVGParallelCoord.prototype.addAxis = function(axisName) {
+	
+}
+
+SVGParallelCoord.prototype.delAxis = function(axisName) {
+	
+}
+
 SVGParallelCoord.prototype.draw = function(svg_id,cars,total_width,total_height) {
 	var margin = {top: 30, right: 10, bottom: 10, left: 10},
 		width = total_width - margin.left - margin.right,
@@ -130,7 +138,6 @@ SVGParallelCoord.prototype.draw = function(svg_id,cars,total_width,total_height)
 			//var path_id = fg_id + "_" + i;
 			//d3.select("#"+path_id).attr("style","stroke:red;stroke-width:2");
 			var path_id = fg_id + "_" + i;
-			console.log("single click on path_id = " + path_id);
 			mainCanvas.selected(path_id);
 		  });
 		  
