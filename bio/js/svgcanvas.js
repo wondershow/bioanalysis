@@ -34,6 +34,9 @@ var SVGCanvas = function(id,table) {
 	this.selectedItems = [];
 	
 	this.tableObj = table;
+	
+	this.grid_width = 0;
+	this.grid_height = 0;
 }
 
 /**
@@ -91,15 +94,18 @@ be called first
 SVGCanvas.prototype.addOneGridRow = function() {
 	var i = 0,anchor_x,anchor_y;
 	var window_width = $(window).width();
-	var grid_width = window_width/this.chartsPerRow;
-	var grid_height = this.chartHeight + 2 * this.horizPadding;
+	this.grid_width = window_width/this.chartsPerRow;
+	this.grid_height = this.chartHeight + 2 * this.horizPadding;
+	var res = [];
 	for(i=0;i<this.chartsPerRow;i++) {
-		anchor_x = i* grid_width + (grid_width - this.chartWidth)/2;
-		anchor_y = this.gridRow * grid_height  + this.horizPadding;
+		anchor_x = i* this.grid_width + (this.grid_width - this.chartWidth)/2;
+		anchor_y = this.gridRow * this.grid_height  + this.horizPadding;
+		res.push([anchor_x,anchor_y]);
 		this.existingAnchors.push([anchor_x,anchor_y]);
 	}
 	//console.log("After adding a new row" + this.existingAnchors);
 	this.gridRow++;
+	return res;
 }
 
 /**
@@ -187,51 +193,109 @@ SVGCanvas.prototype.toggle = function(index) {
 
 
 /**
-	To delete a diagram from this canvas
+	Get next anchor point for the canvas,
+	slot_num is how many slots you need for a plotting. normally you 
+	need one, but you might need two if you are plotting parallel coordinate
+	diagram
 **/
-SVGCanvas.prototype.getNextAnchorPoint = function() {
+SVGCanvas.prototype.getNextAnchorPoint = function(slot_num) {
 	var i = 0;
-	if( this.existingAnchors.length == this.allocatedAnchors.length ) //
-		this.addOneGridRow();
+	var new_added_anchors;
+	
+	//console.log("this.existingAnchors.length = " + this.existingAnchors.length);
+	//console.log("this.allocatedAnchors.length = " + this.allocatedAnchors.length);
+	
+	
+	if( this.existingAnchors.length == this.allocatedAnchors.length) //
+		new_added_anchors = this.addOneGridRow();
+	/*	
+	if(slot_num == 2) { //handle the situation of two slots application
+		this.allocatedAnchors.push(new_added_anchors[0]);
+		this.allocatedAnchors.push(new_added_anchors[1]);
+		return new_added_anchors[0];
+	}*/
+	if(slot_num == 2) {
+		for(i=0;i<this.existingAnchors.length;i++){
+			var x = this.existingAnchors[i][0];
+			var y = this.existingAnchors[i][1];
+			
+			var tuple = [x+this.grid_width,y];
+			var tuple_index = inTupleArray(tuple,this.existingAnchors);
+			
+			//allocate when both the current anchor point and the tuple point are not allocated
+			if(tuple_index >= 0 && inTupleArray(this.existingAnchors[i],this.allocatedAnchors)<0 && inTupleArray(tuple,this.allocatedAnchors)) {
+				this.allocatedAnchors.push(this.existingAnchors[i]);
+				this.allocatedAnchors.push(this.existingAnchors[tuple_index]);
+				return this.existingAnchors[i];
+			}
+		}
+		//when there is no qualified anchors in the existing anchors, 
+		//we have to add new anchors
+		new_added_anchors = this.addOneGridRow();
+		this.allocatedAnchors.push(new_added_anchors[0]);
+		this.allocatedAnchors.push(new_added_anchors[1]);
+		return new_added_anchors[0];
+	}
+	//console.log("this.existingAnchors = " + this.existingAnchors);
+	//console.log("this.allocatedAnchors = " + this.allocatedAnchors);
+	//handle the situation of one slot application
 	for(i=0;i<this.existingAnchors.length;i++) {
-		//console.log(this.existingAnchors[i]);
-		//console.log(this.allocatedAnchors);
-		//console.log($.inArray(this.existingAnchors[i], this.allocatedAnchors));
-		if( ($.inArray(this.existingAnchors[i], this.allocatedAnchors)) < 0  ) {
+		if( (inTupleArray(this.existingAnchors[i], this.allocatedAnchors)) < 0  ) {
 			this.allocatedAnchors.push(this.existingAnchors[i]);
 			return this.existingAnchors[i];
 		}
 	}
-	console.log("Ooops, nothing allocated")
 }
 
 /**
 	To add a new diagram to this canvas
 **/
 SVGCanvas.prototype.add = function(params) {
-	params.chartWidth = this.chartWidth * 0.9;
-	params.chartHeight = this.chartHeight;
-	params.legendWidth = this.chartWidth * 0.1;
-	params.legendHeight = this.chartHeight;
 	
-	var anchor = this.getNextAnchorPoint();
-	params.anchor_x = anchor[0];
-	params.anchor_y = anchor[1];
-	
-	var g = d3.select("#"+this.canvasId).append("g");
-	
-	var chart_id = "chart" + Math.floor(Math.random()*10000);
-	
-	if(params.type == "scatter") {
-		var chart1 = new SVGChart(g,"scatter",params,anchor,chart_id,this);
+	if(params.type == "pc") {
+		
+		
+		params.chartWidth = this.chartWidth * 2;
+		params.chartHeight = this.chartHeight;
+		
+		params.legendWidth = this.chartWidth * 0.1;
+		params.legendHeight = this.chartHeight;
+		
+		var anchor = this.getNextAnchorPoint(2);
+		
+		params.anchor_x = anchor[0];
+		params.anchor_y = anchor[1];
+		
+		var g = d3.select("#"+this.canvasId).append("g");
+		var chart_id = "chart" + Math.floor(Math.random()*10000);
+		
+		var chart1 = new SVGChart(g,"pc",params,anchor,chart_id,this);
 		chart1.plot();
 		this.chartsArr.push(chart1);
-	}else if(params.type == "heatmap") {
-		console.log(params);
-		console.log()
-		var chart1 = new SVGChart(g,"heatmap",params,anchor,chart_id,this);
-		chart1.plot();
-		this.chartsArr.push(chart1);
+		
+	} else {
+		params.chartWidth = this.chartWidth * 0.9;
+		params.chartHeight = this.chartHeight;
+		params.legendWidth = this.chartWidth * 0.1;
+		params.legendHeight = this.chartHeight;
+		
+		var anchor = this.getNextAnchorPoint(1);
+		params.anchor_x = anchor[0];
+		params.anchor_y = anchor[1];
+		
+		var g = d3.select("#"+this.canvasId).append("g");
+		
+		var chart_id = "chart" + Math.floor(Math.random()*10000);
+		
+		if(params.type == "scatter") {
+			var chart1 = new SVGChart(g,"scatter",params,anchor,chart_id,this);
+			chart1.plot();
+			this.chartsArr.push(chart1);
+		}else if(params.type == "heatmap") {
+			var chart1 = new SVGChart(g,"heatmap",params,anchor,chart_id,this);
+			chart1.plot();
+			this.chartsArr.push(chart1);
+		}
 	}
 }
 

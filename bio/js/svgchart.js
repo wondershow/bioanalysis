@@ -47,7 +47,10 @@ SVGChart.prototype.deSelected = function(index) {
 
 SVGChart.prototype.plot = function () {
 	this.draw();
-	this.addSliders();
+	
+	//add sliders when necessary
+	if(this.type == 'scatter'||this.type == 'heatmap')
+		this.addSliders();
 }
 
 
@@ -89,11 +92,16 @@ SVGChart.prototype.draw = function() {
 		var sct = new SVGHeatMap(this.param,this.mainChartSvg,this.parent,this.id);
 		sct.plot();
 		this.plotObj = sct;
+	} else if(this.type=="pc") {
+		var sct = new SVGParallelCoord(this.param,this.mainChartSvg,this.parent,this.id);
+		sct.plot();
+		this.plotObj = sct;
 	}
 }
 
 SVGChart.prototype.refresh = function(){
 	console.log("Refreshing");
+	
 	document.getElementById(this.chart_svg_id).innerHTML = "";
 	
 	//To setup the filter for the enumerative values

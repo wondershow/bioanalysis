@@ -146,3 +146,15 @@ function getHazadasratio(coef,biocase) {
 	}
 	return res;
 }
+/**
+To determine if an item is in an array,
+the array consists of tuple items. 
+*/
+function inTupleArray(item,arr) {
+	var i=0;
+	for(i=0;i<arr.length;i++){
+		if(item[0]==arr[i][0]&&item[1]==arr[i][1])
+			return i;
+	}
+	return -1;
+}

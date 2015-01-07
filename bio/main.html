@@ -1,7 +1,8 @@
 <html>
   <head>
 	<link rel="stylesheet" type="text/css" href="css/bio.css">
-	<link rel="stylesheet" href="css/d3.slider.css"> 
+	<link rel="stylesheet" type="text/css" href="css/d3.parcoords.css">
+	<link rel="stylesheet" href="css/d3.slider.css">
 	
 	 <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>-->
 	<script type="text/javascript" src="js/gsu.util.js"></script>
@@ -13,17 +14,21 @@
 	<script type="text/javascript" src="js/svgcanvas.js"></script>
 	<script type="text/javascript" src="js/svgscatterchart.js"></script>
 	<script type="text/javascript" src="js/svgheatmap.js"></script>
+	<script type="text/javascript" src="js/svgparacoord.js"></script>
 	<script type="text/javascript" src="js/svgchart.js"></script>
 	<script type="text/javascript" src="js/gsu.slider.js"></script>
 	<script type="text/javascript" src="js/colormix-2.0.0.js"></script>
+	<script type="text/javascript" src="js/pcdialog.js"></script>
 	
-	<!--<script type='text/javascript' src='js/jquery.js'></script>-->
-    <!--<script type="text/javascript" src="https://apis.google.com/js/client.js?onload=handleClientLoad"></script>-->
-	<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>-->
+	
+	
+	
+	
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
 	<script src="js/d3.js"> </script>
 	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+	<script type="text/javascript" src="js/d3.parcoords.js"></script>
     <script type="text/javascript">
 		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
 		var fullData;
@@ -55,6 +60,7 @@
 			setupListner();
 			mainCanvas = new SVGCanvas("test",dataTable);
 			//testCanvas();
+			//draw1(dataCases);
 		}
 		
 		function addTable() {
@@ -112,8 +118,11 @@
 						g_equation_config = new EquationDialog("equation", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps(),x_field,y_field,"g_equation_config");
 						g_equation_config.addEquEditor();	
 					}
-			} else if(document.getElementById("group3_1").checked){
-					drawPCG();
+			} else if(document.getElementById("group2_3").checked){
+					$.modal.close();
+					pcdialog= new PCDialog("equation", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps(),x_field,y_field,"pcdialog");
+					pcdialog.addEquEditor();	
+					//drawPCG();
 			}
 		}
 		
@@ -125,6 +134,9 @@
 					y.push(dataCases[i].getPropVal(params.y_axis));
 			}
 			
+			console.log("drawHeatmap params = ");
+			console.log(params);
+			
 			params.x_data = x;
 			params.y_data = y;
 			params.full_data = dataCases;
@@ -132,8 +144,13 @@
 			mainCanvas.add(params)
 		}
 		
-		function drawPCG() {
-				
+		function drawPCG(params) {
+			$.modal.close();
+			console.log("drawPCG params = ");
+			console.log(params);
+			params.full_data = dataCases;
+			//params = 
+			mainCanvas.add(params);
 		}
 		
 		/**
@@ -263,72 +280,122 @@
 	<svg width='100%' height='1000' id='test' style='background-color:grey'>
 		
 	</svg>
-
 	
-	<svg width='300' height='3000' style='background-color:white' id = "color_test">
+	
+	
 		
-
-	</svg>
+	<svg id='test_zcd' width='700' height='400' >
 	
-	<svg width='300' height='300' >
-		<g transform="translate(10,50)">
-			<g transform="translate(0,0)">
-				<line x2='5' y2='0'> </line>
-				<text dy=".32em" x="9" y="0" style="text-anchor: start;">0</text>
-			</g>
-			<g transform="translate(0,100)">
-				<line x2='5' y2='0'> </line>
-				<text dy=".32em" x="9" y="0" style="text-anchor: start;">100</text>
-			</g>
-			<path class="domain" d="M9,0H1V100H9"></path>
-			<rect x="0" y="0" rx="1" ry="1" width="10" height="10"
-				style="fill:red;stroke:yellow;stroke-width:1;opacity:1.0"
-				onmousedown="" onmouseup = "console.log()" onmousemove=""  
-			/>
-		</g>
 	</svg>
-	
-	<svg id="testsvg" width = "500" height="500" style='background-color:red'>
-		<svg id="testsvg1" x="0" width="200" height="500" style='background-color:blue'>
-		</svg>
-		<svg id="testsvg2" x="300" width="200" height="500" style='background-color:black'>
-		</svg>
-	</svg>
-	
-	<svg xmlns = "http://www.w3.org/2000/svg" width="100%" height="100%">
-		<rect x="25" y="25" width="250" height="200" fill="#ff0000" stroke="#000000"/>
-			<foreignObject x="50" y="50" width="200" height="150">
-				<body xmlns="http://www.w3.org/1999/xhtml">
-					<form>
-						<input type="text"/>
-						<input type="text"/>
-					</form>
-				</body>
-			</foreignObject>
-		<circle cx="60" cy="80" r="30" fill="#00ff00" fill-opacity="0.5"/>
-	</svg>
-	
+	</body>
 	<script>
-		var i = 0;
-		var color = ColorMix.blend(69);
-		console.log(d3.select("#color_test"));
-		
-		var color_hot = new ColorMix.Color('#FF0000');
-		var color_cold = new ColorMix.Color('#0000FF');
-		
-		for(i=0;i<=256;i++) {
-			//color1 = ColorMix.blend(i);
-			//console.log("color1 : " + color1);
-			d3.select("#color_test").append("circle")
-				.attr("cx",5)
-				.attr("cy",5*i)
-				.attr("r",2)
-				//.attr("fill",ColorMix.mix([color_hot,color_cold],[ Math.floor(i*100/256),100-Math.floor(i*100/256)]));
-				.attr("fill",rgbToHex(i,256-i,256-i));
-				
-				//.attr("fill","#"+i.toString(16));
-			//console.log("#"+i.toString(16));
-		}
+
+	
+
+
+	var g_data;
+	d3.csv("cars.csv", function(error, cars) {
+	//console.log(cars);
+	g_data = cars;
+	//draw1(cars);
+	});
+	
+	
+	
+function draw1(svg_id,cars,total_width,total_height) {
+	
+	console.log("draw1 is drawing");
+	
+	var margin = {top: 30, right: 10, bottom: 10, left: 10},
+    width = total_width - margin.left - margin.right,
+    height = total_height - margin.top - margin.bottom;
+
+	var x = d3.scale.ordinal().rangePoints([0, width], 1),
+    y = {};
+
+	var line = d3.svg.line(),
+    axis = d3.svg.axis().orient("left"),
+    background,
+    foreground;
+
+	var svg = d3.select("#"+svg_id)
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  // Extract the list of dimensions and create a scale for each.
+  x.domain(dimensions = d3.keys(cars[0]).filter(function(d) {
+    return d != "name" && (y[d] = d3.scale.linear()
+        .domain(d3.extent(cars, function(p) { return +p[d]; }))
+        .range([height, 0]));
+  }));
+	
+  
+  // Add grey background lines for context.
+  background = svg.append("g")
+      .attr("class", "background")
+    .selectAll("path")
+      .data(cars)
+    .enter().append("path")
+      .attr("d", path);
+
+  // Add blue foreground lines for focus.
+  foreground = svg.append("g")
+      .attr("class", "foreground")
+    .selectAll("path")
+      .data(cars)
+    .enter().append("path")
+      .attr("d", path);
+
+  // Add a group element for each dimension.
+  var g = svg.selectAll(".dimension")
+      .data(dimensions)
+    .enter().append("g")
+      .attr("class", "dimension")
+      .attr("transform", function(d) { return "translate(" + x(d) + ")"; });
+
+  // Add an axis and title.
+  g.append("g")
+      .attr("class", "axis")
+      .each(function(d) { d3.select(this).call(axis.scale(y[d])); })
+    .append("text")
+      .style("text-anchor", "middle")
+      .attr("y", -9)
+      .text(function(d) { return d; });
+
+  // Add and store a brush for each axis.
+  g.append("g")
+      .attr("class", "brush")
+      .each(function(d) { d3.select(this).call(y[d].brush = d3.svg.brush().y(y[d]).on("brush", brush)); })
+    .selectAll("rect")
+      .attr("x", -8)
+      .attr("width", 16);
+	
+	
+	
+	
+	
+	// Returns the path for a given data point.
+	function path(d) {
+	  return line(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
+	}
+
+	// Handles a brush event, toggling the display of foreground lines.
+	function brush() {
+	  var actives = dimensions.filter(function(p) { return !y[p].brush.empty(); }),
+		  extents = actives.map(function(p) { return y[p].brush.extent(); });
+	  foreground.style("display", function(d) {
+		return actives.every(function(p, i) {
+		  return extents[i][0] <= d[p] && d[p] <= extents[i][1];
+		}) ? null : "none";
+	  });
+	}
+}
+
+
+
+
 	</script>
-  </body>
+  
 </html>

@@ -1,4 +1,4 @@
-var EquationDialog = function (div_id,num_prop_list,count_prop_list,x,y,obj_name) {
+var PCDialog = function (div_id,num_prop_list,count_prop_list,x,y,obj_name) {
 	this.divId = div_id;
 	
 	this.dialogId = "equation_dialog_"+Math.floor(Math.random()*10000);
@@ -18,7 +18,7 @@ var EquationDialog = function (div_id,num_prop_list,count_prop_list,x,y,obj_name
 	this.yAxis = y;
 }
 
-EquationDialog.prototype.genOptionList = function(id) {
+PCDialog.prototype.genOptionList = function(id) {
 	var html = "";
 	var option_id = id + "_option";
 	var input_id = id + "_input";
@@ -41,42 +41,41 @@ EquationDialog.prototype.genOptionList = function(id) {
 	
 	html += "</select> \n";
 	
-	html += " Coefficient <input type='text' id='"+ input_id +"' >  \n"
+	
 	
 	
 	//To add listener on the onclick
 	var eval_str =  option_id + "_click_function1 = function() { \
 					var selection = document.getElementById('"+ option_id  +"');  \
 					var selected_val = selection.options[selection.selectedIndex].value; \
-					var val = document.getElementById('"+ input_id  +"').value;  \
-					" +this.objName+ ".addItem(selected_val, val);\
+					" +this.objName+ ".addItem(selected_val, 0);\
 					\};"
 	eval(eval_str);
 	html += "<button onclick='"+option_id+"_click_function1()'> + </button> <br />";
 	
 	var i=0;
 	for(i=0;i<this.selectedCoef.length;i++) {
-		html += this.selectedCoef[i].option + " * " + this.selectedCoef[i].coef + " ";
+		html += this.selectedCoef[i].option;
 		html += "<button onclick='" + this.objName + ".removeItem(\""+this.selectedCoef[i].option+"\")'>-</button> <br />";
 	}
 	
-	var eval_str = this.dialogId + "_selectedCoef = this.selectedCoef;";
+	var eval_str = this.dialogId + "_selectedItems = this.selectedItems;";
 	
 	eval(eval_str);
 	
-	var eval_str = this.dialogId +"_params = { coef:" + this.dialogId + "_selectedCoef\
-						,type:'heatmap',x_axis:'"+this.xAxis+"',y_axis:'"+this.yAxis+"'};";
+	var eval_str = this.dialogId +"_params = {items:" + this.dialogId + "_selectedItems\
+						,type:'pc'};";
 	eval(eval_str);
-	eval("console.log("+this.dialogId +"_params)");
 	
 	//console.log("asdfasdf:"+this.dialogId);	
-	html += "<button  onclick=' drawHeatmap("+this.dialogId+"_params);' style='align:center'> Draw heatmap</button>"
+	html += "<button onclick='drawPCG("+this.dialogId+"_params);' style='align:center'> Draw PCD</button>"
 	html += "</div>";
+	
 	return html;
 }
 
 
-EquationDialog.prototype.removeItem = function(option_name) {
+PCDialog.prototype.removeItem = function(option_name) {
 	var tmpArr = this.selectedCoef;
 	this.selectedItems = [];
 	this.selectedCoef = [];
@@ -92,7 +91,7 @@ EquationDialog.prototype.removeItem = function(option_name) {
 }
 
 
-EquationDialog.prototype.addItem = function(option_name,val) {
+PCDialog.prototype.addItem = function(option_name,val) {
 	this.selectedItems.push(option_name);
 	this.selectedCoef.push({option:option_name,coef:val});
 	$.modal.close();
@@ -102,7 +101,7 @@ EquationDialog.prototype.addItem = function(option_name,val) {
 	//tmp.innerHTML = "Just for fun";
 }
 
-EquationDialog.prototype.addEquEditor = function(){
+PCDialog.prototype.addEquEditor = function(){
 	var equation_id = "equation" + Math.floor(Math.random()*10000);
 	var option_html = this.genOptionList(equation_id);
 	$.modal(option_html,{minWidth:400,minHeight:200});
@@ -111,13 +110,10 @@ EquationDialog.prototype.addEquEditor = function(){
 /**
 	To generate the modal div 
 **/
-EquationDialog.prototype.genModalDiv = function(){
+PCDialog.prototype.genModalDiv = function(){
 	var html = "";
-	
 	html += "<div id='basic-modal-content'> \n";
-	
 	html += "just for fun";
-	
 	html += "</div> \n";
 	return html;
 }

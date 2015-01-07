@@ -1,10 +1,14 @@
 var BioDataCase = function(propertyList,valueList) {
 	this.props = propertyList;
 	var i = 0;
+	var json_obj = [];
 	for(i=0;i<propertyList.length;i++) {
 		var evalStr = "this."+propertyList[i]+"='"+valueList[i]+"'";
 		eval(evalStr);
+		evalStr =  "json_obj."+propertyList[i]+"='"+valueList[i]+"'";
+		eval(evalStr);
 	}
+	this.jsonObj = json_obj;
 };
 
 BioDataCase.prototype.getAllPropNames = function () {
@@ -54,5 +58,9 @@ BioDataCase.prototype.getAllValues = function () {
 	}
 	//console.log(res);
 	return res;
+}
+
+BioDataCase.prototype.getJSonObj = function () {
+	return this.jsonObj;
 }
 

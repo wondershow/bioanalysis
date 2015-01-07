@@ -100,7 +100,6 @@ SVGScatterChart.prototype.getMinVal= function(type) {
  * axis - sets up axis
  */
 SVGScatterChart.prototype.plot = function () {
-	
     xScale = d3.scale.linear()
 					 .range([this.margin.left, this.plotwidth-this.margin.left-this.margin.right])
 					 .domain([this.getMinVal('x'),this.getMaxVal('x')]);				 
@@ -112,7 +111,6 @@ SVGScatterChart.prototype.plot = function () {
     yScale = d3.scale.linear()
 				     .range([this.plotHeight-this.margin.top-this.margin.bottom, this.margin.top])
 					 .domain([this.getMinVal('y'),this.getMaxVal('y')]);
-	// value -> display
 	
 	/**
 	If you want to change the constant here, 
@@ -143,7 +141,6 @@ SVGScatterChart.prototype.plot = function () {
 	//TODO add the tooltip area to the webpage
 	var tooltip = this.svgContainer
 					.append("div")
-					.attr("class", "tooltip")
 					.attr("class", "tooltip")
 					.style("opacity", 0.5);
 	
