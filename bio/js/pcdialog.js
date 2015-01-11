@@ -54,10 +54,18 @@ PCDialog.prototype.genOptionList = function(id) {
 	html += "<button onclick='"+option_id+"_click_function1()'> + </button> <br />";
 	
 	var i=0;
+	html += "<table style='color: white;'>";
 	for(i=0;i<this.selectedCoef.length;i++) {
+		html += "<tr>";
+		html += "<td>";
 		html += this.selectedCoef[i].option;
+		html += "</td>";
+		html += "<td>";
 		html += "<button onclick='" + this.objName + ".removeItem(\""+this.selectedCoef[i].option+"\")'>-</button> <br />";
+		html += "</td>";
+		html += "</tr>";
 	}
+	html += "</table>";
 	
 	var eval_str = this.dialogId + "_selectedItems = this.selectedItems;";
 	
