@@ -19,8 +19,8 @@ var SVGParallelCoord = function (params,svg,canvas_obj,chart_id) {
 
 SVGParallelCoord.prototype.plot = function () {
 
-	console.log("this.selectedItems = " + this.selectedItems);
-	console.log()
+	//console.log("this.selectedItems = " + this.selectedItems);
+	//console.log()
 	var i=0,j=0;
 	var pcg_data = [];
 	for(i=0;i<dataCases.length;i++){
@@ -99,9 +99,9 @@ SVGParallelCoord.prototype.draw = function(svg_id,cars,total_width,total_height)
 				.rangeRoundPoints([height, 0]));
 			}
 			
-			console.log("d = " + d + ", res = " + res);
-			console.log(d);
-			console.log(res);
+			//console.log("d = " + d + ", res = " + res);
+			//console.log(d);
+			//console.log(res);
 			return res;
 		}));
 	
@@ -163,12 +163,13 @@ SVGParallelCoord.prototype.draw = function(svg_id,cars,total_width,total_height)
 	
 	// Returns the path for a given data point.
 	function path(d) {
-	  console.log("in path, d is ");
-	  console.log(d);
+	  //console.log("in path, d is ");
+	  //console.log(d);
 	  return line(dimensions.map(function(p) { 
+		/*
 		console.log("P is " + p + " + x(p) = "
 					 + x(p) + ", d[p] = " + d[p] + 
-					", y[p] = " + y[p] + ", y[p](d[p]) = " + y[p](d[p]));
+					", y[p] = " + y[p] + ", y[p](d[p]) = " + y[p](d[p]));*/
 		return [x(p), y[p](d[p])]; 
 		}));
 	}

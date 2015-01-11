@@ -70,7 +70,7 @@ SVGChart.prototype.plot = function () {
 	//add sliders when necessary
 	if(this.type == 'scatter'||this.type == 'heatmap')
 		this.addSliders();
-	else if(this.type == 'pc')
+	else if(this.type == 'pc');
 		this.addDimSelector();
 	
 }
@@ -114,6 +114,7 @@ SVGChart.prototype.draw = function() {
 		sct.plot();
 		this.plotObj = sct;
 	} else if(this.type=="pc") {
+		
 		var sct = new SVGParallelCoord(this.param,this.mainChartSvg,this.parent,this.id);
 		sct.plot();
 		this.plotObj = sct;
@@ -178,32 +179,27 @@ SVGChart.prototype.addSliders = function() {
 	var params2 = {anchor:anchor2,w:slider_width,h:slider_height,svg:this.legend_svg,label:this.axisY,min:min_val,max:max_val,type:'v',chart_id:this.id,axis_name:'y'}; 
 	var slider2 = new SVGSlider(params2);
 	slider2.generate();
-
 }
 
 SVGChart.prototype.addDimSelector = function() {
 	var actual_width = $("#"+this.chart_svg_id).attr("width");
 	var actual_height = $("#"+this.chart_svg_id).attr("height");
-	
-	
 
 	this.legend_svg = this.g.append("svg")
 				  .attr("width", this.legendWidth )
 				  .attr("height",actual_height)
 				  .attr("x",actual_width);
 	
-	
 	this.legend_svg.append("rect")
 		.attr("width", this.legendWidth)
 		.attr("height",actual_height)
 		.attr("fill","white");
 	
-	
 	var exist_axis_selection_id = this.chart_svg_id + "_existing_axis_selection";
 	var exist_axis_html = "<select id='"+ exist_axis_selection_id +"'>";
 	var j = 0;
 	for(j=0;j<this.param.items.length;j++) {
-		exist_axis_html += "<option value'"+this.param.items[j]+"'>"+this.param.items[j]+" </option> ";
+		exist_axis_html += "<option value'" + this.param.items[j] + "'>"+this.param.items[j]+" </option> ";
 	}
 	exist_axis_html += "</select>";
 	
@@ -211,9 +207,8 @@ SVGChart.prototype.addDimSelector = function() {
 								var select = document.getElementById(\''+exist_axis_selection_id+'\');\
 								var select_value = select.options[select.selectedIndex].value; \
 								mainCanvas.delAxis(\''+this.chart_svg_id+'\',select_value);';
-	//exist_axis_html += onclick_function_str;
-	//onclick_function_str = "";
-	exist_axis_html += '<button onclick="' + onclick_function_str+'"> - </button>'
+	
+	exist_axis_html += '<br><button onclick="' + onclick_function_str+'"> - </button>'
 	
 	
 	
@@ -227,22 +222,22 @@ SVGChart.prototype.addDimSelector = function() {
 		
 	}
 	available_axis_html += "</select>";
-	
+
 	var onclick_function_str =  '\
 								var select = document.getElementById(\''+available_axis_selection_id+'\');\
 								var select_value = select.options[select.selectedIndex].value; \
 								mainCanvas.addAxis(\''+this.chart_svg_id+'\',select_value);';
 	//exist_axis_html += onclick_function_str;
 	//onclick_function_str = "";
-	available_axis_html += '<button onclick="' + onclick_function_str+'"> + </button>'
+	available_axis_html += '<br><button onclick="' + onclick_function_str+'"> + </button>'
 
 	this.legend_svg.append("foreignObject")
 		.attr("width", this.legendWidth)
 		.attr("height",actual_height)
-		.append("xhtml:body")
+		.append("xhtml")
 		.style("font", "14px 'Helvetica Neue'")
 		.html("<html style='background-color:green'>"+exist_axis_html+"<br><br><br>"+ available_axis_html + " </html>");
-	
+		//.html("<html style='background-color:green'>"+"<br><br><br>"+  + " </html>");
 	
 	return;
 }
