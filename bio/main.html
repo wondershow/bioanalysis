@@ -4,7 +4,7 @@
 	
 	<link rel="stylesheet" href="css/d3.slider.css">
 	
-	 <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>-->
+	<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>-->
 	<script type="text/javascript" src="js/gsu.util.js"></script>
 	<script type="text/javascript" src="js/biodataobj.js"></script>
 	<script type="text/javascript" src="js/parseobject.js"></script>
@@ -19,11 +19,6 @@
 	<script type="text/javascript" src="js/gsu.slider.js"></script>
 	<script type="text/javascript" src="js/colormix-2.0.0.js"></script>
 	<script type="text/javascript" src="js/pcdialog.js"></script>
-	
-	
-	
-	
-	
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
 	<script src="js/d3.js"> </script>
@@ -75,16 +70,10 @@
 		
 		$(document).ready(function()
 		{
-			/*
-			$("#table_header_div").scroll(function () { 
-				$("#table_body_div").scrollTop($("#table_header_div").scrollTop());
-				$("#table_body_div").scrollLeft($("#table_header_div").scrollLeft());
-			});*/
 			$("#table_body_div").scroll(function () { 
 				$("#table_header_div").scrollTop($("#table_body_div").scrollTop());
 				$("#table_header_div").scrollLeft($("#table_body_div").scrollLeft());
 			});
-
 		});
 		
 		function setupListner() {
@@ -149,7 +138,6 @@
 			console.log("drawPCG params = ");
 			console.log(params);
 			params.full_data = dataCases;
-			//params = 
 			mainCanvas.add(params);
 		}
 		

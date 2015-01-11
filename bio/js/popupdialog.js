@@ -30,8 +30,7 @@ PopUpDialog.prototype.addPopup = function(){
 	//no idea why need this div, but keeping it makes the thing works.
 	html += "<div style='display:none'> \
 				<img src='img/x.png' alt='' /> \
-			</div> "
-	
+			</div> ";
 	
 	var tmp = document.getElementById(this.divId);
 	tmp.innerHTML = html;

@@ -45,7 +45,7 @@ function arrayRemoveVal(val,arr) {
 		if(arr[i] != val)
 			res.push(arr[i]);
 	}
-	console.log("Remove " + val + " from " + arr + " is " + res);
+	//console.log("Remove " + val + " from " + arr + " is " + res);
 	return res;
 }
 
@@ -157,4 +157,33 @@ function inTupleArray(item,arr) {
 			return i;
 	}
 	return -1;
+}
+/**
+To extend the string class method, add a new 
+method endswith, test if a string is closed 
+with an existing string.
+**/
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
+
+Array.prototype.contains = function(v) {
+    for(var i = 0; i < this.length; i++) {
+        if(this[i] === v) return true;
+    }
+    return false;
+};
+
+/**
+To return all unique strings in an array.
+**/
+Array.prototype.unique = function() {
+    var arr = [];
+    for(var i = 0; i < this.length; i++) {
+        if(!arr.contains(this[i])) {
+            arr.push(this[i]);
+        }
+    }
+    return arr; 
 }

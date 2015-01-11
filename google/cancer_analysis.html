@@ -326,8 +326,6 @@
 		console.log("1111111111111111111");
 		createLegend(legend_id);
 		
-		
-		
 		/*
 		if(IF_TABLE_DRAWN==false) {
 			drawTable();
@@ -648,115 +646,114 @@
 			
 		</div>
 	</div>
+	
 	<div id='content'>
 		<div id='basic-modal'>
 			<a class="flatbtn" id="modaltrigger">+</a>
 		</div>
 		<!-- modal content -->
 		<div id="basic-modal-content">
-		<table class="fixed" style="background-color:#99CCFF;width:100%;height=100%;padding=5px; border: 2px solid black;border-collapse: collapse;" align="center">
-			<col width="50%" />
-    		<col width="50%" />
-			<tr style="border: 2px solid black;border-collapse: collapse;">
-				<td style="border: 2px solid black;border-collapse: collapse;"> 
-					X: 
-				</td>
-				<td style="border: 2px solid black;border-collapse: collapse;">
-					<select id="x_field">
-						<option></option>
-						<option>NucCount</option>
-				        <option>PH3</option>
-						<option>KI67</option>
-						<option>t</option>
-						<option>Age</option>
-						<option>MFI</option>
-						<option>KI67_Percent</option>
-						<option>PH3_Percent</option>
-	 				</select>
-				</td>
-			</tr>
-			<tr style="border: 2px solid black;border-collapse: collapse;">
-				<td style="border: 2px solid black;border-collapse: collapse;"> 
-					Y:
-				</td>
-				<td style="border: 2px solid black;border-collapse: collapse;">
-					<select id="y_field">
-						<option></option>
-						<option>NucCount</option>
-				        <option>PH3</option>
-						<option>KI67</option>
-						<option>t</option>
-						<option>Age</option>
-						<option>MFI</option>
-						<option>KI67_Percent</option>
-						<option>PH3_Percent</option>
-	 				</select>
-				</td>
-			</tr>
-			<tr style="border: 2px solid black;border-collapse: collapse;">
-				<td style="border: 2px solid black;border-collapse: collapse;"> 
-					Size:
-				</td>
-				<td style="border: 2px solid black;border-collapse: collapse;">
-					<select id="z_field">
-						<option></option>
-						<option>NucCount</option>
-						<option>PH3</option>
-						<option>KI67</option>
-						<option>t</option>
-						<option>Age</option>
-						<option>MFI</option>
-						<option>KI67_Percent</option>
-						<option>PH3_Percent</option>
-	 				</select>
-				</td>
-			</tr>
-			<tr style="border: 2px solid black;border-collapse: collapse;">
-				<td style="border: 2px solid black;border-collapse: collapse;"> 
-					Color:
-				</td>
-				<td style="border: 2px solid black;border-collapse: collapse;">
-					<select id="d_field">
-						<option></option>
-						<option>UpGrade</option>
-						<option>UpNot</option>
-						<option>Grade</option>
-						<option>Notin</option>
-						<option>gland</option>
-						<option>mi</option>
-						<option>checkNot</option>
-						<option>pt</option>
-						<option>Stages</option>
-						<option>Race</option>
-						<option>ER</option>
-						<option>PR</option>
-						<option>HER2</option>
-						<option>HER2Status</option>
-						<option>TN</option>
-						<option>Tstage</option>
-						<option>Nstage</option'center'>
-						<option>Final_Grade</option>
-						<option>Final_Not</option>
-						<option>AdjustedNot</option>
-						<option>Adjusted1</option>
-	 				</select>
-				</td>
-			</tr>
-			<tr style="border: 2px solid black;border-collapse: collapse;">
-				<td align='center'  colspan=2 style="border: 2px solid black;border-collapse: collapse;">
-					<button id='drawbutton' onclick="draw()"> Draw</button>
-			    </td>
-			</tr>
-			<tr style="border: 2px solid black;border-collapse: collapse;">
-			    <td colspan=2 style="border: 2px solid black;border-collapse: collapse;">
-				<font color="red" size="5"  face="courier" id="alertmsg"></font> 
-			    </td>
-			</tr>
-		</table>
+			<table class="fixed" style="background-color:#99CCFF;width:100%;height=100%;padding=5px; border: 2px solid black;border-collapse: collapse;" align="center">
+				<col width="50%" />
+				<col width="50%" />
+				<tr style="border: 2px solid black;border-collapse: collapse;">
+					<td style="border: 2px solid black;border-collapse: collapse;"> 
+						X: 
+					</td>
+					<td style="border: 2px solid black;border-collapse: collapse;">
+						<select id="x_field">
+							<option></option>
+							<option>NucCount</option>
+							<option>PH3</option>
+							<option>KI67</option>
+							<option>t</option>
+							<option>Age</option>
+							<option>MFI</option>
+							<option>KI67_Percent</option>
+							<option>PH3_Percent</option>
+						</select>
+					</td>
+				</tr>
+				<tr style="border: 2px solid black;border-collapse: collapse;">
+					<td style="border: 2px solid black;border-collapse: collapse;"> 
+						Y:
+					</td>
+					<td style="border: 2px solid black;border-collapse: collapse;">
+						<select id="y_field">
+							<option></option>
+							<option>NucCount</option>
+							<option>PH3</option>
+							<option>KI67</option>
+							<option>t</option>
+							<option>Age</option>
+							<option>MFI</option>
+							<option>KI67_Percent</option>
+							<option>PH3_Percent</option>
+						</select>
+					</td>
+				</tr>
+				<tr style="border: 2px solid black;border-collapse: collapse;">
+					<td style="border: 2px solid black;border-collapse: collapse;"> 
+						Size:
+					</td>
+					<td style="border: 2px solid black;border-collapse: collapse;">
+						<select id="z_field">
+							<option></option>
+							<option>NucCount</option>
+							<option>PH3</option>
+							<option>KI67</option>
+							<option>t</option>
+							<option>Age</option>
+							<option>MFI</option>
+							<option>KI67_Percent</option>
+							<option>PH3_Percent</option>
+						</select>
+					</td>
+				</tr>
+				<tr style="border: 2px solid black;border-collapse: collapse;">
+					<td style="border: 2px solid black;border-collapse: collapse;"> 
+						Color:
+					</td>
+					<td style="border: 2px solid black;border-collapse: collapse;">
+						<select id="d_field">
+							<option></option>
+							<option>UpGrade</option>
+							<option>UpNot</option>
+							<option>Grade</option>
+							<option>Notin</option>
+							<option>gland</option>
+							<option>mi</option>
+							<option>checkNot</option>
+							<option>pt</option>
+							<option>Stages</option>
+							<option>Race</option>
+							<option>ER</option>
+							<option>PR</option>
+							<option>HER2</option>
+							<option>HER2Status</option>
+							<option>TN</option>
+							<option>Tstage</option>
+							<option>Nstage</option'center'>
+							<option>Final_Grade</option>
+							<option>Final_Not</option>
+							<option>AdjustedNot</option>
+							<option>Adjusted1</option>
+						</select>
+					</td>
+				</tr>
+				<tr style="border: 2px solid black;border-collapse: collapse;">
+					<td align='center'  colspan=2 style="border: 2px solid black;border-collapse: collapse;">
+						<button id='drawbutton' onclick="draw()"> Draw</button>
+					</td>
+				</tr>
+				<tr style="border: 2px solid black;border-collapse: collapse;">
+					<td colspan=2 style="border: 2px solid black;border-collapse: collapse;">
+					<font color="red" size="5"  face="courier" id="alertmsg"></font> 
+					</td>
+				</tr>
+			</table>
 		</div>
-
 		<!-- preload the images -->
-		
 		<div style='display:none'>
 			<img src='img/basic/x.png' alt='' />
 		</div> 
