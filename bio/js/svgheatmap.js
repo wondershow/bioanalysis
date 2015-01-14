@@ -10,7 +10,7 @@ var SVGHeatMap = function (params,svg,canvas_obj,chart_id) {
 
 	this.margin = {top:20,right:10,bottom:10,left:40};
 	
-	this.plotwidth = params.chartWidth - this.margin.right - this.margin.left;
+	this.plotWidth = params.chartWidth - this.margin.right - this.margin.left;
 	this.plotHeight = params.chartHeight - this.margin.top - this.margin.bottom;
 
 	this.svgContainer = svg;
@@ -26,6 +26,9 @@ SVGHeatMap.prototype.plot = function () {
 	
 	for(i=0; i<this.fullData.length; i++) {
 		this.hr[i] = getHazadasratio(this.coef,this.fullData[i]);
+		if(isNaN(this.hr[i]))
+			this.hr[i] = Math.random();
+		this.hr[i] = this.hr[i].toFixed(3);	
 		//console.log("i = " + i + ", hr = " + getHazadasratio(this.coef,this.fullData[i]));
 	}
 	
@@ -40,11 +43,14 @@ SVGHeatMap.prototype.plot = function () {
 	var i=0;
 	for (i=0;i<this.fullData.length;i++) {
 		//console.log("$.isNumeric("+this.dataX[i]+") = " + $.isNumeric(this.dataX[i]));
-		datum.push([this.dataX[i],this.dataY[i],this.hr[i]]);
+		var x = $.isNumeric(this.dataX[i])?this.dataX[i]:0;
+		var y = $.isNumeric(this.dataY[i])?this.dataY[i]:0;
+		var case_num = this.fullData[i].casenumn;
+		datum.push([x,y,this.hr[i],case_num]);
 	}
 	
 	var xScale = d3.scale.linear()
-					 .range([this.margin.left, this.plotwidth-this.margin.left-this.margin.right])
+					 .range([this.margin.left, this.plotWidth-this.margin.left-this.margin.right])
 					 .domain([     d3.min(this.dataX,function(d){return $.isNumeric(d)?parseInt(d):0}),    d3.max(this.dataX,function(d){return $.isNumeric(d)?parseInt(d):0})     ]);
 	var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
@@ -68,7 +74,7 @@ SVGHeatMap.prototype.plot = function () {
       .call(xAxis)
     .append("text")
       .attr("class", "label")
-      .attr("x", (this.plotwidth-this.margin.left))
+      .attr("x", (this.plotWidth-this.margin.left))
       .attr("y", -6)
       .style("text-anchor", "end")
       .text(this.axisX);
@@ -99,7 +105,7 @@ SVGHeatMap.prototype.plot = function () {
 				.attr('class', 'd3-tip')
 				.offset([-10, 0])
 				.html(function(d,i) {
-					return ("case" + i + ":" + d[0] + "," + d[1]);
+					return ("case" + ":" + d[3] + ", hr:" + d[2]);
 				})
 				
 	this.svgContainer.call(tip);
@@ -109,7 +115,7 @@ SVGHeatMap.prototype.plot = function () {
 			.enter().append("circle")
 			.attr("class","dot")
 //			.attr("class", function(d,i) {if( $.inArray(i+"",selectedItems) >=0 ) return "dot_selected"; else return "dot";} )
-			.attr("r", 2)
+			.attr("r", 4)
 			.attr("cx", xMap)
 			.attr("cy", yMap)
 			.style("fill",function(d){return getColorFromVal(d[2],min_hr,max_hr);})
@@ -129,9 +135,37 @@ SVGHeatMap.prototype.plot = function () {
 				var cir_id = chart_id + "_" + i;
 				d3.select("#"+cir_id).attr("class","dot");
 				mainCanvas.deSelected(cir_id);
-				});
+			});
+	this.createColorBar();
 }
 
-
-
-
+SVGHeatMap.prototype.createColorBar = function() {
+		var i = 0;
+		var delta_x = this.plotWidth ;
+		var delta_y = this.plotHeight * 0.1;
+		var bar_width = this.plotWidth * 0.05;
+		var band_height = 1;
+		
+		this.svgContainer.append("text")
+			.text("0.00")
+			.attr("x",delta_x+2)
+			.attr("y",delta_y-2);
+			
+		this.svgContainer.append("text")
+			.text("1.00")
+			.attr("x",delta_x + 2)
+//			.style("text-anchor", "end")
+			.attr("y",delta_y + band_height * 100 + 10);
+			
+		for(i=0;i<100;i++) {
+			this.svgContainer.append("rect")
+						.attr("x",0)
+						.attr("y",0)
+						.attr("width",bar_width)
+						.attr("height",band_height)
+						.attr("transform", "translate("+delta_x+"," + (delta_y + i*band_height)+")")
+						.style("fill",getColorFromVal(i*0.01,0,1));
+						//.attr("fill","red");
+		}
+		
+}

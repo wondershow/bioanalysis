@@ -129,8 +129,44 @@ This returns a heatmap color when a value
 is given. 
 **/
 function getColorFromVal(val,min,max) {
-	var i = Math.floor(256*(val-min)/(max-min));
-	return rgbToHex(i,256-i,256-i);
+	//normalize value 
+	
+	var value;
+		if(val == min) 
+			value = 0;
+		else if(val == max)
+			value = 1;
+		else
+			value = (val-min)/(max-min);
+	var NUM_COLORS = 4;
+	//var color = [ [0,0,0], [0,0,1], [0,1,1], [0,1,0],[1,1,0],[1,0,0],[1,1,1]];
+	var color = [[0,0,1], [0,1,0], [1,1,0], [1,0,0] ];
+	
+	var idx1;        // |-- Our desired color will be between these two indexes in "color".
+	var idx2;        // |
+	var fractBetween = 0; 
+
+	if(value <= 0)      
+		{  idx1 = idx2 = 0;            }    // accounts for an input <=0
+	else if(value >= 1)  
+		{  idx1 = idx2 = NUM_COLORS-1; }    // accounts for an input >=0
+	else
+	{
+		value = value * (NUM_COLORS-1);        // Will multiply value by 3.
+		idx1  = Math.floor(value);                  // Our desired color will be after this index.
+		idx2  = idx1+1;                        // ... and before this index (inclusive).
+		fractBetween = value - idx1;    // Distance between the two indexes (0-1).
+	}
+
+	//console.log("value = " + value + ",val = " + val + ", max = " + max + ", min = " + min );
+	var red   = (color[idx2][0] - color[idx1][0])*fractBetween + color[idx1][0];
+	var green = (color[idx2][1] - color[idx1][1])*fractBetween + color[idx1][1];
+	var blue  = (color[idx2][2] - color[idx1][2])*fractBetween + color[idx1][2];
+	
+	//var i = Math.floor(256*(val-min)/(max-min));
+	//console.log("red = " + Math.floor(255*red) + ", green = " + Math.floor(255*green) + ", blue = " + Math.floor(255*blue));
+	//console.log("red = " + red + ", green = " +green + ", blue = " + blue);
+	return rgbToHex(Math.floor(255*red),Math.floor(255*green),Math.floor(255*blue));
 }
 
 function getHazadasratio(coef,biocase) {

@@ -11,8 +11,14 @@ var EquationDialog = function (div_id,num_prop_list,count_prop_list,x,y,obj_name
 	
 	this.objName = obj_name;
 	
-	this.selectedItems = ['ph3n','ki67n'];
-	this.selectedCoef = [{option:'ph3n',coef:-0.0038},{option:'ki67n',coef:0.01117}];
+	this.selectedItems = ['ph3n','ki67n','finalgradec','agen','her2c'];
+	this.selectedCoef = [
+							{option:'ph3n',coef:-0.0038},
+							{option:'ki67n',coef:0.01117},
+							{option:'finalgradec',coef:0.31861},
+							{option:'agen',coef:0.04879},
+							{option:'finalgradec',coef: -0.6016}
+						];
 	
 	this.xAxis = x;
 	this.yAxis = y;
