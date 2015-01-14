@@ -15,12 +15,16 @@ var SVGCanvas = function(id,table) {
 	//How many rows of diagrams we have, at the very beginning, we have 0 row.
 	this.gridRow = 0;
 	
+	this.gridWidth = $(window).width()/this.chartsPerRow;
+	this.gridHeight = this.gridWidth*0.6;
+	
+	
 	/**
 		The height and width of each individual chart.
 		might be adjusted by a function instead of hardcoding
 	**/
-	this.chartWidth = this.getChartWidth();
-	this.chartHeight = this.getChartHeight();
+	this.chartWidth = this.gridWidth*0.9;
+	this.chartHeight = this.gridHeight*0.9;
 	
 	//Array of all anchor points, no matter if it has been allocated or not
 	this.existingAnchors = [];
@@ -28,15 +32,17 @@ var SVGCanvas = function(id,table) {
 	//List of All those Anchors have been allocated
 	this.allocatedAnchors = [];
 	
-	this.horizPadding = 20;
+	this.vPadding = this.gridHeight*0.05;
+	this.hPadding = this.gridWidth*0.05;
+	
+	
+	console.log("$(window).width()="+$(window).width());
+	console.log("this.hPadding = "+this.hPadding);
+	console.log("this.chartWidth = " + this.chartWidth);
 	
 	
 	this.selectedItems = [];
-	
 	this.tableObj = table;
-	
-	this.grid_width = 0;
-	this.grid_height = 0;
 }
 
 /**
@@ -93,13 +99,11 @@ be called first
 **/
 SVGCanvas.prototype.addOneGridRow = function() {
 	var i = 0,anchor_x,anchor_y;
-	var window_width = $(window).width();
-	this.grid_width = window_width/this.chartsPerRow;
-	this.grid_height = this.chartHeight + 2 * this.horizPadding;
+	
 	var res = [];
 	for(i=0;i<this.chartsPerRow;i++) {
-		anchor_x = i* this.grid_width + (this.grid_width - this.chartWidth)/2;
-		anchor_y = this.gridRow * this.grid_height  + this.horizPadding;
+		anchor_x = i * this.gridWidth + this.hPadding;
+		anchor_y = this.gridRow * this.gridHeight  + this.vPadding;
 		res.push([anchor_x,anchor_y]);
 		this.existingAnchors.push([anchor_x,anchor_y]);
 	}
@@ -220,7 +224,7 @@ SVGCanvas.prototype.getNextAnchorPoint = function(slot_num) {
 			var x = this.existingAnchors[i][0];
 			var y = this.existingAnchors[i][1];
 			
-			var tuple = [x+this.grid_width,y];
+			var tuple = [x+this.gridWidth,y];
 			var tuple_index = inTupleArray(tuple,this.existingAnchors);
 			
 			//allocate when both the current anchor point and the tuple point are not allocated
@@ -237,8 +241,7 @@ SVGCanvas.prototype.getNextAnchorPoint = function(slot_num) {
 		this.allocatedAnchors.push(new_added_anchors[1]);
 		return new_added_anchors[0];
 	}
-	//console.log("this.existingAnchors = " + this.existingAnchors);
-	//console.log("this.allocatedAnchors = " + this.allocatedAnchors);
+	
 	//handle the situation of one slot application
 	for(i=0;i<this.existingAnchors.length;i++) {
 		if( (inTupleArray(this.existingAnchors[i], this.allocatedAnchors)) < 0  ) {
@@ -254,12 +257,10 @@ SVGCanvas.prototype.getNextAnchorPoint = function(slot_num) {
 SVGCanvas.prototype.add = function(params) {
 	
 	if(params.type == "pc") {
-		
-		
-		params.chartWidth = this.chartWidth * 2;
+		params.chartWidth = this.chartWidth * 1.8;
 		params.chartHeight = this.chartHeight;
 		
-		params.legendWidth = this.chartWidth * 0.3;
+		params.legendWidth = this.hPadding * 2 + this.chartWidth * 0.2;
 		params.legendHeight = this.chartHeight;
 		
 		var anchor = this.getNextAnchorPoint(2);
@@ -283,6 +284,7 @@ SVGCanvas.prototype.add = function(params) {
 		var anchor = this.getNextAnchorPoint(1);
 		params.anchor_x = anchor[0];
 		params.anchor_y = anchor[1];
+		console.log("params.anchor_x=" + params.anchor_x);
 		
 		var g = d3.select("#"+this.canvasId).append("g");
 		
@@ -298,6 +300,8 @@ SVGCanvas.prototype.add = function(params) {
 			this.chartsArr.push(chart1);
 		}
 	}
+	var canvas_height = params.chartHeight + params.anchor_y + this.vPadding;
+	$("#test").attr("height",canvas_height);
 }
 
 /**

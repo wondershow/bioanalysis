@@ -70,7 +70,7 @@ SVGChart.prototype.plot = function () {
 	//add sliders when necessary
 	if(this.type == 'scatter'||this.type == 'heatmap')
 		this.addSliders();
-	else if(this.type == 'pc');
+	else if(this.type == 'pc')
 		this.addDimSelector();
 	
 }
@@ -86,7 +86,7 @@ SVGChart.prototype.draw = function() {
 	this.mainChartSvg = this.g.append("svg")
 				  .attr("id",this.chart_svg_id)
 				  .attr("width", this.chartWidth )
-				  .attr("height",345);
+				  .attr("height",this.chartHeight);
 				  
 	this.mainChartSvg.append("rect")
 		.attr("width", this.chartWidth)
