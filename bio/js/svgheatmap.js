@@ -18,7 +18,75 @@ var SVGHeatMap = function (params,svg,canvas_obj,chart_id) {
 	this.canvasObj = canvas_obj;
 	this.selectedItems = this.canvasObj.selectedItems;
 	this.fullData = params.full_data;
+	
+	this.XFilter = params.x_filter;
+	this.YFilter = params.y_filter;
+	this.ZFilter = params.z_filter;
+	this.CFilter = params.c_filter;
 }
+
+/**
+To check if a given data is ruled out or not
+*/
+SVGHeatMap.prototype.isValidData = function (index) {
+	
+	if(this.XFilter != undefined && this.XFilter != null) {
+		var val = parseExcelNumber(this.dataX[index]);
+		if(val<this.XFilter.from || val>this.XFilter.to)
+			return false;
+	}
+	if(this.YFilter != undefined && this.YFilter != null) {
+		var val = parseExcelNumber(this.dataY[index]);
+		if(val<this.YFilter.from || val>this.YFilter.to)
+			return false;
+	}
+	if(this.ZFilter != undefined && this.ZFilter != null) {
+		var val = parseExcelNumber(this.dataZ[index]);
+		if(val<this.ZFilter.from || val>this.ZFilter.to)
+			return false;
+	}
+	if(this.CFilter != undefined && this.CFilter != null) {
+		if($.inArray(this.dataC[index],this.ruleOutCItems) >= 0) 
+			return false;
+	}
+	return true;
+}
+
+/**
+	Get max value of datax,datay or dataz
+**/
+SVGHeatMap.prototype.getMaxVal = function(type) {
+	var tmpVals = [];
+	var i = 0;
+	for(i=0;i<this.dataX.length;i++) {
+		if(this.isValidData(i)) {
+			if(type == 'x')
+				tmpVals.push( this.dataX[i] );
+			else if (type == 'y')
+				tmpVals.push( this.dataY[i] );
+			else if (type == 'z')
+				tmpVals.push( this.dataZ[i] );
+		}
+	}
+	return d3.max(tmpVals, function(d){ return parseExcelNumber(d)});
+}
+
+SVGHeatMap.prototype.getMinVal= function(type) {
+	var tmpVals = [];
+	var i = 0;
+	for(i=0;i<this.dataX.length;i++) {
+		if(this.isValidData(i)) {
+			if(type == 'x')
+				tmpVals.push(this.dataX[i]);
+			else if (type == 'y')
+				tmpVals.push(this.dataY[i]);
+			else if (type == 'z')
+				tmpVals.push(this.dataZ[i]);
+		}
+	}
+	return d3.min(tmpVals, function(d){ return parseExcelNumber(d)});
+}
+
 
 SVGHeatMap.prototype.plot = function () {
 	var i = 0;
@@ -51,12 +119,12 @@ SVGHeatMap.prototype.plot = function () {
 	
 	var xScale = d3.scale.linear()
 					 .range([this.margin.left, this.plotWidth-this.margin.left-this.margin.right])
-					 .domain([     d3.min(this.dataX,function(d){return $.isNumeric(d)?parseInt(d):0}),    d3.max(this.dataX,function(d){return $.isNumeric(d)?parseInt(d):0})     ]);
+					 .domain([this.getMinVal('x'),this.getMaxVal('x')]);
 	var xAxis = d3.svg.axis().scale(xScale).orient("bottom");
 
 	var yScale = d3.scale.linear()
 				     .range([this.plotHeight-this.margin.top-this.margin.bottom, this.margin.top])
-					 .domain([d3.min(this.dataY,function(d){return $.isNumeric(d)?parseInt(d):0}),d3.max(this.dataY,function(d){return $.isNumeric(d)?parseInt(d):0})]);
+					 .domain([this.getMinVal('y'),this.getMaxVal('y')]);
 	var yAxis = d3.svg.axis().scale(yScale).orient("left");
 	
 	
@@ -110,12 +178,28 @@ SVGHeatMap.prototype.plot = function () {
 				
 	this.svgContainer.call(tip);
 	
+	var eval_str = "var test_function = function (d,i) {  \
+						\
+						if ( $.inArray(i,["
+		var j=0;
+		for(j=0;j<this.dataX.length;j++) {
+			if(this.isValidData(j)==false)
+				eval_str += j + " ,";
+		}
+		eval_str += "]) >= 0 )       \
+				return 0;  \
+			else  \
+				return 4;  \
+		}"
+		
+		eval(eval_str);
+	
 	this.svgContainer.selectAll(".dot")
 			.data(datum)
 			.enter().append("circle")
 			.attr("class","dot")
 //			.attr("class", function(d,i) {if( $.inArray(i+"",selectedItems) >=0 ) return "dot_selected"; else return "dot";} )
-			.attr("r", 4)
+			.attr("r", test_function)
 			.attr("cx", xMap)
 			.attr("cy", yMap)
 			.style("fill",function(d){return getColorFromVal(d[2],min_hr,max_hr);})
