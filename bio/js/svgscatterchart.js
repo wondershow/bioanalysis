@@ -49,7 +49,7 @@ SVGScatterChart.prototype.isValidData = function (index) {
 			return false;
 	}
 	if(this.CFilter != undefined && this.CFilter != null) {
-		if($.inArray(this.dataC[index],this.ruleOutCItems) >= 0) 
+		if($.inArray(processStr(this.dataC[index]),this.ruleOutCItems) >= 0) 
 			return false;
 	}
 	return true;

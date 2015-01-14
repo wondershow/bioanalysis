@@ -18,7 +18,6 @@ var SVGParallelCoord = function (params,svg,canvas_obj,chart_id) {
 
 
 SVGParallelCoord.prototype.plot = function () {
-
 	//console.log("this.selectedItems = " + this.selectedItems);
 	//console.log()
 	var i=0,j=0;
@@ -36,7 +35,7 @@ SVGParallelCoord.prototype.plot = function () {
 		pcg_data.push(item);
 	}
 	this.divId = "parcoords" + Math.floor(Math.random()*10000);
-	this.draw(this.chartId + "_chart_svg",pcg_data,this.plotwidth,this.plotHeight);
+	this.drawCoord(this.chartId + "_chart_svg",pcg_data,this.plotwidth,this.plotHeight);
 }
 
 SVGParallelCoord.prototype.selected = function(index) {
@@ -56,7 +55,7 @@ SVGParallelCoord.prototype.delAxis = function(axisName) {
 }
 
 
-SVGParallelCoord.prototype.draw = function(svg_id,cars,total_width,total_height) {
+SVGParallelCoord.prototype.drawCoord = function(svg_id,cars,total_width,total_height) {
 	var margin = {top: 30, right: 10, bottom: 10, left: 10},
 		width = total_width - margin.left - margin.right,
 		height = total_height - margin.top - margin.bottom;
