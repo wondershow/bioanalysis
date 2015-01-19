@@ -223,3 +223,31 @@ Array.prototype.unique = function() {
     }
     return arr; 
 }
+
+/**
+To test if an dom node exists or not
+*/
+function ifDomEleExists(dom_id) {
+	var myElem = document.getElementById(dom_id);
+	if (myElem == null) return false;
+	return true;
+}
+
+/**
+To test if a given point(x,y) is in a rect area
+**/
+function inPlaneArea(x,y,from_x,from_y,to_x,to_y) {
+	if( x < to_x && x< from_x)
+		return false;
+		
+	if( x > to_x && x > from_x)
+		return false;	
+		
+	if( y < to_y && y < from_y)
+		return false;
+		
+	if( y > to_y && y > from_y)
+		return false;
+		
+	return true;
+}

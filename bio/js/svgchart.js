@@ -72,16 +72,12 @@ SVGChart.prototype.plot = function () {
 		this.addSliders();
 	else if(this.type == 'pc')
 		this.addDimSelector();
-	
 }
-
-
 
 SVGChart.prototype.draw = function() {
 	//create a js function that can be used as an event listener
 	var evalStr =  "tmp = function() { mainCanvas.delete('"+ this.id +"') }";
 	eval(evalStr);
-	
 	
 	this.mainChartSvg = this.g.append("svg")
 				  .attr("id",this.chart_svg_id)
@@ -102,8 +98,9 @@ SVGChart.prototype.draw = function() {
 		
 	remove.on("click", tmp );
 	
-	this.g.attr("transform","translate("+this.anchorX+","+this.anchorY+")");
+	this.g.attr("transform","translate(" + this.anchorX + "," + this.anchorY +")");
 	
+	console.log("this.anchorX = " + this.anchorX + ", this.anchorY = " + this.anchorY);
 	
 	if(this.type=="scatter") {
 		var sct = new SVGScatterChart(this.param,this.mainChartSvg,this.parent,this.id);
@@ -114,7 +111,6 @@ SVGChart.prototype.draw = function() {
 		sct.plot();
 		this.plotObj = sct;
 	} else if(this.type=="pc") {
-		
 		var sct = new SVGParallelCoord(this.param,this.mainChartSvg,this.parent,this.id);
 		sct.plot();
 		this.plotObj = sct;
@@ -131,14 +127,14 @@ SVGChart.prototype.refresh = function(){
 	if(this.param.c_filter != undefined && this.param.c_filter != null) {
 		if(this.param.c_filter.filter_type =='RESUME') {
 			var tmpArr = this.ruleOutCItems;
-			console.log("before: " + this.ruleOutCItems )
+			//console.log("before: " + this.ruleOutCItems )
 			this.ruleOutCItems = arrayRemoveVal(this.param.c_filter.item,tmpArr);
-			console.log("after: " + this.ruleOutCItems )
+			//console.log("after: " + this.ruleOutCItems )
 		} else {
 			if($.inArray(this.param.c_filter.item,this.ruleOutCItems)<0 )
 				this.ruleOutCItems.push(this.param.c_filter.item);
 		}
-		console.log("this.ruleOutCItems = " + this.ruleOutCItems);
+		//console.log("this.ruleOutCItems = " + this.ruleOutCItems);
 	}
 	this.param.ruleOutCItems = this.ruleOutCItems;
 	this.draw();
@@ -240,4 +236,12 @@ SVGChart.prototype.addDimSelector = function() {
 		//.html("<html style='background-color:green'>"+"<br><br><br>"+  + " </html>");
 	
 	return;
+}
+
+SVGChart.prototype.handleBoxSelection = function(from_x,from_y,to_x,to_y) {
+		this.plotObj.handleBoxSelection(from_x,from_y,to_x,to_y);
+}
+
+SVGChart.prototype.higlightBoxSelection = function() {
+		this.plotObj.higlightBoxSelection(from_x,from_y,to_x,to_y);
 }

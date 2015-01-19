@@ -61,7 +61,9 @@ PCDialog.prototype.genOptionList = function(id) {
 		html += this.selectedCoef[i].option;
 		html += "</td>";
 		html += "<td>";
-		html += "<button onclick='" + this.objName + ".removeItem(\""+this.selectedCoef[i].option+"\")'>-</button> <br />";
+		html += "<button onclick='" + this.objName + ".removeItem(\""+this.selectedCoef[i].option+"\")'>-</button> ";
+		html += "<button onclick='" + this.objName + ".up(\""+this.selectedCoef[i].option+"\")'>Up</button> ";
+		html += "<button onclick='" + this.objName + ".down(\""+this.selectedCoef[i].option+"\")'>Down</button> <br />";
 		html += "</td>";
 		html += "</tr>";
 	}
@@ -124,4 +126,11 @@ PCDialog.prototype.genModalDiv = function(){
 	html += "just for fun";
 	html += "</div> \n";
 	return html;
+}
+
+
+PCDialog.prototype.up = function(item_name){
+}
+
+PCDialog.prototype.down = function(){
 }

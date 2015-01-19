@@ -15,16 +15,16 @@ var SVGCanvas = function(id,table) {
 	//How many rows of diagrams we have, at the very beginning, we have 0 row.
 	this.gridRow = 0;
 	
-	this.gridWidth = $(window).width()/this.chartsPerRow;
-	this.gridHeight = this.gridWidth*0.6;
+	this.gridWidth = Math.floor($(window).width()/this.chartsPerRow);
+	this.gridHeight = Math.floor(this.gridWidth*0.6);
 	
 	
 	/**
 		The height and width of each individual chart.
 		might be adjusted by a function instead of hardcoding
 	**/
-	this.chartWidth = this.gridWidth*0.9;
-	this.chartHeight = this.gridHeight*0.9;
+	this.chartWidth = Math.floor(this.gridWidth*0.9);
+	this.chartHeight = Math.floor(this.gridHeight*0.9);
 	
 	//Array of all anchor points, no matter if it has been allocated or not
 	this.existingAnchors = [];
@@ -32,13 +32,13 @@ var SVGCanvas = function(id,table) {
 	//List of All those Anchors have been allocated
 	this.allocatedAnchors = [];
 	
-	this.vPadding = this.gridHeight*0.05;
-	this.hPadding = this.gridWidth*0.05;
+	this.vPadding = Math.floor(this.gridHeight*0.05);
+	this.hPadding = Math.floor(this.gridWidth*0.05);
 	
 	
-	console.log("$(window).width()="+$(window).width());
-	console.log("this.hPadding = "+this.hPadding);
-	console.log("this.chartWidth = " + this.chartWidth);
+	//console.log("$(window).width()="+$(window).width());
+	//console.log("this.hPadding = "+this.hPadding);
+	//console.log("this.chartWidth = " + this.chartWidth);
 	
 	
 	this.selectedItems = [];
@@ -62,6 +62,23 @@ SVGCanvas.prototype.refresh = function() {
 	}
 }
 
+SVGCanvas.prototype.handleHeatmapBoxSelection = function(chart_id, from_x,from_y,to_x,to_y) {
+	var i = 0;
+	for(i=0;i<this.chartsArr.length;i++) {
+		if(this.chartsArr[i].id == chart_id)
+			this.chartsArr[i].handleBoxSelection(from_x,from_y,to_x,to_y);
+	}
+}
+
+
+SVGCanvas.prototype.higlightHeatmapSelections = function(chart_id, index_arr) {
+	var i = 0;
+	for(i=0;i<this.chartsArr.length;i++) {
+		if(this.chartsArr[i].id == chart_id)
+			this.chartsArr[i].higlightBoxSelection(index_arr);
+	}
+} 
+
 /**
 	To re-draw everything on this canvas
 **/
@@ -75,7 +92,7 @@ SVGCanvas.prototype.getChartWidth = function() {
 		if($(window).width() < standardHeight * 2.7)
 			return  Math.floor( $(window).width() / 2.2 );
 		else
-			return  Math.floor( screen.height * 0.45 ) * 1.35;
+			return  Math.floor( screen.height * 0.45 * 1.35 ) ;
 	}
 }
 
@@ -341,6 +358,5 @@ SVGCanvas.prototype.delAxis = function(chart_id,axis_name) {
 		if( this.chartsArr[i].chart_svg_id == chart_id )
 			this.chartsArr[i].delAxis(axis_name);
 	}
-	
 	console.log("delAxis: chart_id = " + chart_id + ", axis_name = " + axis_name );
 }

@@ -19,13 +19,20 @@
 	<script type="text/javascript" src="js/gsu.slider.js"></script>
 	<script type="text/javascript" src="js/colormix-2.0.0.js"></script>
 	<script type="text/javascript" src="js/pcdialog.js"></script>
+	
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
 	<script src="js/d3.js"> </script>
 	<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
 	
+	
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+	
+	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
+	
     <script type="text/javascript">
 		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
+		var superFullData;
 		var fullData;
 		var dataCases;
 		var mainCanvas;
@@ -35,10 +42,10 @@
 				type:     "GET",
 				dataType: "jsonp",
 				success: function(data){
-					//console.log("asdf")
-					fullData = data;
-					dataCases = parseGoglJSonObj(fullData);
-					configuratePage();
+					addJsId2JSon(data);
+					superFullData = data;
+					startPage(data);
+					
 				},
 				error: function(XMLHttpRequest, textStatus, errorThrown) {
 						//console.log(arguments);
@@ -47,6 +54,27 @@
 						//cleanSendObjArray(curObjIndex);
 				},
 		});
+		
+		function addJsId2JSon(data) {	
+			var rows = data["feed"]["entry"].length;
+			var i = 0;
+			for(i=0;i<rows;i++)
+				data["feed"]["entry"][i].js_id = i;
+		}
+		
+		function startPage(data) {
+			turncateHTMLPage();
+			fullData = data;
+			dataCases = parseGoglJSonObj(fullData);
+			configuratePage();
+		}
+		
+		function turncateHTMLPage() {
+			document.getElementById("test").innerHTML = "";
+			document.getElementById("content").innerHTML = "";
+			document.getElementById("table_body_div").innerHTML = "";
+			document.getElementById("table_header_div").innerHTML = "";
+		}
 		
 		function configuratePage() {
 			addTable();
@@ -272,5 +300,12 @@
 	<svg id='test_zcd' width='700' height='400' >
 		
 	</svg>
+	
+	<div id="dialog-confirm" title="Exclude others?" style="display:none">
+		<p>
+		<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
+			Do you want to remove all other points from this observation?	
+		</p>
+	</div>
 	</body>
 </html>

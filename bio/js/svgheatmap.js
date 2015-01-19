@@ -23,6 +23,8 @@ var SVGHeatMap = function (params,svg,canvas_obj,chart_id) {
 	this.YFilter = params.y_filter;
 	this.ZFilter = params.z_filter;
 	this.CFilter = params.c_filter;
+	this.anchorX = params.anchor_x;
+	this.anchorY = params.anchor_y;
 }
 
 /**
@@ -71,6 +73,151 @@ SVGHeatMap.prototype.getMaxVal = function(type) {
 	return d3.max(tmpVals, function(d){ return parseExcelNumber(d)});
 }
 
+
+SVGHeatMap.prototype.handleClickNDrag = function(type) {
+	
+	heatmap_svg_id = this.chartId + "_chart_svg";
+	heatmap_chart_id = this.chartId;
+	heatmap_anchor_x = this.anchorX;
+	heatmap_anchor_y = this.anchorY;
+	marquee_id = this.chartId + "_marquee_id";
+	
+	console.log("heatmap_svg_id = " + heatmap_svg_id)
+	
+	var mouse_down_function = function() {
+		//console.log("test = " + test);
+	
+		var evt = d3.event;
+		
+		var bool_name = heatmap_svg_id + "_selection_enabled " ;
+		var eval_str = bool_name + " = true";
+		eval(eval_str);
+		
+		p1_x = evt.offsetX - heatmap_anchor_x;
+		p1_y = evt.offsetY - heatmap_anchor_y;
+			
+		//console.log("evt.offsetY = " + evt.offsetY + ", this.anchorY = " + this.anchorY);
+		//console.log("Client Y = " + evt.clientY + ", screenY = " + evt.screenY 
+		//			+ ", offsetY = " + evt.offsetY + ", offsetX = " + evt.offsetX);
+		//console.log("mousedown:p1_x = " + p1_x + ", p1_y = " + p1_y);
+		//console.log(d3.event);
+		console.log("mousedown： p1_x = " + p1_x + ", p1_y = " + p1_y);
+	}
+	
+	
+	var mouse_move_function = function() {
+		
+		var bool_name = heatmap_svg_id + "_selection_enabled " ;
+		var eval_str = "if_true = typeof " + bool_name + " !== 'undefined'&& \
+						" + bool_name + " == true"; 
+		eval(eval_str);
+		
+		//handle the box-selection
+		if( if_true != undefined && if_true==true) {
+			var evt = d3.event;
+			p_x = evt.offsetX - heatmap_anchor_x;
+			p_y = evt.offsetY - heatmap_anchor_y;
+			d3.event.preventDefault();
+			var from_x,from_y;
+			from_x = p1_x;
+			from_y = p1_y;
+			if(p_x < p1_x ) 
+				from_x = p_x;
+
+			if(p_y < p1_y ) 
+				from_y = p_y;
+			
+			if(ifDomEleExists(marquee_id)) {
+				d3.select("#"+marquee_id)
+					.attr("x",from_x)
+					.attr("y",from_y)
+					.attr("width",Math.abs(p_x-p1_x))
+					.attr("height",Math.abs(p_y-p1_y))
+					.attr("fill-opacity",0.2)
+					.attr("stroke","black")
+					.attr("stroke-width",1)
+					//.attr("stroke-style")
+					
+			} else  {
+				d3.select("#"+heatmap_svg_id).append("rect")
+					.attr("x",p1_x)
+					.attr("y",p1_y)
+					.attr("id",marquee_id)
+					.attr("width",1)
+					.attr("height",1)
+					//.attr("fill","red");
+			}
+				
+			console.log("2222Client Y = " + evt.clientY + ", screenY = " + evt.screenY 
+						+ ", offsetY = " + evt.offsetY + ", offsetX = " + evt.offsetX);
+			console.log(d3.event);
+		}
+	}
+	
+	
+	var mouse_up_function = function() {
+	
+		var bool_name = heatmap_svg_id + "_selection_enabled " ;
+		var eval_str = bool_name + " = false";
+		eval(eval_str);
+		
+		
+		var evt = d3.event;
+		
+		//console.log("11111Client Y = " + evt.clientY + ", screenY = " + evt.screenY 
+		//			+ ", offsetY = " + evt.offsetY + ", offsetX = " + evt.offsetX);
+		
+		//$("#"+marquee_id).remove();
+		
+		
+		/**NOTE the following should be the formal way, but 
+		for unknown reason, the offsetY of mouseup event cant be
+		gotten correctly.So We use p_x p_y to replace here
+		
+		p2_x = evt.offsetX - heatmap_anchor_x;
+		p2_y = evt.offsetY - heatmap_anchor_y;
+		**/
+		p2_x = p_x;
+		p2_y = p_y;
+		
+		
+		
+		$( "#dialog-confirm" ).dialog({
+		  resizable: false,
+		  height:140,
+		  modal: true,
+		  buttons: {
+			"Ok": function() {
+			  $( this ).dialog( "close" );
+			},
+			"Cancel": function() {
+			  $( this ).dialog( "close" );
+			}
+		  }
+		});
+
+		
+		console.log("333Client Y = " + evt.clientY + ", screenY = " + evt.screenY 
+						+ ", offsetY = " + evt.offsetY + ", offsetX = " + evt.offsetX);
+
+		
+		mainCanvas.handleHeatmapBoxSelection(heatmap_chart_id,p1_x,p1_y,p2_x,p2_y);
+		
+		console.log("mouseup： p2_x = " + p2_x + ", p2_y = " + p2_y);
+		//console.log(d3.event);
+	}
+	
+	
+	
+	console.log(" this.anchorX = " + this.anchorX + " \
+	this.anchorY = " + this.anchorY);
+	
+	this.svgContainer.on("mousedown", mouse_down_function);
+	this.svgContainer.on("mouseup", mouse_up_function);
+	this.svgContainer.on("mousemove", mouse_move_function);
+}
+
+
 SVGHeatMap.prototype.getMinVal= function(type) {
 	var tmpVals = [];
 	var i = 0;
@@ -113,8 +260,7 @@ SVGHeatMap.prototype.plot = function () {
 		//console.log("$.isNumeric("+this.dataX[i]+") = " + $.isNumeric(this.dataX[i]));
 		var x = $.isNumeric(this.dataX[i])?this.dataX[i]:0;
 		var y = $.isNumeric(this.dataY[i])?this.dataY[i]:0;
-		var case_num = this.fullData[i].casenumn;
-		datum.push([x,y,this.hr[i],case_num]);
+		datum.push([x,y,this.hr[i],this.fullData[i].js_id]);
 	}
 	
 	var xScale = d3.scale.linear()
@@ -127,7 +273,6 @@ SVGHeatMap.prototype.plot = function () {
 					 .domain([this.getMinVal('y'),this.getMaxVal('y')]);
 	var yAxis = d3.svg.axis().scale(yScale).orient("left");
 	
-	
 	//console.log("d3.min(this.dataX) = " + d3.min(this.dataX,function(d){return $.isNumeric(d)?parseInt(d):0}));
 	//console.log("d3.max(this.dataX) = " + d3.max(this.dataX,function(d){return $.isNumeric(d)?parseInt(d):0}));
 	
@@ -135,6 +280,7 @@ SVGHeatMap.prototype.plot = function () {
 	var min_hr = d3.min(this.hr);
 
 	chart_id = this.chartId;
+	
 	// x-axis
 	this.svgContainer.append("g")
       .attr("class", "x axis")
@@ -204,23 +350,26 @@ SVGHeatMap.prototype.plot = function () {
 			.attr("cy", yMap)
 			.style("fill",function(d){return getColorFromVal(d[2],min_hr,max_hr);})
 			.attr("id", function(d,i){
+					//return chart_id + "_" + d[3];
 					return chart_id + "_" + i;
 				})
 			.on('mouseover', tip.show)
 			.on('mouseout', tip.hide)
 			.on('click',function(d,i){
+				//var cir_id = chart_id + "_" + d[3];
 				var cir_id = chart_id + "_" + i;
 				console.log(cir_id +" is selected");
 				d3.select("#"+cir_id).attr("class","dot_selected");
 				mainCanvas.selected(cir_id);
 				})
 			.on('dblclick',function(d,i){
-				//var cir_id = chart_id + "_" + d[0] + "_" + d[1] + "_" + i;
-				var cir_id = chart_id + "_" + i;
+				var cir_id = chart_id + "_" + d[3];
 				d3.select("#"+cir_id).attr("class","dot");
 				mainCanvas.deSelected(cir_id);
 			});
+	this.handleClickNDrag();
 	this.createColorBar();
+	//console.log(this.svgContainer);
 }
 
 SVGHeatMap.prototype.createColorBar = function() {
@@ -238,7 +387,6 @@ SVGHeatMap.prototype.createColorBar = function() {
 		this.svgContainer.append("text")
 			.text("1.00")
 			.attr("x",delta_x + 2)
-//			.style("text-anchor", "end")
 			.attr("y",delta_y + band_height * 100 + 10);
 			
 		for(i=0;i<100;i++) {
@@ -251,5 +399,22 @@ SVGHeatMap.prototype.createColorBar = function() {
 						.style("fill",getColorFromVal(i*0.01,0,1));
 						//.attr("fill","red");
 		}
-		
+}
+
+SVGHeatMap.prototype.handleBoxSelection = function(from_x,from_y,to_x,to_y) {
+	var box_selected_items = [];
+	this.svgContainer.selectAll("circle").each(
+		function (d,i) {
+			//console.log("from_x = " + from_x );
+			var x = d3.select(this).attr("cx");
+			var y = d3.select(this).attr("cy");
+			if(inPlaneArea(x,y,from_x,from_y,to_x,to_y)) {
+				var tmp_arr = d3.select(this).attr("id").split("_");
+				var index = tmp_arr[1];
+				box_selected_items.push(index);
+				d3.select(this).attr("cx")
+			}
+		}
+	);
+	console.log(box_selected_items);
 }
