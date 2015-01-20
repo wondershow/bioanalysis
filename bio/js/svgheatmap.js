@@ -1,8 +1,8 @@
 var SVGHeatMap = function (params,svg,canvas_obj,chart_id) {
 	this.axisX = params.x_axis;
 	this.axisY = params.y_axis;
-	this.dataX = params.x_data;
-	this.dataY = params.y_data;
+	//this.dataX = params.x_data;
+	//this.dataY = params.y_data;
 	
 	this.coef = params.coef;
 	
@@ -31,24 +31,24 @@ var SVGHeatMap = function (params,svg,canvas_obj,chart_id) {
 To check if a given data is ruled out or not
 */
 SVGHeatMap.prototype.isValidData = function (index) {
-	
 	if(this.XFilter != undefined && this.XFilter != null) {
-		var val = parseExcelNumber(this.dataX[index]);
+		var val = parseExcelNumber( this.canvasObj.dataCaseArr[index].getPropVal(this.axisX));
 		if(val<this.XFilter.from || val>this.XFilter.to)
 			return false;
 	}
 	if(this.YFilter != undefined && this.YFilter != null) {
-		var val = parseExcelNumber(this.dataY[index]);
+		var val = parseExcelNumber(this.canvasObj.dataCaseArr[index].getPropVal(this.axisY));
 		if(val<this.YFilter.from || val>this.YFilter.to)
 			return false;
 	}
 	if(this.ZFilter != undefined && this.ZFilter != null) {
-		var val = parseExcelNumber(this.dataZ[index]);
+		var val = parseExcelNumber(this.canvasObj.dataCaseArr[index].getPropVal(this.axisZ));
 		if(val<this.ZFilter.from || val>this.ZFilter.to)
 			return false;
 	}
 	if(this.CFilter != undefined && this.CFilter != null) {
-		if($.inArray(this.dataC[index],this.ruleOutCItems) >= 0) 
+		if($.inArray(processStr( this.canvasObj.dataCaseArr[index].getPropVal(this.axisC) ),
+					 this.ruleOutCItems) >= 0) 
 			return false;
 	}
 	return true;
@@ -60,14 +60,14 @@ SVGHeatMap.prototype.isValidData = function (index) {
 SVGHeatMap.prototype.getMaxVal = function(type) {
 	var tmpVals = [];
 	var i = 0;
-	for(i=0;i<this.dataX.length;i++) {
+	for(i=0;i<this.canvasObj.dataCaseArr.length;i++) {
 		if(this.isValidData(i)) {
 			if(type == 'x')
-				tmpVals.push( this.dataX[i] );
+				tmpVals.push( this.canvasObj.dataCaseArr[i].getPropVal(this.axisX) );
 			else if (type == 'y')
-				tmpVals.push( this.dataY[i] );
+				tmpVals.push( this.canvasObj.dataCaseArr[i].getPropVal(this.axisY) );
 			else if (type == 'z')
-				tmpVals.push( this.dataZ[i] );
+				tmpVals.push( this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ) );
 		}
 	}
 	return d3.max(tmpVals, function(d){ return parseExcelNumber(d)});
@@ -95,6 +95,8 @@ SVGHeatMap.prototype.handleClickNDrag = function(type) {
 		
 		p1_x = evt.offsetX - heatmap_anchor_x;
 		p1_y = evt.offsetY - heatmap_anchor_y;
+		p_x = p1_x;
+		p_y = p1_y;
 		p1_screenX = evt.screenX;
 		p1_screenY = evt.screenY;
 			
@@ -163,15 +165,9 @@ SVGHeatMap.prototype.handleClickNDrag = function(type) {
 		var bool_name = heatmap_svg_id + "_selection_enabled " ;
 		var eval_str = bool_name + " = false";
 		eval(eval_str);
-		
-		
 		var evt = d3.event;
-		
 		//console.log("11111Client Y = " + evt.clientY + ", screenY = " + evt.screenY 
 		//			+ ", offsetY = " + evt.offsetY + ", offsetX = " + evt.offsetX);
-		
-		
-		
 		
 		/**NOTE the following should be the formal way, but 
 		for unknown reason, the offsetY of mouseup event cant be
@@ -196,9 +192,7 @@ SVGHeatMap.prototype.handleClickNDrag = function(type) {
 		mainCanvas.handleHeatmapBoxSelection(heatmap_chart_id,p1_x,p1_y,p2_x,p2_y);
 		console.log("mouseup： p2_x = " + p2_x + ", p2_y = " + p2_y);
 	}
-	
-	
-	
+
 	console.log(" this.anchorX = " + this.anchorX + " \
 	this.anchorY = " + this.anchorY);
 	
@@ -211,14 +205,14 @@ SVGHeatMap.prototype.handleClickNDrag = function(type) {
 SVGHeatMap.prototype.getMinVal= function(type) {
 	var tmpVals = [];
 	var i = 0;
-	for(i=0;i<this.dataX.length;i++) {
+	for(i=0;i<this.canvasObj.dataCaseArr.length;i++) {
 		if(this.isValidData(i)) {
 			if(type == 'x')
-				tmpVals.push(this.dataX[i]);
+				tmpVals.push(this.canvasObj.dataCaseArr[i].getPropVal(this.axisX));
 			else if (type == 'y')
-				tmpVals.push(this.dataY[i]);
+				tmpVals.push(this.canvasObj.dataCaseArr[i].getPropVal(this.axisY));
 			else if (type == 'z')
-				tmpVals.push(this.dataZ[i]);
+				tmpVals.push(this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ));
 		}
 	}
 	return d3.min(tmpVals, function(d){ return parseExcelNumber(d)});
@@ -227,10 +221,10 @@ SVGHeatMap.prototype.getMinVal= function(type) {
 
 SVGHeatMap.prototype.plot = function () {
 	var i = 0;
-	this.hr = new Array(this.fullData.length);
+	this.hr = new Array(this.canvasObj.dataCaseArr.length);
 	
-	for(i=0; i<this.fullData.length; i++) {
-		this.hr[i] = getHazadasratio(this.coef,this.fullData[i]);
+	for(i=0; i<this.canvasObj.dataCaseArr.length; i++) {
+		this.hr[i] = getHazadasratio(this.coef,this.canvasObj.dataCaseArr[i]);
 		if(isNaN(this.hr[i]))
 			this.hr[i] = Math.random();
 		this.hr[i] = this.hr[i].toFixed(3);	
@@ -246,11 +240,13 @@ SVGHeatMap.prototype.plot = function () {
 	
 	var datum = [];
 	var i=0;
-	for (i=0;i<this.fullData.length;i++) {
+	for (i=0;i<this.canvasObj.dataCaseArr.length;i++) {
+		var x_literal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisX);
+		var y_literal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisY);
 		//console.log("$.isNumeric("+this.dataX[i]+") = " + $.isNumeric(this.dataX[i]));
-		var x = $.isNumeric(this.dataX[i])?this.dataX[i]:0;
-		var y = $.isNumeric(this.dataY[i])?this.dataY[i]:0;
-		datum.push([x,y,this.hr[i],this.fullData[i].js_id]);
+		var x = $.isNumeric(x_literal)?x_literal:0;
+		var y = $.isNumeric(y_literal)?y_literal:0;
+		datum.push([x,y,this.hr[i],this.canvasObj.dataCaseArr[i].js_id]);
 	}
 	
 	var xScale = d3.scale.linear()
@@ -318,7 +314,7 @@ SVGHeatMap.prototype.plot = function () {
 						\
 						if ( $.inArray(i,["
 		var j=0;
-		for(j=0;j<this.dataX.length;j++) {
+		for(j=0;j<this.canvasObj.dataCaseArr.length;j++) {
 			if(this.isValidData(j)==false)
 				eval_str += j + " ,";
 		}
@@ -329,12 +325,12 @@ SVGHeatMap.prototype.plot = function () {
 		}"
 		
 		eval(eval_str);
-	
+	var selected_items = this.selectedItems;
 	this.svgContainer.selectAll(".dot")
 			.data(datum)
 			.enter().append("circle")
 			.attr("class","dot")
-//			.attr("class", function(d,i) {if( $.inArray(i+"",selectedItems) >=0 ) return "dot_selected"; else return "dot";} )
+			.attr("class", function(d,i) {if( $.inArray(d[3]+"",selected_items) >=0 ) return "dot_selected"; else return "dot";} )
 			.attr("r", test_function)
 			.attr("cx", xMap)
 			.attr("cy", yMap)
@@ -354,6 +350,7 @@ SVGHeatMap.prototype.plot = function () {
 				mainCanvas.selected(cir_id);
 				})
 			.on('dblclick',function(d,i){
+				//var cir_id = chart_id + "_" + i;
 				var cir_id = chart_id + "_" + d[3];
 				d3.select("#"+cir_id).attr("class","dot");
 				mainCanvas.deSelected(cir_id);
@@ -431,4 +428,12 @@ SVGHeatMap.prototype.handleBoxSelection = function(from_x,from_y,to_x,to_y) {
 	}
 	
 	console.log(box_selected_items);
+}
+
+
+SVGHeatMap.prototype.selected = function (js_id) {
+	var cir_id = this.chartId + "_" + js_id;
+	d3.select("#" + cir_id).attr("class","dot_selected");
+	//console.log(eval_str);
+	//console.log(d3.select("#" + cir_id));
 }

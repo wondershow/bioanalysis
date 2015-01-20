@@ -75,7 +75,7 @@ SVGChart.prototype.plot = function () {
 }
 
 SVGChart.prototype.draw = function() {
-	//create a js function that can be used as an event listener
+	//create a js function that can be used as an delete event listener 
 	var evalStr =  "tmp = function() { mainCanvas.delete('"+ this.id +"') }";
 	eval(evalStr);
 	

@@ -159,16 +159,16 @@ SVGCanvas.prototype.delete = function(chart_id) {
 SVGCanvas.prototype.selected = function (item_id) {
 	var id_pieces = item_id.split("_");
 	var chart_id = id_pieces[0];
-	var item_index = id_pieces[id_pieces.length-1];
+	var js_id = id_pieces[id_pieces.length-1];
 	var i = 0;
-	if($.inArray(item_index,this.selectedItems) < 0)
-		this.selectedItems.push(item_index);
+	if($.inArray(js_id,this.selectedItems) < 0)
+		this.selectedItems.push(js_id);
 	for(i = 0;i<this.chartsArr.length;i++) {
-		this.chartsArr[i].selected(item_index);
-		this.tableObj.selected(item_index);
+		this.chartsArr[i].selected(js_id);
+		this.tableObj.selected(js_id);
 		this.chartsArr[i].refresh();
 	}
-	console.log("Select " + item_index);
+	console.log("Select " + js_id);
 }
 
 /**

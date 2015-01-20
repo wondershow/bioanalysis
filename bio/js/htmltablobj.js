@@ -50,10 +50,8 @@ HTMLTable.prototype.addTable = function()  {
 	
 	
 	for(i=0;i<this.tableData.length;i++){
-		row_id = "table_row_id_" + i;
-		
+		row_id = "table_row_id_" + dataCases[i].getPropVal("js_id");
 		htmlcode += "<tr id='"+row_id+"' style='border: 2px solid black;border-collapse: collapse;'  ondblclick='handle_table_row_selection(\""+i+"\")'>";
-		
 		var j=0;
 		
 		for(;j<cols;j++)
@@ -66,20 +64,42 @@ HTMLTable.prototype.addTable = function()  {
 	tmp.innerHTML = tmp.innerHTML + htmlcode;
 }
 
-HTMLTable.prototype.selected = function(index)  {
-	var row_id = "table_row_id_" + index;
+HTMLTable.prototype.selected = function(js_id)  {
+	/*
+	var index = 0;
+	var i = 0;
+
+	for(i=0;i<dataCases.length;i++) {
+		//console.log('dataCases[i].getProVal("js_id")=' + dataCases[i].getProVal("js_id"));
+		if(dataCases[i].getPropVal("js_id") == js_id) {
+			index = i;
+			break;
+		}
+	}*/
+	
+	var row_id = "table_row_id_" + js_id;
 	d3.select("#"+row_id).attr("class","table_selected_row");
-	this.scrollTo(index);
+	this.scrollTo(js_id);
 }
 
-HTMLTable.prototype.deSelected = function(index)  {
-	var row_id = "table_row_id_" + index;
+HTMLTable.prototype.deSelected = function(js_id)  {
+	/*var index = 0;
+	var i = 0;
+
+	for(i=0;i<dataCases.length;i++) {
+		//console.log('dataCases[i].getProVal("js_id")=' + dataCases[i].getProVal("js_id"));
+		if(dataCases[i].getPropVal("js_id") == js_id) {
+			index = i;
+			break;
+		}
+	} */
+	var row_id = "table_row_id_" + js_id;
 	d3.select("#"+row_id).attr("class","table_normal_row");
 }
 
-HTMLTable.prototype.scrollTo = function (row_num) {
+HTMLTable.prototype.scrollTo = function (js_id) {
 	var container = $('#'+this.bodyDivId);
-	var scrollTo = $('#table_row_id_'+row_num);
+	var scrollTo = $('#table_row_id_'+js_id);
 	container.animate({
 		scrollTop: scrollTo.offset().top - container.offset().top + container.scrollTop()
 	});

@@ -234,32 +234,32 @@ SVGScatterChart.prototype.plot = function () {
 		
 		eval(eval_str);
 		
-		var selectedItems = this.selectedItems;
+		var selected_items = this.selectedItems;
 		
-		console.log("The selected items are " + selectedItems);
+		console.log("The selected items are " + selected_items);
 		//console.log($.inArray(225,selectedItems));
 		// draw dots
 		this.svgContainer.selectAll(".dot")
 			.data(dataums)
 			.enter().append("circle")
-			.attr("class", function(d,i) {if( $.inArray(i+"",selectedItems) >=0 ) return "dot_selected"; else return "dot";} )
+			.attr("class", function(d,i) {if( $.inArray(d[4]+"",selected_items) >=0 ) return "dot_selected"; else return "dot";} )
 			.attr("r", test_function)
 			.attr("cx", xMap)
 			.attr("cy", yMap)
 			.attr("id", function(d,i){
-					return chart_id + "_" + i;
+					return chart_id + "_" + d[4];
 				})
 			  .on('mouseover', tip.show)
 			  .on('mouseout', tip.hide)
 			  .on('click',function(d,i){
-					var cir_id = chart_id + "_" + i;
+					var cir_id = chart_id + "_"  + d[4];
 					console.log(cir_id +" is selected");
 					d3.select("#"+cir_id).attr("class","dot_selected");
 					mainCanvas.selected(cir_id);
 			  })
 			  .on('dblclick',function(d,i){ 
 					//var cir_id = chart_id + "_" + d[0] + "_" + d[1] + "_" + i;
-					var cir_id = chart_id + "_" + i;
+					var cir_id = chart_id + "_" + d[4];
 					d3.select("#"+cir_id).attr("class","dot");
 					mainCanvas.deSelected(cir_id);
 				  })
@@ -341,8 +341,8 @@ SVGScatterChart.prototype.generateCirId = function (x,y,index) {
 	return res; 
 }
 
-SVGScatterChart.prototype.selected = function (index) {
-	var cir_id = this.chartId + "_" + index;
+SVGScatterChart.prototype.selected = function (js_id) {
+	var cir_id = this.chartId + "_" + js_id;
 	d3.select("#" + cir_id).attr("class","dot_selected");
 	//console.log(eval_str);
 	//console.log(d3.select("#" + cir_id));
