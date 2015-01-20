@@ -13,6 +13,7 @@ var SVGChart = function (g,type,p,anchor,id,parent){
 	this.axisY = p.y_axis;
 	this.axisZ = p.z_axis;
 	this.axisC = p.c_axis;
+	this.axisC = p.c_axis;
 	
 	this.chartWidth = p.chartWidth;
 	this.chartHeight = p.chartHeight;
@@ -30,9 +31,8 @@ var SVGChart = function (g,type,p,anchor,id,parent){
 	this.type = type;
 	this.id = id;
 	this.chart_svg_id = this.id + "_chart_svg";
-	this.parent = parent;
+	this.parentCanvas = parent;
 	this.plotObj = null;
-	
 	this.ruleOutCItems = [];
 }
 
@@ -48,7 +48,7 @@ SVGChart.prototype.addAxis = function(axisName) {
 	var selected_items = this.param.items;
 	if( $.inArray(axisName,selected_items)<0 ) {
 		this.param.items.push(axisName);
-		this.parent.refresh();
+		this.parentCanvas.refresh();
 	}
 	//this.plotObj.addAxis(axisName);
 }
@@ -59,7 +59,7 @@ SVGChart.prototype.delAxis = function(axisName) {
 	//console.log(current_items);
 	if($.inArray(axisName,selected_items)>=0) {
 		this.param.items = arrayRemoveVal(axisName,selected_items);
-		this.parent.refresh();
+		this.parentCanvas.refresh();
 	}
 	//this.refresh();
 	//this.plotObj.delAxis(axisName);
@@ -103,15 +103,15 @@ SVGChart.prototype.draw = function() {
 	console.log("this.anchorX = " + this.anchorX + ", this.anchorY = " + this.anchorY);
 	
 	if(this.type=="scatter") {
-		var sct = new SVGScatterChart(this.param,this.mainChartSvg,this.parent,this.id);
+		var sct = new SVGScatterChart(this.param,this.mainChartSvg,this.parentCanvas,this.id);
 		sct.plot();
 		this.plotObj = sct;
 	} else if(this.type=="heatmap") {
-		var sct = new SVGHeatMap(this.param,this.mainChartSvg,this.parent,this.id);
+		var sct = new SVGHeatMap(this.param,this.mainChartSvg,this.parentCanvas,this.id);
 		sct.plot();
 		this.plotObj = sct;
 	} else if(this.type=="pc") {
-		var sct = new SVGParallelCoord(this.param,this.mainChartSvg,this.parent,this.id);
+		var sct = new SVGParallelCoord(this.param,this.mainChartSvg,this.parentCanvas,this.id);
 		sct.plot();
 		this.plotObj = sct;
 	}
@@ -121,6 +121,7 @@ SVGChart.prototype.refresh = function(){
 	console.log("Refreshing");
 	
 	document.getElementById(this.chart_svg_id).innerHTML = "";
+	
 	$('#'+this.chart_svg_id).remove();
 	
 	//To setup the filter for the enumerative values

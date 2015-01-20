@@ -1,8 +1,5 @@
 var SVGScatterChart = function (params,svg,canvas_obj,chart_id) {
 
-	this.dataX = params.x_data;
-	this.dataY = params.y_data;
-	this.dataZ = params.z_data;
 	this.dataC = params.c_data;
 	this.axisX = params.x_axis;
 	this.axisY = params.y_axis;
@@ -32,24 +29,24 @@ var SVGScatterChart = function (params,svg,canvas_obj,chart_id) {
 To check if a given data is ruled out or not
 */
 SVGScatterChart.prototype.isValidData = function (index) {
-	
 	if(this.XFilter != undefined && this.XFilter != null) {
-		var val = parseExcelNumber(this.dataX[index]);
+		var val = parseExcelNumber( this.canvasObj.dataCaseArr[index].getPropVal(this.axisX));
 		if(val<this.XFilter.from || val>this.XFilter.to)
 			return false;
 	}
 	if(this.YFilter != undefined && this.YFilter != null) {
-		var val = parseExcelNumber(this.dataY[index]);
+		var val = parseExcelNumber(this.canvasObj.dataCaseArr[index].getPropVal(this.axisY));
 		if(val<this.YFilter.from || val>this.YFilter.to)
 			return false;
 	}
 	if(this.ZFilter != undefined && this.ZFilter != null) {
-		var val = parseExcelNumber(this.dataZ[index]);
+		var val = parseExcelNumber(this.canvasObj.dataCaseArr[index].getPropVal(this.axisZ));
 		if(val<this.ZFilter.from || val>this.ZFilter.to)
 			return false;
 	}
 	if(this.CFilter != undefined && this.CFilter != null) {
-		if($.inArray(processStr(this.dataC[index]),this.ruleOutCItems) >= 0) 
+		if($.inArray(processStr( this.canvasObj.dataCaseArr[index].getPropVal(this.axisC) ),
+					 this.ruleOutCItems) >= 0) 
 			return false;
 	}
 	return true;
@@ -61,14 +58,14 @@ SVGScatterChart.prototype.isValidData = function (index) {
 SVGScatterChart.prototype.getMaxVal = function(type) {
 	var tmpVals = [];
 	var i = 0;
-	for(i=0;i<this.dataX.length;i++) {
+	for(i=0;i<this.canvasObj.dataCaseArr.length;i++) {
 		if(this.isValidData(i)) {
 			if(type == 'x')
-				tmpVals.push( this.dataX[i] );
+				tmpVals.push( this.canvasObj.dataCaseArr[i].getPropVal(this.axisX) );
 			else if (type == 'y')
-				tmpVals.push( this.dataY[i] );
+				tmpVals.push( this.canvasObj.dataCaseArr[i].getPropVal(this.axisY) );
 			else if (type == 'z')
-				tmpVals.push( this.dataZ[i] );
+				tmpVals.push( this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ) );
 		}
 	}
 	return d3.max(tmpVals, function(d){ return parseExcelNumber(d)});
@@ -77,14 +74,15 @@ SVGScatterChart.prototype.getMaxVal = function(type) {
 SVGScatterChart.prototype.getMinVal= function(type) {
 	var tmpVals = [];
 	var i = 0;
-	for(i=0;i<this.dataX.length;i++) {
+	
+	for(i=0;i<this.canvasObj.dataCaseArr.length;i++) {
 		if(this.isValidData(i)) {
 			if(type == 'x')
-				tmpVals.push(this.dataX[i]);
+				tmpVals.push(this.canvasObj.dataCaseArr[i].getPropVal(this.axisX));
 			else if (type == 'y')
-				tmpVals.push(this.dataY[i]);
+				tmpVals.push(this.canvasObj.dataCaseArr[i].getPropVal(this.axisY));
 			else if (type == 'z')
-				tmpVals.push(this.dataZ[i]);
+				tmpVals.push(this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ));
 		}
 	}
 	return d3.min(tmpVals, function(d){ return parseExcelNumber(d)});
@@ -123,11 +121,19 @@ SVGScatterChart.prototype.plot = function () {
 	var sizeMap = null;
 	var sizeScale = null;
 	
+	
+	var z_arr = [];
+	var i=0;
+	for(i=0;i<this.canvasObj.dataCaseArr.length;i++) {
+		
+	}
+	
+	//d3.min(this.dataZ,function(d){return parseInt(d)==NaN? 0:parseInt(d);}),d3.max(this.dataZ,function(d){return parseInt(d)==NaN? 0:parseInt(d);}) 
 	//If the user selected "size" option
 	if(this.axisZ != null && this.axisZ != undefined && this.axisZ.trim() != ""  ) {
 		sizeScale = d3.scale.linear()
 							.range([0,8])
-							.domain([d3.min(this.dataZ,function(d){return parseInt(d)==NaN? 0:parseInt(d);}),d3.max(this.dataZ,function(d){return parseInt(d)==NaN? 0:parseInt(d);}) ])
+							.domain([this.getMinVal('z'),this.getMaxVal('z')])
 	} else {
 		sizeScale = d3.scale.linear()
 							.range([3,3])
@@ -155,15 +161,29 @@ SVGScatterChart.prototype.plot = function () {
 	
 	var i = 0;
 	var dataums = []
-	for(i=0;i<this.dataX.length;i++) {
-		if(this.dataZ != null && this.dataC != null ) {
-			dataums.push([this.dataX[i],this.dataY[i],this.dataZ[i],processStr(this.dataC[i])]);
-		}else if( this.dataZ != null && this.dataC == null ) {
-			dataums.push([this.dataX[i],this.dataY[i],this.dataZ[i],null]);
-		}else if ( this.dataZ == null && this.dataC != null ) {
-			dataums.push([this.dataX[i],this.dataY[i],null,processStr(this.dataC[i])]);
+	
+	for(i=0;i<this.canvasObj.dataCaseArr.length;i++) {
+		if(this.axisZ != null && this.axisC != null ) {
+			dataums.push([ this.canvasObj.dataCaseArr[i].getPropVal(this.axisX),
+						   this.canvasObj.dataCaseArr[i].getPropVal(this.axisY),
+						   this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ),
+						   processStr(this.canvasObj.dataCaseArr[i].getPropVal(this.axisC)),
+						   this.canvasObj.dataCaseArr[i].getPropVal('js_id') ]);			
+		}else if( this.axisZ != null && this.axisC == null ) {
+			dataums.push([this.canvasObj.dataCaseArr[i].getPropVal(this.axisX),
+						  this.canvasObj.dataCaseArr[i].getPropVal(this.axisY),
+						  this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ),
+						  this.canvasObj.dataCaseArr[i].getPropVal('js_id'),null]);
+			//dataums.push([this.dataX[i],this.dataY[i],this.dataZ[i],null]);
+		}else if ( this.axisZ == null && this.axisC != null ) {
+			dataums.push([this.canvasObj.dataCaseArr[i].getPropVal(this.axisX),
+						  this.canvasObj.dataCaseArr[i].getPropVal(this.axisY),null,processStr(dataCaseArr[i].getPropVal(this.axisC)),
+						  this.canvasObj.dataCaseArr[i].getPropVal('js_id')]);			
+			//dataums.push([this.dataX[i],this.dataY[i],null,processStr(this.dataC[i])]);
 		} else {
-			dataums.push([this.dataX[i],this.dataY[i],null,null]);
+			dataums.push([this.canvasObj.dataCaseArr[i].getPropVal(this.axisX),
+						  this.canvasObj.dataCaseArr[i].getPropVal(this.axisY),null,null,
+						  this.canvasObj.dataCaseArr[i].getPropVal('js_id')]);			
 		}
 	}
 	
@@ -199,16 +219,17 @@ SVGScatterChart.prototype.plot = function () {
 		//console.log('d = ' + d + ', i = ' + i ); 
 		var eval_str = "var test_function = function (d,i) {  \
 						\
-						if ( $.inArray(i,["
+						if ( $.inArray(parseInt(d[4]),["
 		var j=0;
-		for(j=0;j<this.dataX.length;j++) {
-			if(this.isValidData(j)==false)
-				eval_str += j + " ,";
+		for(j=0; j<this.canvasObj.dataCaseArr.length; j++) {
+			if( this.isValidData( j )==false )
+				eval_str += this.canvasObj.dataCaseArr[j].getPropVal("js_id") + ",";
 		}
 		eval_str += "]) >= 0 )       \
 				return 0;  \
-			else  \
-				return (d[2]==undefined || !isNumeric(d[2]) )? 3:sizeScale(d[2]);  \
+			else  {\
+				var res = (d[2]==undefined || !isNumeric(d[2]) )? 3:sizeScale(d[2]); \
+				return  res; }\
 		}"
 		
 		eval(eval_str);
@@ -261,7 +282,7 @@ SVGScatterChart.prototype.plot = function () {
 					   .style("opacity", 0);
 			  });*/
 			  
-	if(this.dataC != null) {
+	if(this.axisC != null) {
 		rightOffset = this.plotwidth;
 		//console.log(color);
 		var legend = this.svgContainer.selectAll(".legend")

@@ -18,8 +18,6 @@ var SVGParallelCoord = function (params,svg,canvas_obj,chart_id) {
 
 
 SVGParallelCoord.prototype.plot = function () {
-	//console.log("this.selectedItems = " + this.selectedItems);
-	//console.log()
 	var i=0,j=0;
 	var pcg_data = [];
 	for(i=0;i<dataCases.length;i++){

@@ -33,6 +33,7 @@
     <script type="text/javascript">
 		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
 		var superFullData;
+		var superDataCases;
 		var fullData;
 		var dataCases;
 		var mainCanvas;
@@ -44,7 +45,9 @@
 				success: function(data){
 					addJsId2JSon(data);
 					superFullData = data;
-					startPage(data);
+					superDataCases = parseGoglJSonObj(superFullData);
+					dataCases = superDataCases;
+					startPage(dataCases);
 					
 				},
 				error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -62,10 +65,35 @@
 				data["feed"]["entry"][i].js_id = i;
 		}
 		
-		function startPage(data) {
+		function observeSubsetData(id_arr) {
+			console.log("id_arr = " + id_arr);
+			dataCases = [];
+			var i = 0;
+			for(i=0;i<superDataCases.length;i++) {
+				if( inArrayGSU(superDataCases[i].getPropVal("js_id"),id_arr) )
+					dataCases.push(superDataCases[i]);
+			}
+			
 			turncateHTMLPage();
-			fullData = data;
-			dataCases = parseGoglJSonObj(fullData);
+			addTable();
+			var popup = new PopUpDialog("content", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps());
+			popup.addPopup();
+			setupListner();
+			
+			//we still use the old mainCanvas obj since it keeps
+			//the info of all the plotted digrams.
+			mainCanvas.updateTblObj(dataTable);
+			mainCanvas.updateDataCase(dataCases);
+			mainCanvas.refresh();
+			
+			//startPage();
+			//mainCanvas
+		}
+		
+		function startPage() {
+			turncateHTMLPage();
+			//fullData = data;
+			//dataCases = parseGoglJSonObj(fullData);
 			configuratePage();
 		}
 		
@@ -82,6 +110,7 @@
 			popup.addPopup();
 			setupListner();
 			mainCanvas = new SVGCanvas("test",dataTable);
+			mainCanvas.updateDataCase(dataCases);
 			//testCanvas();
 			//draw1(dataCases);
 		}
@@ -123,6 +152,7 @@
 					$.modal.close();
 			}
 			else if (document.getElementById("group2_2").checked) {
+				//color coding
 					tmp = document.getElementById("x_field");
 					x_field = tmp.options[tmp.selectedIndex].value;
 
@@ -136,6 +166,7 @@
 						g_equation_config.addEquEditor();	
 					}
 			} else if(document.getElementById("group2_3").checked){
+				//parallel coordinate
 					$.modal.close();
 					pcdialog= new PCDialog("equation", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps(),x_field,y_field,"pcdialog");
 					pcdialog.addEquEditor();	
@@ -208,7 +239,8 @@
 					if(d_field != undefined && d_field != null && d_field.trim() != "")
 						c.push(dataCases[i].getPropVal(d_field));
 				}
-				var params = {x_data:x,y_data:y,x_axis:x_field,y_axis:y_field,type:"scatter"};
+				
+				var params = { x_data:x, y_data:y,x_axis:x_field,y_axis:y_field,type:"scatter"};
 			  
 				if(z_field != undefined && z_field != null && z_field.trim() != ""){
 					params.z_data = z;
@@ -217,7 +249,7 @@
 					params.z_data = null;
 					params.z_axis = null;
 				}
-			
+				
 				if(d_field != undefined && d_field != null && d_field.trim() != ""){
 					params.c_data = c;
 					params.c_axis = d_field;
@@ -225,6 +257,7 @@
 					params.c_data = null;
 					params.c_axis = null;
 				}
+				
 				mainCanvas.add(params);
 			}
 		}
@@ -304,7 +337,7 @@
 	<div id="dialog-confirm" title="Exclude others?" style="display:none">
 		<p>
 		<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
-			Do you want to remove all other points from this observation?	
+			<span id="dialog-confirm-content">Do you want to remove all other points from this observation?</span>
 		</p>
 	</div>
 	</body>

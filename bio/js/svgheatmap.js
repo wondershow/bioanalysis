@@ -95,6 +95,9 @@ SVGHeatMap.prototype.handleClickNDrag = function(type) {
 		
 		p1_x = evt.offsetX - heatmap_anchor_x;
 		p1_y = evt.offsetY - heatmap_anchor_y;
+		p1_screenX = evt.screenX;
+		p1_screenY = evt.screenY;
+			
 			
 		//console.log("evt.offsetY = " + evt.offsetY + ", this.anchorY = " + this.anchorY);
 		//console.log("Client Y = " + evt.clientY + ", screenY = " + evt.screenY 
@@ -147,7 +150,7 @@ SVGHeatMap.prototype.handleClickNDrag = function(type) {
 					.attr("height",1)
 					//.attr("fill","red");
 			}
-				
+			
 			console.log("2222Client Y = " + evt.clientY + ", screenY = " + evt.screenY 
 						+ ", offsetY = " + evt.offsetY + ", offsetX = " + evt.offsetX);
 			console.log(d3.event);
@@ -167,7 +170,7 @@ SVGHeatMap.prototype.handleClickNDrag = function(type) {
 		//console.log("11111Client Y = " + evt.clientY + ", screenY = " + evt.screenY 
 		//			+ ", offsetY = " + evt.offsetY + ", offsetX = " + evt.offsetX);
 		
-		//$("#"+marquee_id).remove();
+		
 		
 		
 		/**NOTE the following should be the formal way, but 
@@ -177,34 +180,21 @@ SVGHeatMap.prototype.handleClickNDrag = function(type) {
 		p2_x = evt.offsetX - heatmap_anchor_x;
 		p2_y = evt.offsetY - heatmap_anchor_y;
 		**/
+		p2_screenX = evt.screenX;
+		p2_screenY = evt.screenY;
+		
 		p2_x = p_x;
 		p2_y = p_y;
 		
-		
-		
-		$( "#dialog-confirm" ).dialog({
-		  resizable: false,
-		  height:140,
-		  modal: true,
-		  buttons: {
-			"Ok": function() {
-			  $( this ).dialog( "close" );
-			},
-			"Cancel": function() {
-			  $( this ).dialog( "close" );
-			}
-		  }
-		});
-
-		
-		console.log("333Client Y = " + evt.clientY + ", screenY = " + evt.screenY 
-						+ ", offsetY = " + evt.offsetY + ", offsetX = " + evt.offsetX);
-
+		/*
+		Use this if statement to exclude the click event
+		(mouseup mousedown at same coordinate)
+		**/
+		if(p2_screenX == p1_screenX || p2_screenY == p1_screenY)
+			return;
 		
 		mainCanvas.handleHeatmapBoxSelection(heatmap_chart_id,p1_x,p1_y,p2_x,p2_y);
-		
 		console.log("mouseup： p2_x = " + p2_x + ", p2_y = " + p2_y);
-		//console.log(d3.event);
 	}
 	
 	
@@ -350,14 +340,15 @@ SVGHeatMap.prototype.plot = function () {
 			.attr("cy", yMap)
 			.style("fill",function(d){return getColorFromVal(d[2],min_hr,max_hr);})
 			.attr("id", function(d,i){
-					//return chart_id + "_" + d[3];
-					return chart_id + "_" + i;
+					return chart_id + "_" + d[3];
+					
+					//return chart_id + "_" + i;
 				})
 			.on('mouseover', tip.show)
 			.on('mouseout', tip.hide)
 			.on('click',function(d,i){
-				//var cir_id = chart_id + "_" + d[3];
-				var cir_id = chart_id + "_" + i;
+				var cir_id = chart_id + "_" + d[3];
+				//var cir_id = chart_id + "_" + i;
 				console.log(cir_id +" is selected");
 				d3.select("#"+cir_id).attr("class","dot_selected");
 				mainCanvas.selected(cir_id);
@@ -416,5 +407,28 @@ SVGHeatMap.prototype.handleBoxSelection = function(from_x,from_y,to_x,to_y) {
 			}
 		}
 	);
+	
+	if(box_selected_items.length>0) {
+		var content_msg = "You have choosen " + box_selected_items.length + " items, \
+						  Do you want to exclude all other items and only study these items? " 
+		$("#dialog-confirm-content").html(content_msg);				  
+		$( "#dialog-confirm" ).dialog({
+		  resizable: false,
+		  height:140,
+		  modal: true,
+		  buttons: {
+			"Ok": function() {
+			  $("#"+marquee_id).remove();
+			  observeSubsetData(box_selected_items);
+			  $( this ).dialog( "close" );
+			},
+			"Cancel": function() {
+			  $("#"+marquee_id).remove();
+			  $( this ).dialog( "close" );
+			}
+		  }
+		});
+	}
+	
 	console.log(box_selected_items);
 }

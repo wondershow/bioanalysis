@@ -43,6 +43,7 @@ var SVGCanvas = function(id,table) {
 	
 	this.selectedItems = [];
 	this.tableObj = table;
+	this.dataCaseArr = null;
 }
 
 /**
@@ -60,6 +61,10 @@ SVGCanvas.prototype.refresh = function() {
 	for(i=0;i<tmpArr.length;i++) {
 		this.add(tmpArr[i].param);		
 	}
+}
+
+SVGCanvas.prototype.updateDataCase = function(case_arr) {
+	this.dataCaseArr = case_arr;
 }
 
 SVGCanvas.prototype.handleHeatmapBoxSelection = function(chart_id, from_x,from_y,to_x,to_y) {
@@ -359,4 +364,8 @@ SVGCanvas.prototype.delAxis = function(chart_id,axis_name) {
 			this.chartsArr[i].delAxis(axis_name);
 	}
 	console.log("delAxis: chart_id = " + chart_id + ", axis_name = " + axis_name );
+}
+
+SVGCanvas.prototype.updateTblObj = function(tbl) {
+	this.tableObj = tbl;
 }
