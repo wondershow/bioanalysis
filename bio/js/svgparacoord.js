@@ -81,9 +81,8 @@ SVGParallelCoord.prototype.drawCoord = function(svg_id,cars,total_width,total_he
 				domain_range = d3.extent(cars,function(p){ return +p[d];});
 				res = d != "name" && ( y[d] = d3.scale.linear()
 				.domain(domain_range)
-				.range([height, 0]) );
-			}
-			else {
+				.range([height, 0]));
+			} else {
 				var tmp_arr = [];
 				var j = 0;
 				for (j = 0;j<cars.length;j++) {
@@ -112,9 +111,9 @@ SVGParallelCoord.prototype.drawCoord = function(svg_id,cars,total_width,total_he
       .data(cars)
     .enter().append("path")
       .attr("d", path)
-	  .attr("style",function(d,i){if($.inArray(i+"",selected_items)>=0) return "stroke:red;stroke-width:2"; else return "";   })
+	  .attr("style",function(d,i){if($.inArray(dataCases[i].getPropVal("js_id")+"",selected_items)>=0) return "stroke:red;stroke-width:2"; else return "";   })
 	  .on('click',function(d,i){
-			var path_id = fg_id + "_" + i;
+			var path_id = fg_id + "_" + dataCases[i].getPropVal("js_id");
 			mainCanvas.selected(path_id);
 		  });
 		  
@@ -127,10 +126,10 @@ SVGParallelCoord.prototype.drawCoord = function(svg_id,cars,total_width,total_he
       .data(cars)
     .enter().append("path")
       .attr("d", path)
-	  .attr("id",function(d,i){return fg_id+"_"+i})
-	  .attr("style",function(d,i){if($.inArray(i+"",selected_items)>=0) return "stroke:red;stroke-width:2"; else return "";   })
+	  .attr("id",function(d,i){return fg_id+"_"+dataCases[i].getPropVal("js_id")})
+	  .attr("style",function(d,i){if($.inArray(dataCases[i].getPropVal("js_id")+"",selected_items)>=0) return "stroke:red;stroke-width:2"; else return "";   })
 	  .on('click',function(d,i){
-			var path_id = fg_id + "_" + i;
+			var path_id = fg_id + "_" + dataCases[i].getPropVal("js_id");
 			mainCanvas.selected(path_id);
 		});
 

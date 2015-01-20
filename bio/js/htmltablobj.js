@@ -51,7 +51,7 @@ HTMLTable.prototype.addTable = function()  {
 	
 	for(i=0;i<this.tableData.length;i++){
 		row_id = "table_row_id_" + dataCases[i].getPropVal("js_id");
-		htmlcode += "<tr id='"+row_id+"' style='border: 2px solid black;border-collapse: collapse;'  ondblclick='handle_table_row_selection(\""+i+"\")'>";
+		htmlcode += "<tr id='"+row_id+"' style='border: 2px solid black;border-collapse: collapse;'  ondblclick='handle_table_row_selection(\""+dataCases[i].getPropVal("js_id")+"\")'>";
 		var j=0;
 		
 		for(;j<cols;j++)

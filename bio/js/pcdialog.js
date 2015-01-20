@@ -25,7 +25,7 @@ PCDialog.prototype.genOptionList = function(id) {
 	
 	html += "<div align='center' style='position:relative'>";
 	html += "Item: <select id='" + option_id + "'> \n";
-	html += "<option></option> \n";
+	
 	
 	var i = 0;
 	
