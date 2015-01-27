@@ -228,15 +228,54 @@ SVGChart.prototype.addDimSelector = function() {
 	//onclick_function_str = "";
 	available_axis_html += '<br><button onclick="' + onclick_function_str+'"> + </button>'
 
+	var order_adjustment_html = this.axisOrderHtml();
 	this.legend_svg.append("foreignObject")
 		.attr("width", this.legendWidth)
 		.attr("height",actual_height)
 		.append("xhtml")
 		.style("font", "14px 'Helvetica Neue'")
-		.html("<html style='background-color:green'>"+exist_axis_html+"<br><br><br>"+ available_axis_html + " </html>");
+		.html("<html style='background-color:green'>"+exist_axis_html + "<br><br><br>"+ available_axis_html + "<br><br><br>"+ order_adjustment_html + " </html>");
 		//.html("<html style='background-color:green'>"+"<br><br><br>"+  + " </html>");
 	
+	
+	
 	return;
+}
+
+SVGChart.prototype.axisOrderHtml = function() {
+	var html = "";
+	
+	var j = 0;
+	var max_len = this.getMaxLen(this.param.items);
+	for(j=0;j<this.param.items.length;j++) {
+		html += "<button onclick='mainCanvas.adjustAxisOrder(\""+this.chart_svg_id+"\",\""+this.param.items[j]+"\",\"up\" )'> < </button> " 
+				+ this.getFixedLenStr(this.param.items[j],max_len) + 
+				"<button onclick='mainCanvas.adjustAxisOrder(\""+this.chart_svg_id+"\",\""+this.param.items[j]+"\",\"down\" )'> > </button> <br>";
+	}
+	
+	return html;
+}
+
+SVGChart.prototype.getFixedLenStr = function(str,len) {
+	var diff = len - str.length;
+	var i = 0;
+	var res = str;
+	for(i=0;i<diff;i++){
+		
+		res += "&nbsp;";
+	}
+	
+	return res;
+}
+
+SVGChart.prototype.getMaxLen = function(str_arr) {
+	var max = 0;
+	var i = 0;
+	for(i=0;i<str_arr.length;i++) {
+		if(str_arr[i].length>max)
+			max = str_arr[i].length;
+	}
+	return max;
 }
 
 SVGChart.prototype.handleBoxSelection = function(from_x,from_y,to_x,to_y) {
@@ -245,4 +284,33 @@ SVGChart.prototype.handleBoxSelection = function(from_x,from_y,to_x,to_y) {
 
 SVGChart.prototype.higlightBoxSelection = function() {
 		this.plotObj.higlightBoxSelection(from_x,from_y,to_x,to_y);
+}
+
+SVGChart.prototype.switchAxisOrder = function (axis_name,direction) {
+	var arr = this.param.items;
+	var i = 0;
+	var pos = 0;
+	for(i=0;i<arr.length;i++) {
+		if(arr[i] === axis_name)
+			pos = i;
+	}
+	var tmp = arr[pos];
+	if(direction == "up") {
+		if(pos>0) {
+			arr[pos] = arr[pos-1];
+			arr[pos-1] = tmp;
+		}
+	}
+	if(direction == "down") {
+		if(pos < arr.length-1) {
+			arr[pos] = arr[pos+1];
+			arr[pos+1] = tmp;
+		}
+	}
+	return arr;
+}
+
+SVGChart.prototype.adjustAxisOrder = function (axis_name,direction) {
+	this.param.items = this.switchAxisOrder(axis_name,direction);
+	this.parentCanvas.refresh();
 }

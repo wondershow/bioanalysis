@@ -369,3 +369,11 @@ SVGCanvas.prototype.delAxis = function(chart_id,axis_name) {
 SVGCanvas.prototype.updateTblObj = function(tbl) {
 	this.tableObj = tbl;
 }
+
+SVGCanvas.prototype.adjustAxisOrder = function(chart_id,axis_name,direction) {
+	var i=0;
+	for(i=0;i<this.chartsArr.length;i++) {
+		if( this.chartsArr[i].chart_svg_id == chart_id )
+			this.chartsArr[i].adjustAxisOrder(axis_name,direction);
+	}
+}

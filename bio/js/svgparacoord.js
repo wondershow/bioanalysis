@@ -52,6 +52,8 @@ SVGParallelCoord.prototype.delAxis = function(axisName) {
 	
 }
 
+SVGParallelCoord.prototype.adjustAxisOrder 
+
 
 SVGParallelCoord.prototype.drawCoord = function(svg_id,cars,total_width,total_height) {
 	var margin = {top: 30, right: 10, bottom: 10, left: 10},
