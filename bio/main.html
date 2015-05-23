@@ -16,6 +16,7 @@
 	<script type="text/javascript" src="js/svgscatterchart.js"></script>
 	<script type="text/javascript" src="js/svgheatmap.js"></script>
 	<script type="text/javascript" src="js/svgparacoord.js"></script>
+	<script type="text/javascript" src="js/svgthreshchart.js"></script>
 	<script type="text/javascript" src="js/svgchart.js"></script>
 	<script type="text/javascript" src="js/gsu.slider.js"></script>
 	<script type="text/javascript" src="js/colormix-2.0.0.js"></script>
@@ -32,7 +33,10 @@
 	<script src="//code.jquery.com/ui/1.11.2/jquery-ui.js"></script>
 	
     <script type="text/javascript">
-		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
+		//var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
+		//1eVZd6l25DHqR6T0qOMy1jqRALXh3i7ZpB4hXz42saAQ
+		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1eVZd6l25DHqR6T0qOMy1jqRALXh3i7ZpB4hXz42saAQ/o1ste9p/public/values?alt=json";
+	
 		var superFullData;
 		var superDataCases;
 		var fullData;
@@ -52,10 +56,10 @@
 					
 				},
 				error: function(XMLHttpRequest, textStatus, errorThrown) {
-						//console.log(arguments);
-						console.log("Status: " + textStatus);
-						console.log("Error: " + errorThrown);
-						//cleanSendObjArray(curObjIndex);
+					//console.log(arguments);
+					console.log("Status: " + textStatus);
+					console.log("Error: " + errorThrown);
+					//cleanSendObjArray(curObjIndex);
 				},
 		});
 		
@@ -149,29 +153,44 @@
 		
 		function draw() {
 			if (document.getElementById("group2_1").checked){
-					drawScatter();
-					$.modal.close();
+				drawScatter();
+				$.modal.close();
 			}
 			else if (document.getElementById("group2_2").checked) {
 				//color coding
-					tmp = document.getElementById("x_field");
-					x_field = tmp.options[tmp.selectedIndex].value;
+				tmp = document.getElementById("x_field");
+				x_field = tmp.options[tmp.selectedIndex].value;
 
-					tmp = document.getElementById("y_field");
-					y_field = tmp.options[tmp.selectedIndex].value;
-					if ( x_field=="" || y_field=="") {
-						document.getElementById("alertmsg").innerHTML = "Please select field X, Y";
-					} else {
-						$.modal.close();
-						g_equation_config = new EquationDialog("equation", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps(),x_field,y_field,"g_equation_config");
-						g_equation_config.addEquEditor();	
-					}
+				tmp = document.getElementById("y_field");
+				y_field = tmp.options[tmp.selectedIndex].value;
+				if ( x_field=="" || y_field=="") {
+					document.getElementById("alertmsg").innerHTML = "Please select field X, Y";
+				} else {
+					$.modal.close();
+					g_equation_config = new EquationDialog("equation", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps(),x_field,y_field,"g_equation_config");
+					g_equation_config.addEquEditor();	
+				}
 			} else if(document.getElementById("group2_3").checked){
 				//parallel coordinate
+				$.modal.close();
+				pcdialog= new PCDialog("equation", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps(),x_field,y_field,"pcdialog");
+				pcdialog.addEquEditor();	
+				//drawPCG();
+			} else if(document.getElementById("group2_4").checked){
+				//optimal point analysis
+				tmp = document.getElementById("x_field");
+				x_field = tmp.options[tmp.selectedIndex].value;
+				tmp = document.getElementById("y_field");
+				y_field = tmp.options[tmp.selectedIndex].value;
+				tmp = document.getElementById("z_field");
+				z_field = tmp.options[tmp.selectedIndex].value;
+					
+				if ( x_field=="" || y_field==""|| z_field=="") {
+					document.getElementById("alertmsg").innerHTML = "Please select field X, Y and Z";
+				} else {
 					$.modal.close();
-					pcdialog= new PCDialog("equation", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps(),x_field,y_field,"pcdialog");
-					pcdialog.addEquEditor();	
-					//drawPCG();
+					drawOptimalAnalysis();
+				}
 			}
 		}
 		
@@ -202,7 +221,7 @@
 		}
 		
 		/**
-			To draw 
+			Draw scatter plotting with 
 		**/
 		function drawScatter() {
 			var tmp;
@@ -263,6 +282,27 @@
 			}
 		}
 		
+		/*
+			To draw the optimal analysis diagram
+		*/
+		function drawOptimalAnalysis() {
+			console.log("wOptimalAnalysis");
+			document.getElementById("alertmsg").innerHTML = "";
+   			var x = [];
+			var y = [];
+			var z = [];
+			var c = [];
+			for(i=0;i<dataCases.length;i++) {
+				x.push(dataCases[i].getPropVal(x_field));
+				y.push(dataCases[i].getPropVal(y_field));
+				z.push(dataCases[i].getPropVal(z_field));
+			}
+			var params = { x_data:x, y_data:y,x_axis:x_field,y_axis:y_field,type:"throttle"};
+			params.z_data = z;
+			params.z_axis = z_field;
+			mainCanvas.add(params);
+		}
+		
 		function addDiagram() {
 			var x = [];
 			var y = [];
@@ -282,7 +322,6 @@
 		}
 		
 		function testCanvas() {
-			
 			var x = [];
 			var y = [];
 			var z = [];
@@ -298,9 +337,7 @@
 			var params = {x_data:x,y_data:y,z_data:z,c_data:c,x_axis:"ph3n",y_axis:"ki67n",z_axis:"mfin",c_axis:"racec",type:"scatter"};
 			mainCanvas.add(params);
 			//mainCanvas.add(params);
-			
 			//mainCanvas.add(params);
-			
 			mainCanvas.add(params);
 		}
 		

@@ -116,7 +116,12 @@ SVGScatterChart.prototype.plot = function () {
 	**/
 	var evalStr =  "yMap = function(d) {return $.isNumeric(d[1])? (yScale(d[1]) + " + this.margin.top  +"): (yScale(0) +" + this.margin.top  +")};"
 	eval(evalStr);
-    yAxis = d3.svg.axis().scale(yScale).orient("left");
+    yAxis = d3.svg.axis().scale(yScale).orient("left");//.tickValues(d3.range(20,80,4));
+	console.log("yAxis.ticks()=" + yAxis.ticks());
+	console.log("yAxis.ticks()[0]=" + yAxis.ticks()[0]);
+	console.log("yAxis.ticks()[1]=" + yAxis.ticks()[1]);
+	console.log("yAxis.ticks()[2]=" + yAxis.ticks()[2]);
+
 	
 	var sizeMap = null;
 	var sizeScale = null;
@@ -359,11 +364,11 @@ SVGScatterChart.prototype.getCircleSize = function (data,index) {
 	
 	
 	}
-	
-	
-	
 }
 
 SVGScatterChart.prototype.getCircleColor = function () {
+
+
+
 }
 

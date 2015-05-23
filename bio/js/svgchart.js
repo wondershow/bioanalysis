@@ -68,7 +68,7 @@ SVGChart.prototype.delAxis = function(axisName) {
 SVGChart.prototype.plot = function () {
 	this.draw();
 	//add sliders when necessary
-	if(this.type == 'scatter'||this.type == 'heatmap')
+	if(this.type == 'scatter'||this.type == 'heatmap'|| this.type=='throttle')
 		this.addSliders();
 	else if(this.type == 'pc')
 		this.addDimSelector();
@@ -112,6 +112,10 @@ SVGChart.prototype.draw = function() {
 		this.plotObj = sct;
 	} else if(this.type=="pc") {
 		var sct = new SVGParallelCoord(this.param,this.mainChartSvg,this.parentCanvas,this.id);
+		sct.plot();
+		this.plotObj = sct;
+	} else if (this.type=="throttle") {
+		var sct = new SVGThreshChart(this.param,this.mainChartSvg,this.parentCanvas,this.id);
 		sct.plot();
 		this.plotObj = sct;
 	}

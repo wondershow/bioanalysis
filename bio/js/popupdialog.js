@@ -79,6 +79,7 @@ PopUpDialog.prototype.genModalDiv = function(){
 					<input type='radio' name='group2_name' id='group2_1' value='scatter' checked> ScatterPlot  \
 					<input type='radio' name='group2_name' id='group2_2' value='heatmap'> HeatMap  \
 					<input type='radio' name='group2_name' id='group2_3' value='parallel'> Parallel \
+					<input type='radio' name='group2_name' id='group2_4' value='optmal_analysis'> Optimal Analysis\
 				</td>  \
 			</tr> ";
 	

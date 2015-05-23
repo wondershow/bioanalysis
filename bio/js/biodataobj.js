@@ -64,3 +64,15 @@ BioDataCase.prototype.getJSonObj = function () {
 	return this.jsonObj;
 }
 
+
+/*
+	To see if this patient is dead based on a custmized rule 
+***/
+BioDataCase.prototype.isDead = function(colunn_name,aux_name,threshold) {
+
+	//the patients survival time is longer than the threshold, false, he is not dead yet
+	if(this.getPropVal(colunn_name) > threshold)
+		return false;
+	else
+		return true;
+}
