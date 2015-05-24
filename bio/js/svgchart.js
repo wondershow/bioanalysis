@@ -68,8 +68,10 @@ SVGChart.prototype.delAxis = function(axisName) {
 SVGChart.prototype.plot = function () {
 	this.draw();
 	//add sliders when necessary
-	if(this.type == 'scatter'||this.type == 'heatmap'|| this.type=='throttle')
+	if(this.type == 'scatter'||this.type == 'heatmap')
 		this.addSliders();
+	else if(this.type == 'throttle')
+		this.addLongSliders();
 	else if(this.type == 'pc')
 		this.addDimSelector();
 }
@@ -115,6 +117,16 @@ SVGChart.prototype.draw = function() {
 		sct.plot();
 		this.plotObj = sct;
 	} else if (this.type=="throttle") {
+		// we need to do some special processing here
+		var tmpArr = [];
+		var i=0;
+		for(i=0;i<this.dataZ.length;i++)
+			if(!isNaN(this.dataZ[i])) tmpArr.push(this.dataZ[i]);
+    	var min_val = d3.min(tmpArr, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})
+    	var max_val = d3.max(tmpArr, function(d) { return parseInt(d)==NaN? 0:parseInt(d);})
+		this.param.bar_from = min_val;
+		this.param.bar_to = max_val;
+		
 		var sct = new SVGThreshChart(this.param,this.mainChartSvg,this.parentCanvas,this.id);
 		sct.plot();
 		this.plotObj = sct;
@@ -140,7 +152,7 @@ SVGChart.prototype.refresh = function(){
 				this.ruleOutCItems.push(this.param.c_filter.item);
 		}
 		//console.log("this.ruleOutCItems = " + this.ruleOutCItems);
-	}
+	}// else if(this.param.
 	this.param.ruleOutCItems = this.ruleOutCItems;
 	this.draw();
 }
@@ -181,6 +193,35 @@ SVGChart.prototype.addSliders = function() {
 	var slider2 = new SVGSlider(params2);
 	slider2.generate();
 }
+
+SVGChart.prototype.addLongSliders = function() {
+    this.legend_svg = this.g.append("svg")
+                  .attr("width", this.legendWidth )
+                  .attr("height",this.legendHeight)
+                  .attr("x",this.chartWidth);
+   
+    this.legend_svg.append("rect")
+        .attr("width", this.legendWidth)
+        .attr("height",this.legendHeight)
+        .attr("fill","white");
+   
+   
+    slider_height =  Math.floor(this.legendHeight * 0.9);
+   
+    slider_width = Math.floor(this.legendWidth*0.3);
+   
+    var anchor_x = 0.2*(this.legendWidth - slider_width)
+   
+    //var eval_str = "var refresh_function = function() {mainCanvas.refresh("+this.id+")};";
+    //eval(eval_str);
+    
+	//Get the min and max value of the slider
+    var anchor1 = { x: anchor_x, y : 5 }
+    var params1 = {anchor:anchor1,w:slider_width,h:slider_height,svg:this.legend_svg,label:this.axisZ,min:this.param.bar_from,max:this.param.bar_to,type:'v',chart_id:this.id,axis_name:'x'};
+    var slider = new SVGLongslider(params1);
+    slider.generate();
+}
+
 
 SVGChart.prototype.addDimSelector = function() {
 	var actual_width = $("#"+this.chart_svg_id).attr("width");

@@ -334,8 +334,6 @@ SVGCanvas.prototype.add = function(params) {
 Handles the filter(slider bar) drag event.
 **/
 SVGCanvas.prototype.updateChart = function(id,type,from,to) {
-	console.log("id = "+ id +"type = " + type + ", from = " + from + ", to = " + to);
-
 	for(i=0;i<this.chartsArr.length;i++) {
 		if(this.chartsArr[i].id == id) {
 			if (type == 'x')
@@ -346,6 +344,10 @@ SVGCanvas.prototype.updateChart = function(id,type,from,to) {
 				this.chartsArr[i].param.z_filter = {from:from,to:to};
 			else if (type == 'c') 
 				this.chartsArr[i].param.c_filter = {filter_type:from,item:to};
+			else if (type == 'a') { //filter for optimal analysis {
+				this.chartsArr[i].param.a_filter = {threshold:from};
+				console.log("from is " + from);
+			}
 			this.chartsArr[i].refresh();
 		}
 	}
