@@ -44,6 +44,11 @@ var SVGCanvas = function(id,table) {
 	this.selectedItems = [];
 	this.tableObj = table;
 	this.dataCaseArr = null;
+
+
+	//to save all the saved grey curve in the optimal analysis
+	//maybe this is not a correct way, but it is the most simple way
+	this.saved_path_arr = [];
 }
 
 /**
@@ -382,3 +387,21 @@ SVGCanvas.prototype.adjustAxisOrder = function(chart_id,axis_name,direction) {
 			this.chartsArr[i].adjustAxisOrder(axis_name,direction);
 	}
 }
+
+/**
+	Sine at each refresh we need to remember those greyed curvers in 
+	the optimal analysis plotting. So here we provide an interface
+	to add an existing path into the "Memory";
+**/
+SVGCanvas.prototype.addAnalysisCurve = function(path_str) {
+	this.saved_path_arr.push(path_str);
+}
+
+SVGCanvas.prototype.delAnalysisCurve = function(path_str) {
+	var index = this.saved_path_arr.indexOf(path_str);
+	if (index > -1)
+		this.saved_path_arr = this.saved_path_arr.splice(index, 1);
+	if(this.saved_path_arr.length==1  && this.saved_path_arr[0] == path_str    )
+		this.saved_path_arr = [];
+}
+

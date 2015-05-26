@@ -172,7 +172,6 @@ SVGThreshChart.prototype.plot = function () {
     }
 
 	var plotdata = this.getPlotdata(valid_datacases,this.threshold);
-	console.log("this.threshold = "+ this.threshold);
 
     var max_y = -100, min_y = 10000;
     for(i=0;i<plotdata.length;i++){
@@ -283,7 +282,7 @@ SVGThreshChart.prototype.plot = function () {
 		.attr("y", 6)
 		.attr("dy", ".71em")
 		.style("text-anchor", "end")
-		.text(this.axisY);
+		.text("Difference");
 
 		chart_id = this.chartId;
 		
@@ -317,15 +316,44 @@ SVGThreshChart.prototype.plot = function () {
                           		 .y(function(d) { return yScale(d[1]); })
 	                        	 .interpolate("linear");		
 		
-		console.log(plotdata);
-		var testdata = [ [1,7], [2,7],[3,7],[50,7],[60,7]];
-		this.svgContainer.append("path")
+		var path = this.svgContainer.append("path")
 						.attr("d",lineFunction(plotdata))
-						//.attr("d",lineFunction(testdata))
 						.attr("stroke", "steelblue")
 					    .attr("stroke-width", "2")
-					    .attr("fill", "none");
-					   // .attr("class", "dataline");
+					    .attr("fill", "none")
+			  			.on('click',function(d,i){
+						})
+						.on("dblclick",function(d,i){
+							if(d3.select(this).attr("stroke")!='grey') {
+								mainCanvas.addAnalysisCurve(d3.select(this).attr("d"));
+								d3.select(this).attr("stroke","grey");	
+							} else {
+								//d3.select(this).attr("stroke","steeblue");	
+							}
+						});
+
+		var i=0;
+		var tmp_path;
+		for(i=0;i<mainCanvas.saved_path_arr.length;i++){
+			tmp_path = mainCanvas.saved_path_arr[i];
+			this.svgContainer.append("path")
+                        .attr("d",tmp_path)
+                        .attr("stroke", "grey")
+                        .attr("stroke-width", "2")
+						.style("stroke-dasharray", ("1, 1"))
+                        .attr("fill", "none")
+                        .on('click',function(){
+                        })
+                        .on("dblclick",function(d,i){
+                            mainCanvas.delAnalysisCurve(d3.select(this).attr("d"));
+                            //d3.select(this).attr("stroke","grey");
+                            //d3.select(this).style("stroke-dasharray", ("1, 1"));
+							d3.select(this).remove();
+                        });	
+
+		}
+		
+		console.log("path");
 		
 
 		/*
