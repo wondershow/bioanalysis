@@ -213,7 +213,7 @@ SVGScatterChart.prototype.plot = function () {
 		.attr("y", 6)
 		.attr("dy", ".71em")
 		.style("text-anchor", "end")
-		.text(this.axisY);
+		.text("Difference");
 
 		chart_id = this.chartId;
 		
