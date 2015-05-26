@@ -27,6 +27,8 @@ var SVGThreshChart = function (params,svg,canvas_obj,chart_id) {
 		this.threshold = params.a_filter.threshold;
 	else
 		this.threshold = params.bar_from;
+	this.threshold_from = params.bar_from;
+    this.threshold_to = params.bar_to;
 	console.log("this.threshold = "+this.threshold);
 }
 
@@ -107,6 +109,32 @@ SVGThreshChart.prototype.getMinVal= function(type) {
 	return d3.min(tmpVals, function(d){ return parseExcelNumber(d)});
 }
 
+/**
+    Since in this plotting, as we change the throttle/threshold, the max and min value of yaxis 
+    vary a lot. To make the viewport more stable, here we calculate a max of maxs, min of mins, so 
+    that even when we are dragging the slider, the ysclale can still be stable.
+**/
+SVGThreshChart.prototype.getYScale = function (valid_cases) {
+    var max_of_maxs = -1;
+    var min_of_mins = 10000;
+    var i,j;
+    var max,min;
+    var tmpdata;
+    for(i=this.threshold_from;i<=this.threshold_to;i +=4 ) {
+        max = -1;
+        min = 10000;
+        tmpdata = this.getPlotdata(valid_cases,i);
+        for(j=0;j<tmpdata.length;j += 4) {
+            if(tmpdata[j][1]>max) max = tmpdata[j][1];
+            if(tmpdata[j][1]<min) min = tmpdata[j][1];
+        }
+        if(max_of_maxs < max) max_of_maxs = max;
+        if(min_of_mins > min) min_of_mins = min;
+    }
+	//console.log();
+    return [min_of_mins,max_of_maxs];
+}
+
 
 
 
@@ -154,6 +182,24 @@ SVGThreshChart.prototype.plot = function () {
 			min_y = plotdata[i][1];
     }
 
+	//var YLimits = this.getYScale(valid_datacases);	
+	if(typeof svg_thresh_chart_y_up_limit !== 'undefined') {
+		if( svg_thresh_chart_y_up_limit < max_y)
+			svg_thresh_chart_y_up_limit = max_y;
+	} else 
+		svg_thresh_chart_y_up_limit = 30;
+
+	
+	if(typeof svg_thresh_chart_y_down_limit !== 'undefined') {
+		if( svg_thresh_chart_y_down_limit > min_y)
+			svg_thresh_chart_y_down_limit = min_y;
+	} else 
+		svg_thresh_chart_y_down_limit = -30;
+
+
+	
+	var YLimits = [svg_thresh_chart_y_down_limit,svg_thresh_chart_y_up_limit];
+
 	/*
     yScale = d3.scale.linear()
 				     .range([this.plotHeight-this.margin.top-this.margin.bottom, this.margin.top])
@@ -162,7 +208,7 @@ SVGThreshChart.prototype.plot = function () {
 
     yScale = d3.scale.linear()
 				     .range([this.plotHeight-this.margin.top-this.margin.bottom, this.margin.top])
-					 .domain([min_y,max_y]);
+					 .domain(YLimits);
 	
 	
 	/**

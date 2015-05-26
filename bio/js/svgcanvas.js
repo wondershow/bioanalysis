@@ -346,7 +346,6 @@ SVGCanvas.prototype.updateChart = function(id,type,from,to) {
 				this.chartsArr[i].param.c_filter = {filter_type:from,item:to};
 			else if (type == 'a') { //filter for optimal analysis {
 				this.chartsArr[i].param.a_filter = {threshold:from};
-				console.log("from is " + from);
 			}
 			this.chartsArr[i].refresh();
 		}
