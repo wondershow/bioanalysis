@@ -55,7 +55,7 @@ SVGParallelCoord.prototype.delAxis = function(axisName) {
 SVGParallelCoord.prototype.adjustAxisOrder 
 
 
-SVGParallelCoord.prototype.drawCoord = function(svg_id,cars,total_width,total_height) {
+SVGParallelCoord.prototype.drawCoord = function(svg_id,data_items,total_width,total_height) {
 	var margin = {top: 30, right: 10, bottom: 10, left: 10},
 		width = total_width - margin.left - margin.right,
 		height = total_height - margin.top - margin.bottom;
@@ -68,7 +68,7 @@ SVGParallelCoord.prototype.drawCoord = function(svg_id,cars,total_width,total_he
 		background,
 		foreground;
 
-	//
+	//set up coordinate remapping
 	var svg = d3.select("#"+svg_id)
 			    .attr("width", width + margin.left + margin.right)
 				.attr("height", height + margin.top + margin.bottom)
@@ -77,18 +77,18 @@ SVGParallelCoord.prototype.drawCoord = function(svg_id,cars,total_width,total_he
 
 	// Extract the list of dimensions and create a scale for each.
 	x.domain(
-		dimensions = d3.keys(cars[0]).filter(	function(d) {
+		dimensions = d3.keys(data_items[0]).filter(	function(d) {
 			var domain_range = null;
 			if(d.endsWith("n")) {
-				domain_range = d3.extent(cars,function(p){ return +p[d];});
+				domain_range = d3.extent(data_items,function(p){ return +p[d];});
 				res = d != "name" && ( y[d] = d3.scale.linear()
 				.domain(domain_range)
 				.range([height, 0]));
 			} else {
 				var tmp_arr = [];
 				var j = 0;
-				for (j = 0;j<cars.length;j++) {
-					var tmp_obj = cars[j]
+				for (j = 0;j<data_items.length;j++) {
+					var tmp_obj = data_items[j]
 					tmp_arr.push(tmp_obj[d]);
 				}
 				domain_range = tmp_arr.unique();
@@ -110,7 +110,7 @@ SVGParallelCoord.prototype.drawCoord = function(svg_id,cars,total_width,total_he
 	background = svg.append("g")
       .attr("class", "background")
     .selectAll("path")
-      .data(cars)
+      .data(data_items)
     .enter().append("path")
       .attr("d", path)
 	  .attr("style",function(d,i){if($.inArray(dataCases[i].getPropVal("js_id")+"",selected_items)>=0) return "stroke:red;stroke-width:2"; else return "";   })
@@ -125,7 +125,7 @@ SVGParallelCoord.prototype.drawCoord = function(svg_id,cars,total_width,total_he
 	foreground = svg.append("g")
       .attr("class", "foreground")
     .selectAll("path")
-      .data(cars)
+      .data(data_items)
     .enter().append("path")
       .attr("d", path)
 	  .attr("id",function(d,i){return fg_id+"_"+dataCases[i].getPropVal("js_id")})
@@ -164,10 +164,10 @@ SVGParallelCoord.prototype.drawCoord = function(svg_id,cars,total_width,total_he
 	  //console.log("in path, d is ");
 	  //console.log(d);
 	  return line(dimensions.map(function(p) { 
-		/*
+		
 		console.log("P is " + p + " + x(p) = "
 					 + x(p) + ", d[p] = " + d[p] + 
-					", y[p] = " + y[p] + ", y[p](d[p]) = " + y[p](d[p]));*/
+					", y[p] = " + y[p] + ", y[p](d[p]) = " + y[p](d[p]));
 		return [x(p), y[p](d[p])]; 
 		}));
 	}
