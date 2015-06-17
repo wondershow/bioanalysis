@@ -31,7 +31,7 @@ HTMLTable.prototype.addTableHeader = function() {
 	var i=0;
 	htmlcode += htmlcode += "<tr style='border: 2px solid black;border-collapse: collapse;'  >";
 	for(i=0;i<cols;i++){
-		htmlcode += "<th style='border: 2px solid black;background-color:Aquamarine;border-collapse: collapse; width: "+this.cellWidth+";overflow: hidden;'>" + this.tableHd[i]+"</th>";
+		htmlcode += "<th style='border: 2px solid black;background-color:Aquamarine;border-collapse: collapse; width: "+this.cellWidth+";overflow: hidden;'>" + this.tableHd[i]+ "&#x25B4</th>";
 	}
 	htmlcode += "</tr></table>";
 	var tmp = document.getElementById(this.headDivId);
