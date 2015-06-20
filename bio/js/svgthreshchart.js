@@ -186,14 +186,14 @@ SVGThreshChart.prototype.plot = function () {
 		if( svg_thresh_chart_y_up_limit < max_y)
 			svg_thresh_chart_y_up_limit = max_y;
 	} else 
-		svg_thresh_chart_y_up_limit = 30;
+		svg_thresh_chart_y_up_limit = 100;
 
 	
 	if(typeof svg_thresh_chart_y_down_limit !== 'undefined') {
 		if( svg_thresh_chart_y_down_limit > min_y)
 			svg_thresh_chart_y_down_limit = min_y;
 	} else 
-		svg_thresh_chart_y_down_limit = -30;
+		svg_thresh_chart_y_down_limit = -100;
 
 
 	
@@ -531,8 +531,29 @@ SVGThreshChart.prototype.getPlotdata= function(valid_datacases,threshold) {
 		res.push([i,difference]);
 	}
 
+	var valid_valid_cases = [];
+	var z_value;
+	
+	var sur_time=[],pt=[],pro=[];
+	for(i=0;i<valid_datacases.length;i++){
+		z_value = valid_datacases[i].getPropVal(this.axisZ);		
+		if($.isNumeric( z_value )) {
+			valid_valid_cases.push(valid_datacases[i]);
+			sur_time.push(  parseFloat( valid_datacases[i].getPropVal(this.axisZ) )    );
+			pro.push(  parseFloat( valid_datacases[i].getPropVal(this.axisX))      );
+			pt.push(   $.isNumeric(valid_datacases[i].getPropVal(this.axisC))?parseFloat( valid_datacases[i].getPropVal(this.axisC)):0 );
+		}
+	}
+
+	console.log("The length before is " + valid_datacases.length + ", the length after is " + valid_valid_cases.length);
+	res = getplot(sur_time,pt,pro);
+	console.log(res);
 	return res;
 }
+
+
+
+
 
 SVGThreshChart.prototype.generateCirId = function (x,y,index) {
 	var res = this.chartId + "_" + x + "_" + y + "_" + index;

@@ -20,6 +20,7 @@
 	<script type="text/javascript" src="js/gsu.slider.js"></script>
 	<script type="text/javascript" src="js/colormix-2.0.0.js"></script>
 	<script type="text/javascript" src="js/pcdialog.js"></script>
+	<script type="text/javascript" src="js/survival_analysis.js"></script>
 	
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 	<script type='text/javascript' src='js/jquery.simplemodal.js'></script>
@@ -34,8 +35,9 @@
     <script type="text/javascript">
 		//var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1VIOL9tepP3CXmdkvdZt8kEws3mNV1ZQPSyqRj25zYCc/od6/public/basic?alt=json";
 		//1eVZd6l25DHqR6T0qOMy1jqRALXh3i7ZpB4hXz42saAQ
-		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1eVZd6l25DHqR6T0qOMy1jqRALXh3i7ZpB4hXz42saAQ/o1ste9p/public/values?alt=json";
-	
+		//var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1eVZd6l25DHqR6T0qOMy1jqRALXh3i7ZpB4hXz42saAQ/o1ste9p/public/values?alt=json";
+
+		var google_spreadsheet_url = "https://spreadsheets.google.com/feeds/list/1rNeQrV_gl3dhuGHdr83LWdNzb4v7BjlZkZJ7rU-hIQw/o1ste9p/public/values?alt=json";
 		var superFullData;
 		var superDataCases;
 		var fullData;
@@ -183,7 +185,9 @@
 				y_field = tmp.options[tmp.selectedIndex].value;
 				tmp = document.getElementById("z_field");
 				z_field = tmp.options[tmp.selectedIndex].value;
-					
+				tmp = document.getElementById("d_field");
+				d_field = tmp.options[tmp.selectedIndex].value;
+				
 				if ( x_field=="" || y_field==""|| z_field=="") {
 					document.getElementById("alertmsg").innerHTML = "Please select field X, Y and Z";
 				} else {
@@ -295,10 +299,13 @@
 				x.push(dataCases[i].getPropVal(x_field));
 				y.push(dataCases[i].getPropVal(y_field));
 				z.push(dataCases[i].getPropVal(z_field));
+				c.push( dataCases[i].getPropVal(d_field)  );
 			}
 			var params = { x_data:x, y_data:y,x_axis:x_field,y_axis:y_field,type:"throttle"};
 			params.z_data = z;
 			params.z_axis = z_field;
+			params.c_axis = d_field;
+			params.c_data = c;
 			mainCanvas.add(params);
 		}
 		
