@@ -282,7 +282,7 @@ SVGThreshChart.prototype.plot = function () {
 		.attr("y", 6)
 		.attr("dy", ".71em")
 		.style("text-anchor", "end")
-		.text("Difference");
+		.text("|Lk|");
 
 		chart_id = this.chartId;
 		
