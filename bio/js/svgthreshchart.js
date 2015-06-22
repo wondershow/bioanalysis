@@ -23,28 +23,14 @@ var SVGThreshChart = function (params,svg,canvas_obj,chart_id) {
 	
 	this.canvasObj = canvas_obj;
 	this.selectedItems = this.canvasObj.selectedItems;
-	if(params.a_filter!==undefined&&params.a_filter!=null)
-		this.threshold = params.a_filter.threshold;
+	if(params.a_filter  == undefined ||  params.a_filter == null)
+		this.threshold = -1;//params.a_filter.threshold;
 	else
-		this.threshold = params.bar_from;
+		this.threshold = params.a_filter.threshold;
 	this.threshold_from = params.bar_from;
     this.threshold_to = params.bar_to;
-	console.log("this.threshold = "+this.threshold);
+	console.log("this.threshold = " + this.threshold);
 }
-
-
-SVGThreshChart.prototype.purifydata = function () {
-	var purifiedX = [];
-	var purifiedY = [];
-	var purifiedZ = [];
-
-	var i=0;
-	//for(i=0;i<this.)
-
-
-
-}
-			  
 
 /**
 To check if a given data is ruled out or not
@@ -307,7 +293,6 @@ SVGThreshChart.prototype.plot = function () {
 		
 		var selected_items = this.selectedItems;
 		
-		console.log("The selected items are " + selected_items);
 		//console.log($.inArray(225,selectedItems));
 		// draw dots
 
@@ -444,93 +429,7 @@ SVGThreshChart.prototype.plot = function () {
 SVGThreshChart.prototype.getPlotdata= function(valid_datacases,threshold) {
 	var res = [];
 	var i=0;
-
-	//get the upper and lower limit of x axis
-	var max_x=-100,min_x=10000;
-	for(i=0;i<valid_datacases.length;i++) {
-		if(valid_datacases[i].getPropVal(this.axisX)>max_x)
-			max_x = valid_datacases[i].getPropVal(this.axisX);
-		if(valid_datacases[i].getPropVal(this.axisX)<min_x)
-			min_x = valid_datacases[i].getPropVal(this.axisX);
-	}
 	
-	
-	var greater_group_count = 0;
-	var greater_group_survival = 0;
-	var smaller_group_count = 0;
-	var smaller_group_survival = 0;
-
-	
-	//This array holds survival rate with some criteria
-	//e.g. survival_rate_up['10'] means the survival rate for all those samples who
-	//has a property value larger than 10. The property is assigned by a user input
-	
-	/*
-		This is an associative array, its index from 0-max_x. at each distribute, 
-		e.g. 15, that means survivals between 15 and 15.99(the propery is selected by 
-		the user). 
-	**/
-	var survival_rate_distribute = [];
-	var death_rate_distribute = [];
-	
-
-	for(i=0;i<=max_x;i++){
-		survival_rate_distribute[i]=0;
-		death_rate_distribute[i] = 0;
-	}
-
-	for(i=0;i<valid_datacases.length;i++){
-		var tmp_index = Math.floor(valid_datacases[i].getPropVal(this.axisX));
-		if(valid_datacases[i].isDead(this.axisZ,this.axisC,threshold))
-			death_rate_distribute[tmp_index]++;
-		else 
-			survival_rate_distribute[tmp_index]++;
-	} 
-
-	/**
-		This array holds an summary of survival numbers.
-		e.g. if index is 15, that means the survials with property 
-		smaller than 15. The property is assigned by user input
-	***/
-	var accumulated_rate_distribute_down = [];
-	var accumulated_death_rate_distribute_down = [];
-	accumulated_rate_distribute_down[0] = survival_rate_distribute[0];
-	accumulated_death_rate_distribute_down[0] = death_rate_distribute[0];
-
-
-	for(i=1;i<=max_x;i++){
-		accumulated_rate_distribute_down[i] = accumulated_rate_distribute_down[i-1] + survival_rate_distribute[i];
-		accumulated_death_rate_distribute_down[i] = accumulated_death_rate_distribute_down[i-1] + death_rate_distribute[i];
-	}
-	
-
-	/**
-		This array holds an summary of survival numbers.
-		e.g. if index is 15, that means the survials with property 
-		larger than 15. The property is assigned by user input
-	***/
-	var accumulated_rate_distribute_up = [];
-	var accumulated_death_rate_distribute_up = [];
-	accumulated_rate_distribute_up[max_x] = survival_rate_distribute[max_x];
-	accumulated_death_rate_distribute_up[max_x] = death_rate_distribute[max_x];
-	
-	for(i=max_x-1;i>=0;i--) {
-		accumulated_rate_distribute_up[i] = accumulated_rate_distribute_up[i+1] + survival_rate_distribute[i];	
-		accumulated_death_rate_distribute_up[i] =  accumulated_death_rate_distribute_up[i+1] + death_rate_distribute[i];
-	}
-	
-	/*
-		now we have all the essential information, let us
-		do our job.
-	***/
-	var total_valid_cases = valid_datacases.length;
-	for(i= min_x;i<max_x;i++) {
-		var difference = 100* accumulated_rate_distribute_up[i]/(accumulated_rate_distribute_up[i] + accumulated_death_rate_distribute_up[i]) 
-						- 100*accumulated_rate_distribute_down[i]/(accumulated_rate_distribute_down[i] + accumulated_death_rate_distribute_down[i]);
-		//console.log("difference = " + difference);
-		res.push([i,difference]);
-	}
-
 	var valid_valid_cases = [];
 	var z_value;
 	
@@ -545,9 +444,9 @@ SVGThreshChart.prototype.getPlotdata= function(valid_datacases,threshold) {
 		}
 	}
 
-	console.log("The length before is " + valid_datacases.length + ", the length after is " + valid_valid_cases.length);
-	res = getplot(sur_time,pt,pro);
-	console.log(res);
+	//console.log("The length before is " + valid_datacases.length + ", the length after is " + valid_valid_cases.length);
+	res = getplot(sur_time,pt,pro,threshold);
+	//console.log(res);
 	return res;
 }
 

@@ -117,6 +117,7 @@ SVGChart.prototype.draw = function() {
 		sct.plot();
 		this.plotObj = sct;
 	} else if (this.type=="throttle") {
+		
 		// we need to do some special processing here
 		var tmpArr = [];
 		var i=0;
@@ -217,7 +218,7 @@ SVGChart.prototype.addLongSliders = function() {
     
 	//Get the min and max value of the slider
     var anchor1 = { x: anchor_x, y : 5 }
-    var params1 = {anchor:anchor1,w:slider_width,h:slider_height,svg:this.legend_svg,label:this.axisZ,min:this.param.bar_from,max:this.param.bar_to,type:'v',chart_id:this.id,axis_name:'x'};
+    var params1 = {anchor:anchor1,w:slider_width,h:slider_height,svg:this.legend_svg,label:"Cuthrough",min:0,max:this.param.bar_to,type:'v',chart_id:this.id,axis_name:'x'};
     var slider = new SVGLongslider(params1);
     slider.generate();
 }

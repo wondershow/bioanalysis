@@ -16,7 +16,7 @@
 
             res[0] = min;
             res[1] = max;
-			console.log("min is " + min + ", max = " + max);
+			//console.log("min is " + min + ", max = " + max);
 			return res;
     }
 
@@ -65,17 +65,22 @@
 
 	**/
 	function getplot(sur_time,pt,pro,threshold) {
-		threshold = -1;
+		//threshold = -1;
 		var i = 0;
 		var pt = sanitize_pt(pt);
 		var tmp_t = get_t_range(sur_time,pt);
-		console.log(sur_time);
 		
-		var object_arr_0 = []; //to store all the objects where pt is 1;
-		var object_arr_1 = []; //to store all the objects where pt is 0;
+		var object_arr_0 = []; //to store all the objects where pt is 0;
+		var object_arr_1 = []; //to store all the objects where pt is 1;
 		
 		for(i=0;i<sur_time.length;i++) {
-			if(pt[i]==0) object_arr_0.push([sur_time[i],pro[i]]);
+			if(pt[i]==0) {
+				 if(threshold>=50 && sur_time[i]>threshold){	
+				 	object_arr_0.push([threshold,pro[i]]);
+				 }
+				 else 
+					object_arr_0.push([sur_time[i],pro[i]]);
+			}
 			else	object_arr_1.push([sur_time[i],pro[i]]);			
 		}
 
@@ -197,7 +202,7 @@
 						d = 1;
 						cur_surival_time = sur_time_1[ sur_time_1_cur-1][0];
 					}
-					while( sur_time_0[sur_time_0_cur][0] < cur_surival_time &&  sur_time_0_cur < sur_time_0.length  ){  
+					while( sur_time_0_cur < sur_time_0.length  &&   sur_time_0[sur_time_0_cur][0] < cur_surival_time ){  
                         if( sur_time_0[sur_time_0_cur][1] >= cutpoint )
                             sum_r_plus--;
                         //excluded_items++;
@@ -225,7 +230,7 @@
 					}*/
 					
 					// we need to also consider the items where pt value is 0
-					while( sur_time_0[sur_time_0_cur][0] < cur_surival_time &&  sur_time_0_cur < sur_time_0.length  ){
+					while(  sur_time_0_cur < sur_time_0.length && sur_time_0[sur_time_0_cur][0] < cur_surival_time     ){
 						if( sur_time_0[sur_time_0_cur][1] >=  cutpoint ){
 							sum_r_plus--;
 							//console.log("222222");
@@ -236,7 +241,7 @@
 					}
 				}
 				if(sur_time_1[ sur_time_1_cur][0] != cur_surival_time )	{// move to next sum item
-					while( sur_time_0[sur_time_0_cur][0] < cur_surival_time &&  sur_time_0_cur < sur_time_0.length  ){
+					while( sur_time_0_cur < sur_time_0.length && sur_time_0[sur_time_0_cur][0] < cur_surival_time){
 						if( sur_time_0[sur_time_0_cur][1] >= cutpoint ){
 							//console.log("333333");
 							sum_r_plus--;
