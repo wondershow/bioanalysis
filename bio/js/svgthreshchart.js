@@ -121,7 +121,20 @@ SVGThreshChart.prototype.getYScale = function (valid_cases) {
     return [min_of_mins,max_of_maxs];
 }
 
+/*
+	This function draws one curve to the canvase.
+**/
+SVGThreshChart.prototype.drawCurve = function (data) {
+	
 
+
+
+
+
+
+
+
+}
 
 
 /* 
@@ -138,8 +151,6 @@ SVGThreshChart.prototype.plot = function () {
 	var evalStr =  "xMap = function(d) {return $.isNumeric(d[0])? xScale(d[0]):(xScale(0)+ " + this.margin.left +" ) };"
 	eval(evalStr);
     xAxis = d3.svg.axis().scale(xScale).orient("bottom");
-
-
 
 	var i = 0;
     var dataums = [];
@@ -160,11 +171,15 @@ SVGThreshChart.prototype.plot = function () {
 	var plotdata = this.getPlotdata(valid_datacases,this.threshold);
 
     var max_y = -100, min_y = 10000;
+	var max_y_coord = 0;
     for(i=0;i<plotdata.length;i++){
-		if(plotdata[i][1] > max_y)
+		if(plotdata[i][1] > max_y) {
 			max_y = plotdata[i][1];
+			max_y_coord = i;
+		}
 		if(plotdata[i][1] < min_y)
 			min_y = plotdata[i][1];
+			
     }
 
 	//var YLimits = this.getYScale(valid_datacases);	
@@ -183,7 +198,8 @@ SVGThreshChart.prototype.plot = function () {
 
 
 	
-	var YLimits = [svg_thresh_chart_y_down_limit,svg_thresh_chart_y_up_limit];
+	//var YLimits = [svg_thresh_chart_y_down_limit,svg_thresh_chart_y_up_limit];
+	var YLimits = [min_y,max_y];
 
 	/*
     yScale = d3.scale.linear()
@@ -316,6 +332,20 @@ SVGThreshChart.prototype.plot = function () {
 								//d3.select(this).attr("stroke","steeblue");	
 							}
 						});
+		
+		this.svgContainer.append("circle")
+						.attr("r", 5)
+            			.attr("cx",xScale(max_y_coord))
+            			.attr("cy",yScale(max_y))
+						.style("fill","red");
+		
+		this.svgContainer.append("text")
+            			.attr("x",xScale(max_y_coord+5))
+            			.attr("y",yScale(max_y+4))
+            			.attr("dy", ".65em")
+						//.text(max_y_coord);
+            			.style("text-anchor", "end")
+						.text("(" + max_y_coord + "," + Math.round(max_y*100)/100 + ")");
 
 		var i=0;
 		var tmp_path;
@@ -381,9 +411,6 @@ SVGThreshChart.prototype.plot = function () {
 
 		// draw legend colored rectangles
 		var ruled_out_arr = this.ruleOutCItems;
-		
-		
-		
 		var eval_str = " var agent_function = function(value) { \
 			if($.inArray(value,ruled_out_arr) < 0 ) \
 				mainCanvas.updateChart('"+this.chartId +"','c', 'REMOVE', value); \
