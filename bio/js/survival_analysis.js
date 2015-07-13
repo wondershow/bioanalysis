@@ -127,6 +127,25 @@
 	}
 
 
+
+	function removeDuplicatesInPlace(arr) {
+		var i, j, cur, found;
+		for (i = arr.length - 1; i >= 0; i--) {
+			cur = arr[i];
+			found = false;
+			for (j = i - 1; !found && j >= 0; j--) {
+				if (cur === arr[j]) {
+					if (i !== j) {
+						arr.splice(i, 1);
+					}
+					found = true;
+				}
+			}
+		}
+		return arr;
+	}
+
+
 	/**
 		To calculate one curve of cutpoint
 		@sur_time_0 sur_time(sorted) with all censoring indicator is 0
