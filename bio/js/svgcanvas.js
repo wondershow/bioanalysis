@@ -329,6 +329,10 @@ SVGCanvas.prototype.add = function(params) {
 			var chart1 = new SVGChart(g,"throttle",params,anchor,chart_id,this);
 			chart1.plot();
 			this.chartsArr.push(chart1);
+		} else if (params.type == "sa") {
+			var chart1 = new SVGChart(g,"sa",params,anchor,chart_id,this);
+            chart1.plot();
+            this.chartsArr.push(chart1);
 		}
 	}
 	var canvas_height = params.chartHeight + params.anchor_y + this.vPadding;
