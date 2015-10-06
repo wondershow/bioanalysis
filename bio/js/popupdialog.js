@@ -49,28 +49,28 @@ PopUpDialog.prototype.genModalDiv = function(){
 	html += "<col width='50%' /> \n	<col width='50%' /> \n";
 	
 	html += "<tr style='border: 2px solid black;border-collapse: collapse;'> \n";
-	html += "<td style='border: 2px solid black;border-collapse: collapse;'> X: </td> \n";
+	html += "<td id = 'x' style='border: 2px solid black;border-collapse: collapse;'> X: </td> \n";
 	html += "<td style='border: 2px solid black;border-collapse: collapse;'>\n";
 	html += this.genNumericalSelections("x_field");
 	html += "</td></tr> \n";
 	
 	
 	html += "<tr style='border: 2px solid black;border-collapse: collapse;'> \n";
-	html += "<td style='border: 2px solid black;border-collapse: collapse;'> Y: </td> \n";
+	html += "<td id = 'y' style='border: 2px solid black;border-collapse: collapse;'> Y: </td> \n";
 	html += "<td style='border: 2px solid black;border-collapse: collapse;'>\n";
 	html += this.genNumericalSelections("y_field");
 	html += "</td></tr> \n";
 	
 	html += "<tr style='border: 2px solid black;border-collapse: collapse;'> \n";
-	html += "<td style='border: 2px solid black;border-collapse: collapse;'> Size: </td> \n";
+	html += "<td id = 'size' style='border: 2px solid black;border-collapse: collapse;'> Size: </td> \n";
 	html += "<td style='border: 2px solid black;border-collapse: collapse;'>\n";
 	html += this.genNumericalSelections("z_field");
 	html += "</td></tr> \n";
 
 	
 	html += "<tr style='border: 2px solid black;border-collapse: collapse;'> \n";
-	html += "<td style='border: 2px solid black;border-collapse: collapse;'> Color: </td> \n";
-	html += "<td style='border: 2px solid black;border-collapse: collapse;'>\n";
+	html += "<td id = 'color' style='border: 2px solid black;border-collapse: collapse;'> Color: </td> \n";
+	html += "<td  style='border: 2px solid black;border-collapse: collapse;'>\n";
 	html += this.genNumerateSelections("d_field");
 	html += "</td></tr> \n";
 	

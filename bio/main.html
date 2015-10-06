@@ -56,7 +56,7 @@
 					startPage(dataCases);
 					
 				},
-				error: function(XMLHttpRequest, textStatus, errorThrown) {
+				error: function(XMLHttpRequest, textStatus, errorThrown){
 					//console.log(arguments);
 					console.log("Status: " + textStatus);
 					console.log("Error: " + errorThrown);
@@ -64,7 +64,7 @@
 				},
 		});
 		
-		function addJsId2JSon(data) {	
+		function addJsId2JSon(data) {
 			var rows = data["feed"]["entry"].length;
 			var i = 0;
 			for(i=0;i<rows;i++)
@@ -147,11 +147,21 @@
 			// Load dialog on click
 			$('#basic-modal .flatbtn').click(function (e) {
 				$('#basic-modal-content').modal();
+				console.log("added1222222");
+				$('input[name="group2_name"]').click(function() {
+					if ($(this).val() == "optmal_analysis") {
+						switchName(false);						
+					} else {
+						switchName(true);
+					}
+					console.log("Value of Radion: " + $(this).val()+ " Name of radio: " + $(this).attr("name"));       
+				});
+				
 				return false;
 				});
 			});
 		}
-		
+
 		function draw() {
 			if (document.getElementById("group2_1").checked){
 				drawScatter();
@@ -176,8 +186,10 @@
 				$.modal.close();
 				pcdialog= new PCDialog("equation", dataCases[0].getAllNumericalProps(),dataCases[0].getAllNumeratedProps(),x_field,y_field,"pcdialog");
 				pcdialog.addEquEditor();	
+				console.log("1111");
 				//drawPCG();
 			} else if(document.getElementById("group2_4").checked){
+				console.log("2222");
 				//optimal point analysis
 				tmp = document.getElementById("x_field");
 				x_field = tmp.options[tmp.selectedIndex].value;
@@ -194,6 +206,20 @@
 					$.modal.close();
 					drawOptimalAnalysis();
 				}
+			}
+		}
+
+		function switchName(bool) {
+			if (bool == true) {
+				document.getElementById("x").innerHTML = "   X:   "; 	
+				document.getElementById("y").innerHTML = "   Y:   "; 	
+				document.getElementById("size").innerHTML = "  Size: "; 	
+				document.getElementById("color").innerHTML = "  Color: "; 	
+			} else {
+				document.getElementById("x").innerHTML = "T(risk):"; 	
+				document.getElementById("y").innerHTML = "R(outcome)"; 	
+				document.getElementById("size").innerHTML = "Grouping:"; 	
+				document.getElementById("color").innerHTML = "Censoring:"; 	
 			}
 		}
 		
