@@ -80,6 +80,9 @@ SVGChart.prototype.draw = function() {
 	//create a js function that can be used as an delete event listener 
 	var evalStr =  "tmp = function() { mainCanvas.delete('"+ this.id +"') }";
 	eval(evalStr);
+
+	var evalStr1 = "tmp1 = function() { mainCanvas.delete('"+ this.id +"') }";
+	eval(evalStr1);
 	
 	this.mainChartSvg = this.g.append("svg")
 				  .attr("id",this.chart_svg_id)
@@ -131,6 +134,14 @@ SVGChart.prototype.draw = function() {
 		var sct = new SVGThreshChart(this.param,this.mainChartSvg,this.parentCanvas,this.id);
 		sct.plot();
 		this.plotObj = sct;
+
+		var sa = this.mainChartSvg.append("text")
+        .text("SA")
+        .attr("x",20)//this has included anchorX
+        .attr("y",20)
+        .attr("font-size", "20")
+        .attr("fill","red")
+	
 	}
 }
 
