@@ -2,11 +2,13 @@
 This class defines an object that can output an html table.
 the width, height, and style of html can be customized
 **/
-var HTMLTable  = function(data,head,head_div,body_div) {
+var HTMLTable  = function(data,head,head_div,body_div,sortindicator) {
 	this.bodyDivId = body_div;
 	this.headDivId = head_div;
 	this.tableHd = head;
 	this.tableData = data;
+	this.sortVars = sortindicator;
+	console.log("zcd" + sortindicator.indexOf("zcd"));
 	
 	//console.log(data);
 	//by default table width/height is 100% of its container
@@ -31,7 +33,9 @@ HTMLTable.prototype.addTableHeader = function() {
 	var i=0;
 	htmlcode += htmlcode += "<tr style='border: 2px solid black;border-collapse: collapse;'  >";
 	for(i=0;i<cols;i++){
-		htmlcode += "<th style='border: 2px solid black;background-color:Aquamarine;border-collapse: collapse; width: "+this.cellWidth+";overflow: hidden;'>" + this.tableHd[i]+"&#x25B4;   </th>";
+		if (this.sortVars.indexOf(this.tableHd[i]) <= -1 )
+			this.sortVars[this.tableHd[i]] = true; // ascending
+		htmlcode += '<th style="border: 2px solid black;background-color:Aquamarine;border-collapse: collapse; width:' + this.cellWidth + ';overflow: hidden;"><button onclick="sortByfield(\'' + this.tableHd[i] + '\')">' + this.tableHd[i] + '&#x25B4;</button> </th>';
 	}
 	htmlcode += "</tr></table>";
 	var tmp = document.getElementById(this.headDivId);
