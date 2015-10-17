@@ -29,7 +29,7 @@ var SVGThreshChart = function (params,svg,canvas_obj,chart_id) {
 		this.threshold = params.a_filter.threshold;
 	this.threshold_from = params.bar_from;
     this.threshold_to = params.bar_to;
-	console.log("this.threshold = " + this.threshold);
+	console.log("this.threshold = " + this.threshold + ", this.axisZ = " + this.axisZ);
 }
 
 /**
@@ -126,14 +126,6 @@ SVGThreshChart.prototype.getYScale = function (valid_cases) {
 **/
 SVGThreshChart.prototype.drawCurve = function (data) {
 	
-
-
-
-
-
-
-
-
 }
 
 
@@ -156,69 +148,40 @@ SVGThreshChart.prototype.plot = function () {
     var dataums = [];
     var valid_datacases = [];
 	var catagories = new Set();
-
-	/*
-    for(i=0;i<this.canvasObj.dataCaseArr.length;i++) {
-            if(    this.canvasObj.dataCaseArr[i].getPropVal(this.axisX) != "N/A"
-                && this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ) != "N/A"  
-                && this.canvasObj.dataCaseArr[i].getPropVal(this.axisC) != "N/A") { 
-            dataums.push([ this.canvasObj.dataCaseArr[i].getPropVal(this.axisX),
-                           this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ),
-                           this.canvasObj.dataCaseArr[i].getPropVal(this.axisC),
-                           this.canvasObj.dataCaseArr[i].getPropVal('js_id') ]);
-            valid_datacases.push(this.canvasObj.dataCaseArr[i]);
-        }
-    } */
-
+	console.log("this.axisZ = " + this.axisZ);
 	var xVal,yVal,zVal,cVal;
 
-    var count = 0;
+	var count = 0;
     for(i=0;i<this.canvasObj.dataCaseArr.length;i++) {
-            xVal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisX);
-            cVal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisC);
-            zVal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ);
-			if (this.axisY != "") 
-            	yVal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisY);
-            if( isGoodClicValue(xVal) && isGoodClicValue(cVal) && isGoodClicValue(zVal) ) { 
-                dataums.push([xVal, cVal, zVal, this.canvasObj.dataCaseArr[i].getPropVal('js_id')]);
-                valid_datacases.push(this.canvasObj.dataCaseArr[i]);
-                console.log("count = " + count + ", I am pusing an object, its xval is " + xVal + ", yVal = " + yVal + ", zVal = " + zVal);
-				if (this.axisY != "");
-               		catagories.add(yVal);
-            }   
-    }   
+			xVal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisX);
+			yVal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisY)
+			zVal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ)
+            if( isGoodClicValue(xVal) && isGoodClicValue(yVal) && isGoodClicValue(zVal) ) {
+            	dataums.push([xVal, yVal, zVal, this.canvasObj.dataCaseArr[i].getPropVal('js_id')]);
+            	valid_datacases.push(this.canvasObj.dataCaseArr[i]);
+				console.log("count = " + count + ", I am pusing an object, its xval is " + xVal + ", yVal = " + yVal + ", zVal = " + zVal);
+				catagories.add(zVal);
+        	}
+    }
 
+	console.log(catagories);
 
+	console.log("length1 = " + valid_datacases.length);
 
+	var plotdata = this.getPlotdata(valid_datacases,this.threshold,catagories);
+		
+	console.log(plotdata);
 
-	var plotdata = this.getPlotdata(valid_datacases, this.threshold, catagories);
-
-
-
-	var max_y = -100, min_y = 10000;
+    var max_y = -100, min_y = 10000;
 	var max_y_coord = 0;
-	var j=0;
-	
-	for (var key in plotdata) {
-		if( $.isNumeric(key) ) {
-			for(i=0;i<plotdata[key].length;i++){
-				if(plotdata[key][i][1] > max_y) {
-					max_y = plotdata[key][i][1];
-				}
-				if(plotdata[key][i][1] < min_y)
-					min_y = plotdata[key][i][1];
-			}
+    for(i=0;i<plotdata.length;i++){
+		if(plotdata[i][1] > max_y) {
+			max_y = plotdata[i][1];
+			max_y_coord = i;
 		}
-	}
-	
-	/**The following parts is to make fake data curves ***/
-	
-	
-		
-
-
-
-		
+		if(plotdata[i][1] < min_y)
+			min_y = plotdata[i][1];
+    }
 
 	//var YLimits = this.getYScale(valid_datacases);	
 	if(typeof svg_thresh_chart_y_up_limit !== 'undefined') {
@@ -234,8 +197,6 @@ SVGThreshChart.prototype.plot = function () {
 	} else 
 		svg_thresh_chart_y_down_limit = -100;
 
-
-	
 	//var YLimits = [svg_thresh_chart_y_down_limit,svg_thresh_chart_y_up_limit];
 	var YLimits = [min_y,max_y];
 
@@ -250,6 +211,7 @@ SVGThreshChart.prototype.plot = function () {
 					 .domain(YLimits);
 	
 	
+	console.log("this.plot().ZFilter = " + this.ZFilter);
 	/**
 	If you want to change the constant here, 
 	you may want to change the margin.top together, it should be a bug
@@ -326,7 +288,6 @@ SVGThreshChart.prototype.plot = function () {
 
 		chart_id = this.chartId;
 		
-		
 		//console.log('d = ' + d + ', i = ' + i ); 
 		var eval_str = "var test_function = function (d,i) {  \
 						\
@@ -352,60 +313,39 @@ SVGThreshChart.prototype.plot = function () {
 
 		var lineFunction = d3.svg.line()
                           		 .x(function(d) { return xScale(d[0]); })
-                          		 .y(function(d) { return yScale(d[1]-4); })
+                          		 .y(function(d) { return yScale(d[1]); })
 	                        	 .interpolate("linear");		
 		
-		var k =0;
-		for (var key in plotdata)
-			if($.isNumeric(key))  color(key);
-		for (var key in plotdata) {	
-			if ($.isNumeric(key)==false) continue;
-			var rangeArr = color.range();
-			var path = this.svgContainer.append("path")
-							.attr("d",lineFunction(plotdata[key]))
-							.attr("stroke", rangeArr[k])
-							.attr("stroke-width", "2")
-							.attr("fill", "none")
-							.attr("color",rangeArr[k])
-							.on('click',function(d,i){
-							})
-							.on("dblclick",function(d,i){
-								if(d3.select(this).attr("stroke")!='grey') {
-									mainCanvas.addAnalysisCurve(d3.select(this).attr("d"));
-									d3.select(this).attr("stroke","grey");	
-								} else {
-									//d3.select(this).attr("stroke","steeblue");	
-								}
-							});
-			k++;
-			max_y = -100, min_y = 10000;
-			max_y_coord = 0;
-			for(i=0;i<plotdata[key].length;i++){
-				if(plotdata[key][i][1] > max_y) {
-					max_y = plotdata[key][i][1];
-					max_y_coord = plotdata[key][i][0];
-				}   
-				if(plotdata[key][i][1] < min_y)
-					min_y = plotdata[key][i][1];
-        	}
+		var path = this.svgContainer.append("path")
+						.attr("d",lineFunction(plotdata))
+						.attr("stroke", "steelblue")
+					    .attr("stroke-width", "2")
+					    .attr("fill", "none")
+			  			.on('click',function(d,i){
+						})
+						.on("dblclick",function(d,i){
+							if(d3.select(this).attr("stroke")!='grey') {
+								mainCanvas.addAnalysisCurve(d3.select(this).attr("d"));
+								d3.select(this).attr("stroke","grey");	
+							} else {
+								//d3.select(this).attr("stroke","steeblue");	
+							}
+						});
+		
+		this.svgContainer.append("circle")
+						.attr("r", 5)
+            			.attr("cx",xScale(max_y_coord))
+            			.attr("cy",yScale(max_y))
+						.style("fill","red");
+		
+		this.svgContainer.append("text")
+            			.attr("x",xScale(max_y_coord+5))
+            			.attr("y",yScale(max_y+4))
+            			.attr("dy", ".65em")
+						//.text(max_y_coord);
+            			.style("text-anchor", "end")
+						.text("(" + max_y_coord + "," + Math.round(max_y*100)/100 + ")");
 
-
-
-			
-			this.svgContainer.append("circle")
-							.attr("r", 5)
-							.attr("cx",xScale(max_y_coord))
-							.attr("cy",yScale(max_y-4))
-							.style("fill","red");
-			
-			this.svgContainer.append("text")
-							.attr("x",xScale(max_y_coord+1))
-							.attr("y",yScale(max_y-1))
-							.attr("dy", ".65em")
-							//.text(max_y_coord);
-							.style("text-anchor", "end")
-							.text("(" + Math.round(max_y_coord*100)/100 + "," + Math.round(max_y*100)/100 + ")");
-		}
 		var i=0;
 		var tmp_path;
 		for(i=0;i<mainCanvas.saved_path_arr.length;i++){
@@ -429,7 +369,6 @@ SVGThreshChart.prototype.plot = function () {
 		
 		console.log("path");
 		
-
 		/*
 		this.svgContainer.selectAll(".dot")
 			.data(dataums)
@@ -457,77 +396,54 @@ SVGThreshChart.prototype.plot = function () {
 				  })
 			  .style("fill", function(d) { return d[3]==undefined?"black":color(cValue(d));}) 
 		*/
+			  
 		if(this.axisC != null) {
-        rightOffset = this.plotwidth;
-        //console.log(color);
-        var legend = this.svgContainer.selectAll(".legend")
-                        .data(color.domain())
-                        .enter().append("g")
-                        .attr("class", "legend")
-                        .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; }); 
-                        //.attr("transform", function(d, i) { return "translate("+rightOffset+"," + i * 20 + ")"; });
+		rightOffset = this.plotwidth;
+		//console.log(color);
+		var legend = this.svgContainer.selectAll(".legend")
+						.data(color.domain())
+						.enter().append("g")
+						.attr("class", "legend")
+						.attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+						//.attr("transform", function(d, i) { return "translate("+rightOffset+"," + i * 20 + ")"; });
 
-        // draw legend colored rectangles
-        var ruled_out_arr = this.ruleOutCItems;
-    
-    	console.log("zcd is a pig");
-        legend.append("rect")
-            .attr("x", rightOffset)
-            .attr("width", 15) 
-            .attr("height", 15) 
-            .style("fill", function(d,i){ var rangeArr = color.range(); return rangeArr[i];})
-            .attr("stroke-width", function(d,i){var domainArr = color.domain();if($.inArray(domainArr[i],ruled_out_arr)>=0) return 2; else return 0  })  
-            .attr("stroke", "black")
-            .on("click", function(d,i) {
-    
-                //console.log(color.domain())
-                //var rangeArr = color.range();
-                var domainArr = color.domain();
-                //console.log("This color is clicked, " + domainArr[i]);
-                //mainCanvas.updateChart('"+this.chartId +"','"+this.axis_name+"', "+this.containerid+"_range_from ,"+this.containerid+"_range_to );
-                //console.log(super);
-                agent_function(domainArr[i]);
-            }); 
+		// draw legend colored rectangles
+		var ruled_out_arr = this.ruleOutCItems;
+		var eval_str = " var agent_function = function(value) { \
+			if($.inArray(value,ruled_out_arr) < 0 ) \
+				mainCanvas.updateChart('"+this.chartId +"','c', 'REMOVE', value); \
+			else \
+				mainCanvas.updateChart('"+this.chartId +"','c', 'RESUME', value); \
+		};" 
+		
+		eval(eval_str)
+		
+		legend.append("rect")
+			.attr("x", rightOffset)
+			.attr("width", 15)
+			.attr("height", 15)
+			.style("fill", function(d,i){ var rangeArr = color.range(); return rangeArr[i];})
+			.attr("stroke-width", function(d,i){var domainArr = color.domain();if($.inArray(domainArr[i],ruled_out_arr)>=0) return 2; else return 0  })
+			.attr("stroke", "black")
+			.on("click", function(d,i) {
+				
+				//console.log(color.domain())
+				//var rangeArr = color.range();
+				var domainArr = color.domain();
+				//console.log("This color is clicked, " + domainArr[i]);
+				//mainCanvas.updateChart('"+this.chartId +"','"+this.axis_name+"', "+this.containerid+"_range_from ,"+this.containerid+"_range_to );
+				//console.log(super);
+				agent_function(domainArr[i]);
+			});
 
-        // draw legend text
-        legend.append("text")
-            .attr("x", rightOffset - 6)
-            .attr("y", 9)
-            .attr("dy", ".35em")
-            .style("text-anchor", "end")
-            .text(function(d) { return d;});
-    	}
-}
-
-
-/**
-	Since in this plotting, all the datas are not directly plottable, we need to do some
-	calculation then plot based on the calculation results
-**/
-SVGThreshChart.prototype.getPlotdata1 = function(valid_datacases,threshold, grades) {
-	var s = [];
-	var i=0;
-	
-	var valid_valid_cases = [];
-	var z_value;
-	
-	var sur_time=[],pt=[],pro=[];
-
-	
-	for(i=0;i<valid_datacases.length;i++){
-		z_value = valid_datacases[i].getPropVal(this.axisZ);		
-		if($.isNumeric( z_value )) {
-			valid_valid_cases.push(valid_datacases[i]);
-			sur_time.push(  parseFloat( valid_datacases[i].getPropVal(this.axisZ) )    );
-			pro.push(  parseFloat( valid_datacases[i].getPropVal(this.axisX))      );
-			pt.push(   $.isNumeric(valid_datacases[i].getPropVal(this.axisC))?parseFloat( valid_datacases[i].getPropVal(this.axisC)):0 );
-		}
+		// draw legend text
+		legend.append("text")
+			.attr("x", rightOffset - 6)
+			.attr("y", 9)
+			.attr("dy", ".35em")
+			.style("text-anchor", "end")
+			.text(function(d) { return d;});
 	}
-
-	//console.log("The length before is " + valid_datacases.length + ", the length after is " + valid_valid_cases.length);
-	res = getplot(sur_time,pt,pro,threshold);
-	//console.log(res);
-	return res;
 }
 
 
@@ -535,46 +451,33 @@ SVGThreshChart.prototype.getPlotdata1 = function(valid_datacases,threshold, grad
     Since in this plotting, all the datas are not directly plottable, we need to do some
     calculation then plot based on the calculation results
 **/
-SVGThreshChart.prototype.getPlotdata = function(valid_datacases,threshold,grades) {
+SVGThreshChart.prototype.getPlotdata= function(valid_datacases,threshold,grades) {
     var num_grades = grades.length;
-    var res = new Array();
+    var res = [];
     var i=0,j=0;
     var valid_valid_cases = []; 
     var z_value,y_value;
-    var sur_time=[],pt=[],pro=[];
 
-	if (this.axisY != "") { //multi optimal analysis line
-		for (var v of grades) {
-			console.log("v value is " + v);
-			var sur_time=[],pt=[],pro=[];
-			var count = 0;
-			for(i=0;i<valid_datacases.length;i++){
-				y_value = valid_datacases[i].getPropVal(this.axisY);
-			    z_value = valid_datacases[i].getPropVal(this.axisZ);
-				console.log("y value is " + y_value + ", v value is " + v + " i = " + i);
-				if($.isNumeric( y_value ) && y_value == v) {
-					valid_valid_cases.push( valid_datacases[i] );
-					sur_time.push (  parseFloat( valid_datacases[i].getPropVal(this.axisZ) )    );
-					pro.push (  parseFloat( valid_datacases[i].getPropVal(this.axisX))      );
-					pt.push  (   $.isNumeric(valid_datacases[i].getPropVal(this.axisC))?parseFloat( valid_datacases[i].getPropVal(this.axisC)):0  );
-				}
-			}
-			res[v] = getplot(sur_time,pt,pro,threshold);
-			console.log("pro length = " + pro.length + "v = " + v + ", length = " + res[v].length)
-		}
-	} else { // single optimal analysis line
-		 for(i=0;i<valid_datacases.length;i++){
-			 z_value = valid_datacases[i].getPropVal(this.axisZ);
-			 if($.isNumeric( z_value )) {
-				 valid_valid_cases.push(valid_datacases[i]);
-				 sur_time.push(  parseFloat( valid_datacases[i].getPropVal(this.axisZ) )    );
-				 pro.push(  parseFloat( valid_datacases[i].getPropVal(this.axisX))      );
-				 pt.push(   $.isNumeric(valid_datacases[i].getPropVal(this.axisC))?parseFloat( valid_datacases[i].getPropVal(this.axisC)):0 );
-			 }
-		 }
-		res[0] = getplot(sur_time,pt,pro,threshold);
-	}
-  
+    for (var v of grades) {
+		console.log("v value is " + v);	
+    	var sur_time=[],pt=[],pro=[];
+		var count = 0;
+        for(i=0;i<valid_datacases.length;i++){
+            z_value = valid_datacases[i].getPropVal(this.axisZ);
+            y_value = valid_datacases[i].getPropVal(this.axisY);
+			//console.log("z value is " + z_value + ", i = " + i);
+				
+            if($.isNumeric( z_value ) && z_value == v) {
+                valid_valid_cases.push(valid_datacases[i]);
+                sur_time.push (  parseFloat( valid_datacases[i].getPropVal(this.axisZ) )    );  
+                pro.push (  parseFloat( valid_datacases[i].getPropVal(this.axisX))      );  
+                pt.push  (   $.isNumeric(valid_datacases[i].getPropVal(this.axisC))?parseFloat( valid_datacases[i].getPropVal(this.axisC)):0  );  
+            }
+        }
+        res[v] = getplot(sur_time,pt,pro,threshold);
+		console.log("pro length = " + pro.length + "v = " + v + ", length = " + res[v].length)
+    }
+   
     return res;
 }
 
@@ -592,20 +495,17 @@ SVGThreshChart.prototype.selected = function (js_id) {
 
 SVGThreshChart.prototype.deSelected = function (index) {
 	var cir_id = this.chartId + "_" + index;
-	d3.select("#" + cir_id).attr("class","dot");
+	d3.select("#" + cir_id) . attr("class","dot");
 }
 
 SVGThreshChart.prototype.getCircleSize = function (data,index) {
 	var res_function = function (d,i) {
-		
 	
 	
 	}
-	
-	
-	
 }
 
 SVGThreshChart.prototype.getCircleColor = function () {
-}
 
+
+}

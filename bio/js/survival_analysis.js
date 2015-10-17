@@ -24,7 +24,6 @@
 	/**
 		This function binarizes a pt array. The binarizing strategy is very simple
 		if the value is 1, then the binary value is 1, otherwise it is 0.
-
 	**/
 	function sanitize_pt(p) {
 		var res = [];

@@ -124,17 +124,41 @@ SVGThreshChart.prototype.getYScale = function (valid_cases) {
 /*
 	This function draws one curve to the canvase.
 **/
-SVGThreshChart.prototype.drawCurve = function (data) {
+SVGThreshChart.prototype.drawCurve = function (plotData,xScale,a) {
 	
 
 
 
+    for(i=0;i<plotdata.length;i++){
+        if(plotdata[i][1] > max_y) {
+            max_y = plotdata[i][1];
+            max_y_coord = i;
+        }   
+        if(plotdata[i][1] < min_y)
+            min_y = plotdata[i][1];
+    
+    }
+	
+	if(typeof svg_thresh_chart_y_up_limit !== 'undefined') {
+        if( svg_thresh_chart_y_up_limit < max_y)
+            svg_thresh_chart_y_up_limit = max_y;
+    } else
+        svg_thresh_chart_y_up_limit = 100;
 
 
+    if(typeof svg_thresh_chart_y_down_limit !== 'undefined') {
+        if( svg_thresh_chart_y_down_limit > min_y)
+            svg_thresh_chart_y_down_limit = min_y;
+    } else
+        svg_thresh_chart_y_down_limit = -100;
 
+	//var YLimits = [min_y,max_y];
+	var YLimits = [0,max_y];
 
-
-}
+	yScale = d3.scale.linear()
+                     .range([this.plotHeight-this.margin.top-this.margin.bottom, this.margin.top])
+                     .domain(YLimits);
+}  
 
 
 /* 
@@ -155,47 +179,238 @@ SVGThreshChart.prototype.plot = function () {
 	var i = 0;
     var dataums = [];
     var valid_datacases = [];
-	var catagories = new Set();
+	var y_values = [];
 
-	/*
     for(i=0;i<this.canvasObj.dataCaseArr.length;i++) {
-            if(    this.canvasObj.dataCaseArr[i].getPropVal(this.axisX) != "N/A"
-                && this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ) != "N/A"  
-                && this.canvasObj.dataCaseArr[i].getPropVal(this.axisC) != "N/A") { 
+            if(    this.canvasObj.dataCaseArr[i].getPropVal(this.axisX) != -1 
+                //&& this.canvasObj.dataCaseArr[i].getPropVal(this.axisY) != -1  
+                && this.canvasObj.dataCaseArr[i].getPropVal(this.axisC) != -1  
+                && this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ) != -1) { 
             dataums.push([ this.canvasObj.dataCaseArr[i].getPropVal(this.axisX),
+                           this.canvasObj.dataCaseArr[i].getPropVal(this.axisY),
                            this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ),
-                           this.canvasObj.dataCaseArr[i].getPropVal(this.axisC),
                            this.canvasObj.dataCaseArr[i].getPropVal('js_id') ]);
             valid_datacases.push(this.canvasObj.dataCaseArr[i]);
+			y_values.push(this.canvasObj.dataCaseArr[i].getPropVal("mitosisc"));
         }
-    } */
+    }
 
-	var xVal,yVal,zVal,cVal;
+		
+	//y_values = removeDuplicatesInPlace(y_values);
+	
+	var plotdata = this.getPlotdata(valid_datacases,this.threshold,y_values);
+	plotdata[1] = [
+					[0.654020773,0],
+[0.805587597,0.9932203389830508],
+[0.847362198,1.979614739399549],
+[0.872787382,2.95913628758237],
+[0.953520376,3.945436854061324],
+[1.036395766,4.911093542574787],
+[1.047197075,5.890425383335015],
+[1.069716588,6.866248452165419],
+[1.083400123,7.838550394235258],
+[1.139375774,8.807318767400503],
+[1.187755448,9.77254104127497],
+[1.188211479,10.734204596288226],
+[1.214455636,11.692296722730056],
+[1.240501637,12.646804619781202],
+[1.317805763,13.597715394530189],
+[1.355321646,14.545016060975932],
+[1.436594512,15.432371017055814],
+[1.463971961,16.37239886005926],
+[1.484012722,17.308763699399705],
+[1.504031673,18.241452068151908],
+[1.520207167,19.028447063707425],
+[1.524433052,19.95371405227568],
+[1.52610628,20.875235722491876],
+[1.561019422,21.381809352811608],
+[1.564886647,22.295725470685408],
+[1.611839737,23.025890812723805],
+[1.689592821,23.18123058883898],
+[1.879189975,20.7547404244286],
+[1.901029649,20.933806823506767],
+[2.008974693,19.675914944616366],
+[2.257559131,17.39940383317443],
+[2.38758264,16.487777460896563],
+[2.487658411,16.347270235185913],
+[2.573805725,16.674895419868637],
+[2.587935758,17.532355940676144],
+[3.191112186,12.95758220242397],
+[3.229821525,13.308392332543786],
+[3.324577293,13.610421974858722],
+[3.347290221,14.235795770375166],
+[3.472021269,13.632027794546204],
+[4.3438507,11.189197725241211],
+[5.212311717,8.673082996806247],
+					];
+	plotdata[2] = [
+					[0.654020773,0],
+[0.772256966,0.9966101694915255],
+[0.805587597,1.9898189784388332],
+[0.820598151,2.9796148181028643],
+[0.847362198,3.965986000232649],
+[0.857897087,4.948920756245595],
+[0.872787382,5.928407236396473],
+[0.953520376,6.904433508934893],
+[0.959616319,7.876987559251092],
+[1.036395766,8.846057289009797],
+[1.047197075,9.811630515272002],
+[1.069716588,10.77369496960438],
+[1.083400123,11.732238297176195],
+[1.139375774,12.68724805584342],
+[1.187755448,13.63871171521986],
+[1.188211479,14.586616655735089],
+[1.214455636,15.530950167678897],
+[1.240501637,16.471699450232016],
+[1.317805763,17.408851610482984],
+[1.355321646,18.342393662430695],
+[1.436594512,19.20223138951453],
+[1.463971961,20.128500618019952],
+[1.484012722,21.051106842862374],
+[1.504031673,21.970036597116554],
+[1.520207167,22.715755749177994],
+[1.524433052,23.627264123248224],
+[1.52610628,24.535027178966395],
+[1.528243675,25.439030836188326],
+[1.555908033,26.03995112545341],
+[1.561019422,26.936349780145157],
+[1.564886647,27.82890228099075],
+[1.612319421,28.27235976591371],
+[1.617982792,29.157114255024293],
+[1.635897468,29.91871809490551],
+[1.662577288,30.79553595110111],
+[1.677658882,31.541171663492307],
+[1.689592821,32.409957261623376],
+[1.703266621,33.139431291893644],
+[1.714509253,33.72139743933984],
+[1.721762484,34.43444374149406],
+[1.727741562,35.28680022590449],
+[1.788937366,35.37583452985669],
+[1.790850892,36.06359560685362],
+[1.809540948,36.100904811870414],
+[1.823319456,36.4413331707705],
+[1.854068131,36.93307977931208],
+[1.856082702,37.58506987307985],
+[1.857965457,38.227800707588365],
+[1.879189975,38.86118574770437],
+[1.885230221,39.67316128663029],
+[1.889601435,40.48039748906332],
+[1.901029649,40.29524327509007],
+[1.917627511,40.48553262263733],
+[1.92998078,41.27810495952414],
+[1.941271227,41.8531993820415],
+[1.954452679,41.76555472767494],
+[1.962991523,42.54281746346831],
+[1.973526528,43.31484459716744],
+[1.977922201,44.08160857297182],
+[1.999099059,43.888973425538694],
+[2.008974693,44.6450116134434],
+[2.010325459,45.39558532047375],
+[2.037750788,45.37590212661719],
+[2.07170454,45.854824574632715],
+[2.099630727,46.05616279211059],
+[2.11713875,46.51216091012085],
+[2.121242146,47.23431201590962],
+[2.124226644,47.95058076875721],
+[2.132641057,48.371283954925765],
+[2.168777173,48.484374662322296],
+[2.169385109,49.18264067047888],
+[2.171620197,49.874771709310295],
+[2.186634507,50.56072990863554],
+[2.19505911,50.920223947037584],
+[2.21308794,51.5936816580625],
+[2.230087482,52.26081025516336],
+[2.257559131,52.24308776621122],
+[2.258729982,52.89735343006699],
+[2.333196967,51.07919115921383],
+[2.337459269,51.72002432363301],
+[2.338000196,52.353913043607804],
+[2.353170114,52.98080875658957],
+[2.368358953,53.22051567551082],
+[2.38758264,53.4459368801464],
+[2.399923195,53.65686533115874],
+[2.41308285,53.85308789981818],
+[2.414942558,54.44373649758075],
+[2.472775594,54.19312589989095],
+[2.527470005,53.91943837912425],
+[2.551039495,54.487001856453944],
+[2.587935758,54.165882764633636],
+[2.590000345,54.71737965272606],
+[2.598499774,54.80397998628792],
+[2.67306263,53.47881415352594],
+[2.716074311,52.58389887862065],
+[2.764064446,53.10116105088533],
+[2.8041864,53.117503577232874],
+[2.901923335,51.11097560071995],
+[2.955334437,50.06740793010349],
+[3.043766919,49.50411993224318],
+[3.078321355,49.44087530209067],
+[3.138641924,49.35612529559411],
+[3.171580709,49.80276128135684],
+[3.191112186,48.544860779963166],
+[3.258409545,46.08824258601224],
+[3.287936646,46.4996395536871],
+[3.324577293,46.898378293513844],
+[3.347290221,46.67021474752629],
+[3.385016585,45.7884957443345],
+[3.399451182,45.506619148599306],
+[3.410406766,45.85159634368944],
+[3.578209098,44.17436226690721],
+[3.62351234,44.48990223256012],
+[3.631106305,44.790057582828396],
+[3.700590506,44.35911828336502],
+[4.050703123,40.969526191426475],
+[4.07430812,41.22007036657956],
+[4.307224665,40.68479508052214],
+[4.35045921,40.11178394540809],
+[4.48017836,38.69344371332525],
+[4.485768687,38.03955022527003],
+[4.540421323,38.19086435080767],
+[4.919306891,34.83632386738458],
+[5.212311717,33.148599577330735],
+[5.215295027,33.2256644536191],
+[5.586516437,29.472099946171994],
+[6.209961132,22.6083322181276],
+[6.230681801,22.58188299125249],
+[6.247068459,22.50997921892283],
+[6.631347261,21.27093357902542],
+[6.687241362,19.926624781233272],
+[7.353352826,11.07880135477056],
+[7.907959303,5.368356157675803],
+[9.066409943,1.5920890394189509]					
 
-    var count = 0;
-    for(i=0;i<this.canvasObj.dataCaseArr.length;i++) {
-            xVal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisX);
-            cVal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisC);
-            zVal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ);
-			if (this.axisY != "") 
-            	yVal = this.canvasObj.dataCaseArr[i].getPropVal(this.axisY);
-            if( isGoodClicValue(xVal) && isGoodClicValue(cVal) && isGoodClicValue(zVal) ) { 
-                dataums.push([xVal, cVal, zVal, this.canvasObj.dataCaseArr[i].getPropVal('js_id')]);
-                valid_datacases.push(this.canvasObj.dataCaseArr[i]);
-                console.log("count = " + count + ", I am pusing an object, its xval is " + xVal + ", yVal = " + yVal + ", zVal = " + zVal);
-				if (this.axisY != "");
-               		catagories.add(yVal);
-            }   
-    }   
-
-
-
-
-	var plotdata = this.getPlotdata(valid_datacases, this.threshold, catagories);
-
-
-
-	var max_y = -100, min_y = 10000;
+					];
+	plotdata[3] = [
+					[0.959616319,0],
+[1.555908033,0.09242170549786288],
+[1.809540948,0.6179511915811016],
+[1.885230221,0.3866904926505875],
+[1.999099059,0.1938949587488079],
+[2.11713875,1.2615083198780668],
+[2.132641057,0.5581720049394941],
+[2.168777173,0.6005975156497204],
+[2.169385109,0.10442716391584395],
+[2.21308794,0.6083306923850769],
+[2.230087482,1.5416102796168842],
+[2.258729982,2.429407469344235],
+[2.598499774,0.7127015795834873],
+[2.67306263,1.2626068456421398],
+[3.043766919,1.5235597528822171],
+[3.138641924,2.1928393483135724],
+[3.258409545,2.3010177390891315],
+[3.287936646,3.172685896558418],
+[3.399451182,3.112115870417121],
+[3.62351234,3.759102979006487],
+[4.07430812,4.459812642536323],
+[4.35045921,3.1650931541814873],
+[6.209961132,0.5310109001035697],
+[6.230681801,1.0938479185041128],
+[6.631347261,1.3014300174508653],
+[6.687241362,2.263488072591575],
+[7.907959303,0.053416675344853615],
+[9.066409943,0.22480283036635507],
+					];
+    var max_y = -100, min_y = 10000;
 	var max_y_coord = 0;
 	var j=0;
 	
@@ -497,6 +712,7 @@ SVGThreshChart.prototype.plot = function () {
             .style("text-anchor", "end")
             .text(function(d) { return d;});
     	}
+			  
 }
 
 
@@ -504,79 +720,39 @@ SVGThreshChart.prototype.plot = function () {
 	Since in this plotting, all the datas are not directly plottable, we need to do some
 	calculation then plot based on the calculation results
 **/
-SVGThreshChart.prototype.getPlotdata1 = function(valid_datacases,threshold, grades) {
-	var s = [];
-	var i=0;
-	
+SVGThreshChart.prototype.getPlotdata= function(valid_datacases,threshold,Y_grades) {
+
+
+	var num_grades = Y_grades.length;
+
+	var res = new Array();
+	var i=0,j=0;
 	var valid_valid_cases = [];
-	var z_value;
-	
+	var z_value,y_value;
 	var sur_time=[],pt=[],pro=[];
-
 	
-	for(i=0;i<valid_datacases.length;i++){
-		z_value = valid_datacases[i].getPropVal(this.axisZ);		
-		if($.isNumeric( z_value )) {
-			valid_valid_cases.push(valid_datacases[i]);
-			sur_time.push(  parseFloat( valid_datacases[i].getPropVal(this.axisZ) )    );
-			pro.push(  parseFloat( valid_datacases[i].getPropVal(this.axisX))      );
-			pt.push(   $.isNumeric(valid_datacases[i].getPropVal(this.axisC))?parseFloat( valid_datacases[i].getPropVal(this.axisC)):0 );
-		}
-	}
 
+	for(j=0;j<num_grades;j++){
+		for(i=0;i<valid_datacases.length;i++){
+			z_value = valid_datacases[i].getPropVal(this.axisZ);
+			y_value = valid_datacases[i].getPropVal("mitosisc");
+			if($.isNumeric( z_value ) && y_value == Y_grades[j] ) {
+				valid_valid_cases.push(valid_datacases[i]);
+				sur_time.push (  parseFloat( valid_datacases[i].getPropVal(this.axisZ) )    );
+				pro.push (  parseFloat( valid_datacases[i].getPropVal(this.axisX))      );
+				pt.push  (   $.isNumeric(valid_datacases[i].getPropVal(this.axisC))?parseFloat( valid_datacases[i].getPropVal(this.axisC)):0  );
+			}
+		}
+		res[Y_grades[j]] = getplot(sur_time,pt,pro,threshold);
+	}
 	//console.log("The length before is " + valid_datacases.length + ", the length after is " + valid_valid_cases.length);
-	res = getplot(sur_time,pt,pro,threshold);
 	//console.log(res);
 	return res;
 }
 
 
-/**
-    Since in this plotting, all the datas are not directly plottable, we need to do some
-    calculation then plot based on the calculation results
-**/
-SVGThreshChart.prototype.getPlotdata = function(valid_datacases,threshold,grades) {
-    var num_grades = grades.length;
-    var res = new Array();
-    var i=0,j=0;
-    var valid_valid_cases = []; 
-    var z_value,y_value;
-    var sur_time=[],pt=[],pro=[];
 
-	if (this.axisY != "") { //multi optimal analysis line
-		for (var v of grades) {
-			console.log("v value is " + v);
-			var sur_time=[],pt=[],pro=[];
-			var count = 0;
-			for(i=0;i<valid_datacases.length;i++){
-				y_value = valid_datacases[i].getPropVal(this.axisY);
-			    z_value = valid_datacases[i].getPropVal(this.axisZ);
-				console.log("y value is " + y_value + ", v value is " + v + " i = " + i);
-				if($.isNumeric( y_value ) && y_value == v) {
-					valid_valid_cases.push( valid_datacases[i] );
-					sur_time.push (  parseFloat( valid_datacases[i].getPropVal(this.axisZ) )    );
-					pro.push (  parseFloat( valid_datacases[i].getPropVal(this.axisX))      );
-					pt.push  (   $.isNumeric(valid_datacases[i].getPropVal(this.axisC))?parseFloat( valid_datacases[i].getPropVal(this.axisC)):0  );
-				}
-			}
-			res[v] = getplot(sur_time,pt,pro,threshold);
-			console.log("pro length = " + pro.length + "v = " + v + ", length = " + res[v].length)
-		}
-	} else { // single optimal analysis line
-		 for(i=0;i<valid_datacases.length;i++){
-			 z_value = valid_datacases[i].getPropVal(this.axisZ);
-			 if($.isNumeric( z_value )) {
-				 valid_valid_cases.push(valid_datacases[i]);
-				 sur_time.push(  parseFloat( valid_datacases[i].getPropVal(this.axisZ) )    );
-				 pro.push(  parseFloat( valid_datacases[i].getPropVal(this.axisX))      );
-				 pt.push(   $.isNumeric(valid_datacases[i].getPropVal(this.axisC))?parseFloat( valid_datacases[i].getPropVal(this.axisC)):0 );
-			 }
-		 }
-		res[0] = getplot(sur_time,pt,pro,threshold);
-	}
-  
-    return res;
-}
+
 
 SVGThreshChart.prototype.generateCirId = function (x,y,index) {
 	var res = this.chartId + "_" + x + "_" + y + "_" + index;
@@ -592,7 +768,7 @@ SVGThreshChart.prototype.selected = function (js_id) {
 
 SVGThreshChart.prototype.deSelected = function (index) {
 	var cir_id = this.chartId + "_" + index;
-	d3.select("#" + cir_id).attr("class","dot");
+	d3.select("#" + cir_id) . attr("class","dot");
 }
 
 SVGThreshChart.prototype.getCircleSize = function (data,index) {
