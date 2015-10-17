@@ -58,7 +58,7 @@ PopUpDialog.prototype.genModalDiv = function(){
 	html += "<tr style='border: 2px solid black;border-collapse: collapse;'> \n";
 	html += "<td id = 'y' style='border: 2px solid black;border-collapse: collapse;'> Y: </td> \n";
 	html += "<td style='border: 2px solid black;border-collapse: collapse;'>\n";
-	html += this.genNumericalSelections("y_field");
+	html += this.genAllSelections("y_field");
 	html += "</td></tr> \n";
 	
 	html += "<tr style='border: 2px solid black;border-collapse: collapse;'> \n";
@@ -136,4 +136,23 @@ PopUpDialog.prototype.genNumerateSelections = function(id) {
 	
 	html += "</select> \n";
 	return html;
+}
+
+/***
+To generate HTML code for a selection drop down list
+***/
+PopUpDialog.prototype.genAllSelections = function(id) {
+    var html = ""; 
+    html += "<select id='"+id+"'> \n";
+    html += "<option></option> \n";
+       
+    var i = 0;
+       
+    for(i=0;i<this.countList.length;i++) {
+        html += "<option>"+this.countList[i]+"</option> \n";
+        html += "<option>"+this.numberList[i]+"</option> \n";
+    }   
+       
+    html += "</select> \n";
+    return html;
 }

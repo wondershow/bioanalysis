@@ -158,11 +158,11 @@ SVGThreshChart.prototype.plot = function () {
 
     for(i=0;i<this.canvasObj.dataCaseArr.length;i++) {
             if(    this.canvasObj.dataCaseArr[i].getPropVal(this.axisX) != "N/A"
-                && this.canvasObj.dataCaseArr[i].getPropVal(this.axisY) != "N/A"  
-                && this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ) != "N/A") { 
+                && this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ) != "N/A"  
+                && this.canvasObj.dataCaseArr[i].getPropVal(this.axisC) != "N/A") { 
             dataums.push([ this.canvasObj.dataCaseArr[i].getPropVal(this.axisX),
-                           this.canvasObj.dataCaseArr[i].getPropVal(this.axisY),
                            this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ),
+                           this.canvasObj.dataCaseArr[i].getPropVal(this.axisC),
                            this.canvasObj.dataCaseArr[i].getPropVal('js_id') ]);
             valid_datacases.push(this.canvasObj.dataCaseArr[i]);
         }

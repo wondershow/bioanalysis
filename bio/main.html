@@ -247,8 +247,8 @@
 				tmp = document.getElementById("d_field");
 				d_field = tmp.options[tmp.selectedIndex].value;
 				
-				if ( x_field=="" || y_field==""|| z_field=="") {
-					document.getElementById("alertmsg").innerHTML = "Please select field X, Y and Z";
+				if ( x_field=="" || d_field==""|| z_field=="") {
+					document.getElementById("alertmsg").innerHTML = "Please select field T, Risk and Censoring";
 				} else {
 					$.modal.close();
 					drawOptimalAnalysis();
@@ -264,8 +264,8 @@
 				document.getElementById("color").innerHTML = "  Color: "; 	
 			} else {
 				document.getElementById("x").innerHTML = "T(risk):"; 	
-				document.getElementById("y").innerHTML = "R(outcome)"; 	
-				document.getElementById("size").innerHTML = "Grouping:"; 	
+				document.getElementById("size").innerHTML = "R(outcome)"; 	
+				document.getElementById("y").innerHTML = "Grouping:"; 	
 				document.getElementById("color").innerHTML = "Censoring:"; 	
 			}
 		}
@@ -370,7 +370,8 @@
 			var c = [];
 			for(i=0;i<dataCases.length;i++) {
 				x.push(dataCases[i].getPropVal(x_field));
-				y.push(dataCases[i].getPropVal(y_field));
+				if ($("#y_field").val() != "")
+					y.push(dataCases[i].getPropVal(y_field));
 				z.push(dataCases[i].getPropVal(z_field));
 				c.push( dataCases[i].getPropVal(d_field)  );
 			}
