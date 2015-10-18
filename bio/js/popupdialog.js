@@ -150,6 +150,8 @@ PopUpDialog.prototype.genAllSelections = function(id) {
        
     for(i=0;i<this.countList.length;i++) {
         html += "<option>"+this.countList[i]+"</option> \n";
+    }   
+    for(i=0;i<this.numberList.length;i++) {
         html += "<option>"+this.numberList[i]+"</option> \n";
     }   
        

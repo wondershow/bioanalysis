@@ -101,8 +101,6 @@
 		);
 
 		//sort each group
-
-	
 		object_arr_1.sort(function(a,b){
 				a[0] = parseFloat(a[0]);
 				b[0] = parseFloat(b[0]);
@@ -290,7 +288,7 @@
 				sur_time_1_cur++;
 			}
 			//console.log("cutpoint is "+cutpoint + " sum is " + sum);
-			res.push([cutpoint,sum]);	
+			res.push([cutpoint,Math.abs(sum)]);	
 		}
 		
 		return res;

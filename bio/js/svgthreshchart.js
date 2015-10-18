@@ -182,18 +182,12 @@ SVGThreshChart.prototype.plot = function () {
             if( isGoodClicValue(xVal) && isGoodClicValue(cVal) && isGoodClicValue(zVal) ) { 
                 dataums.push([xVal, cVal, zVal, this.canvasObj.dataCaseArr[i].getPropVal('js_id')]);
                 valid_datacases.push(this.canvasObj.dataCaseArr[i]);
-                console.log("count = " + count + ", I am pusing an object, its xval is " + xVal + ", yVal = " + yVal + ", zVal = " + zVal);
-				if (this.axisY != "");
+				if (this.axisY != "" && isGoodClicValue(yVal));
                		catagories.add(yVal);
             }   
     }   
 
-
-
-
 	var plotdata = this.getPlotdata(valid_datacases, this.threshold, catagories);
-
-
 
 	var max_y = -100, min_y = 10000;
 	var max_y_coord = 0;
@@ -246,7 +240,7 @@ SVGThreshChart.prototype.plot = function () {
 	*/
 
     yScale = d3.scale.linear()
-				     .range([this.plotHeight-this.margin.top-this.margin.bottom, this.margin.top])
+				     .range( [this.plotHeight-this.margin.top-this.margin.bottom, 2*this.margin.top] )
 					 .domain(YLimits);
 	
 	
@@ -301,25 +295,26 @@ SVGThreshChart.prototype.plot = function () {
 	// x-axis
 	this.svgContainer.append("g")
       .attr("class", "x axis")
-	  .attr("transform", "translate(0," + (this.plotHeight-this.margin.bottom) + ")")
+	  .attr("transform", "translate(0," + yScale(min_y) + ")")
       .call(xAxis)
     .append("text")
       .attr("class", "label")
       .attr("x", (this.plotwidth-this.margin.left))
-      .attr("y", -6)
+      .attr("y", 0)
       .style("text-anchor", "end")
       .text(this.axisX);
 
 	// y-axis
 	this.svgContainer.append("g")
 		.attr("class", "y axis")
-		.attr("transform", "translate("+ this.margin.left+","+ (this.margin.top) +")")
+		//.attr("transform", "translate(0,"+ (this.margin.top) +")")
+		.attr("transform", "translate("+ this.margin.left+", 0)")
 		.call(yAxis)
 		.append("text")
 		.attr("class", "label")
 		.attr("transform", "rotate(-90)")
-		.attr("x", -6)
-		.attr("y", 6)
+		.attr("x", -20)
+		.attr("y", 0)
 		.attr("dy", ".71em")
 		.style("text-anchor", "end")
 		.text("|Lk|");
@@ -352,7 +347,7 @@ SVGThreshChart.prototype.plot = function () {
 
 		var lineFunction = d3.svg.line()
                           		 .x(function(d) { return xScale(d[0]); })
-                          		 .y(function(d) { return yScale(d[1]-4); })
+                          		 .y(function(d) { return yScale(d[1]); })
 	                        	 .interpolate("linear");		
 		
 		var k =0;
@@ -388,19 +383,16 @@ SVGThreshChart.prototype.plot = function () {
 				if(plotdata[key][i][1] < min_y)
 					min_y = plotdata[key][i][1];
         	}
-
-
-
 			
 			this.svgContainer.append("circle")
 							.attr("r", 5)
 							.attr("cx",xScale(max_y_coord))
-							.attr("cy",yScale(max_y-4))
+							.attr("cy",yScale(max_y) )
 							.style("fill","red");
 			
 			this.svgContainer.append("text")
-							.attr("x",xScale(max_y_coord+1))
-							.attr("y",yScale(max_y-1))
+							.attr("x",xScale(max_y_coord) + 55)
+							.attr("y",yScale(max_y))
 							.attr("dy", ".65em")
 							//.text(max_y_coord);
 							.style("text-anchor", "end")
@@ -601,9 +593,6 @@ SVGThreshChart.prototype.getCircleSize = function (data,index) {
 	
 	
 	}
-	
-	
-	
 }
 
 SVGThreshChart.prototype.getCircleColor = function () {
