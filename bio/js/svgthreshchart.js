@@ -353,21 +353,39 @@ SVGThreshChart.prototype.plot = function () {
 		var k =0;
 		for (var key in plotdata)
 			if($.isNumeric(key))  color(key);
+		
+		var chartid = this.chartId;
+		var pathid = chartid + "_path";
+		var svgid = chartid + "_chart_svg";
+
+
+		svg = d3.select("#" + svgid).on('mousemove', function(d,i){
+                                     handleMouseOverLine(pathid, svgid,xScale,yScale, plotdata);
+                                 });
+
+		console.log(plotdata);
 		for (var key in plotdata) {	
 			if ($.isNumeric(key)==false) continue;
 			var rangeArr = color.range();
+			var myplotdata = plotdata[key];
+			console.log(myplotdata);
+
 			var path = this.svgContainer.append("path")
 							.attr("d",lineFunction(plotdata[key]))
 							.attr("stroke", rangeArr[k])
 							.attr("stroke-width", "2")
 							.attr("fill", "none")
+							.attr("id", pathid)
 							.attr("color",rangeArr[k])
 							.on('click',function(d,i){
 							})
+							.on('mouseover', function(d,i) {
+									handleMouseOverLine(pathid,svgid,xScale,yScale,myplotdata);
+								})
 							.on("dblclick",function(d,i){
 								if(d3.select(this).attr("stroke")!='grey') {
 									mainCanvas.addAnalysisCurve(d3.select(this).attr("d"));
-									d3.select(this).attr("stroke","grey");	
+									d3.select(this).attr("stroke","grey");
 								} else {
 									//d3.select(this).attr("stroke","steeblue");	
 								}
@@ -412,16 +430,11 @@ SVGThreshChart.prototype.plot = function () {
                         })
                         .on("dblclick",function(d,i){
                             mainCanvas.delAnalysisCurve(d3.select(this).attr("d"));
-                            //d3.select(this).attr("stroke","grey");
-                            //d3.select(this).style("stroke-dasharray", ("1, 1"));
 							d3.select(this).remove();
                         });	
 
 		}
 		
-		console.log("path");
-		
-
 		/*
 		this.svgContainer.selectAll(".dot")
 			.data(dataums)
@@ -451,18 +464,14 @@ SVGThreshChart.prototype.plot = function () {
 		*/
 		if(this.axisC != null) {
         rightOffset = this.plotwidth;
-        //console.log(color);
         var legend = this.svgContainer.selectAll(".legend")
                         .data(color.domain())
                         .enter().append("g")
                         .attr("class", "legend")
                         .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; }); 
-                        //.attr("transform", function(d, i) { return "translate("+rightOffset+"," + i * 20 + ")"; });
 
-        // draw legend colored rectangles
         var ruled_out_arr = this.ruleOutCItems;
     
-    	console.log("zcd is a pig");
         legend.append("rect")
             .attr("x", rightOffset)
             .attr("width", 15) 
@@ -471,13 +480,7 @@ SVGThreshChart.prototype.plot = function () {
             .attr("stroke-width", function(d,i){var domainArr = color.domain();if($.inArray(domainArr[i],ruled_out_arr)>=0) return 2; else return 0  })  
             .attr("stroke", "black")
             .on("click", function(d,i) {
-    
-                //console.log(color.domain())
-                //var rangeArr = color.range();
                 var domainArr = color.domain();
-                //console.log("This color is clicked, " + domainArr[i]);
-                //mainCanvas.updateChart('"+this.chartId +"','"+this.axis_name+"', "+this.containerid+"_range_from ,"+this.containerid+"_range_to );
-                //console.log(super);
                 agent_function(domainArr[i]);
             }); 
 
@@ -490,8 +493,6 @@ SVGThreshChart.prototype.plot = function () {
             .text(function(d) { return d;});
     	}
 }
-
-
 /**
 	Since in this plotting, all the datas are not directly plottable, we need to do some
 	calculation then plot based on the calculation results
@@ -598,3 +599,87 @@ SVGThreshChart.prototype.getCircleSize = function (data,index) {
 SVGThreshChart.prototype.getCircleColor = function () {
 }
 
+SVGThreshChart.prototype.handleMouseOverLine = function (d,i) {
+	console.log("d is " + d + ", i is " + i );
+}
+
+
+var handleMouseOverLine = function(pathid,svgid,xscale,yscale,plotdata) {	
+	svg = d3.select("#" + svgid)[0][0];
+	path = d3.select("#" + pathid)[0][0];
+	var pt  = svg.createSVGPoint();
+	pt.x =  d3.event.x;
+	pt.y = d3.event.y;
+	pt = pt.matrixTransform(svg.getScreenCTM().inverse());
+	console.log("pt.x = " + xscale.invert(pt.x))
+
+	fromx = pt.x;
+	tox = pt.x;
+
+	console.log(plotdata);
+	
+
+	fromy = yscale.range()[0];
+	toy = yscale.range()[1];
+	
+	lineid = svgid + "_interactive_line";
+	circleid = svgid + "_interactive_cicle";
+
+	if (pt.x > xscale.range()[1] || pt.x < xscale.range()[0]) {
+		console.log("remove");
+		d3.select("#"+lineid).remove();
+		d3.select("#"+circleid).remove();
+		return;
+	}
+	
+
+	circylex = xscale.invert(pt.x);
+	liney = getYfromX(plotdata[0], xscale.invert(pt.x));
+	
+	console.log("liney = " + liney);
+	
+	if ( d3.select("#"+lineid).empty()  ) {
+		d3.select("#" + svgid).append("line")
+                          .attr("x1", fromx)
+                          .attr("y1", fromy)
+                         .attr("x2", tox)
+                         .attr("y2", toy)
+						 .attr("id", lineid)
+                         .attr("stroke-width", 1)
+						 .style("stroke-dasharray", ("3, 3"))
+                         .attr("stroke", "red");
+
+					d3.select("#" + svgid).append("circle")
+                             .attr("r", 5)
+							 .attr("id",circleid)
+                             .attr("cx",xScale(circylex))
+                             .attr("cy",yScale(liney) )
+                             .style("fill","grey");
+		
+	} else {
+		d3.select("#"+lineid)
+					.attr("x1", fromx)
+                          .attr("y1", fromy)
+                          .attr("x2", tox)
+                          .attr("y2", toy);
+						  //.attr("d", line);
+		d3.select("#" +  circleid )
+					.attr("cx",xScale(circylex))
+					.attr("cy",yScale(liney) )
+
+	}
+	
+} 
+
+var getYfromX = function(plotdata, x){
+	mindelta = 100000;
+	res = 0;
+	i = 0;
+	for (i = 0; i< plotdata.length; i++) {
+		if (Math.abs(plotdata[i][0] - x) < mindelta) {
+			mindelta = Math.abs(plotdata[i][0] - x);
+			res = plotdata[i][1];
+		}
+	}
+	return res;
+}
