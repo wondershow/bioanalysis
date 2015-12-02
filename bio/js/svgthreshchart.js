@@ -126,6 +126,8 @@ SVGThreshChart.prototype.getYScale = function (valid_cases) {
 **/
 SVGThreshChart.prototype.drawCurve = function (data) {
 	
+	
+	
 
 
 
@@ -357,10 +359,12 @@ SVGThreshChart.prototype.plot = function () {
 		var chartid = this.chartId;
 		var pathid = chartid + "_path";
 		var svgid = chartid + "_chart_svg";
+		var pwidth = this.plotwidth;
+		var pheight = this.plotHeight;
 
 
 		svg = d3.select("#" + svgid).on('mousemove', function(d,i){
-                                     handleMouseOverLine(pathid, svgid,xScale,yScale, plotdata);
+                                     handleMouseOverLine(pathid, svgid, xScale, yScale, plotdata, pwidth, pheight);
                                  });
 
 		console.log(plotdata);
@@ -378,10 +382,10 @@ SVGThreshChart.prototype.plot = function () {
 							.attr("id", pathid)
 							.attr("color",rangeArr[k])
 							.on('click',function(d,i){
-							})
+							})/*
 							.on('mouseover', function(d,i) {
 									handleMouseOverLine(pathid,svgid,xScale,yScale,myplotdata);
-								})
+								}) */
 							.on("dblclick",function(d,i){
 								if(d3.select(this).attr("stroke")!='grey') {
 									mainCanvas.addAnalysisCurve(d3.select(this).attr("d"));
@@ -604,44 +608,50 @@ SVGThreshChart.prototype.handleMouseOverLine = function (d,i) {
 }
 
 
-var handleMouseOverLine = function(pathid,svgid,xscale,yscale,plotdata) {	
+/**
+
+	@pwidth parenet svg container width
+	@pheight parent svg containder height
+***/
+var handleMouseOverLine = function(pathid,svgid,xscale,yscale,plotdata, pwidth, pheight) {	
 	svg = d3.select("#" + svgid)[0][0];
 	path = d3.select("#" + pathid)[0][0];
 	var pt  = svg.createSVGPoint();
 	pt.x =  d3.event.x;
 	pt.y = d3.event.y;
 	pt = pt.matrixTransform(svg.getScreenCTM().inverse());
-	console.log("pt.x = " + xscale.invert(pt.x))
+	console.log("pt.x = " + xscale.invert(pt.x));
 
 	fromx = pt.x;
 	tox = pt.x;
 
 	console.log(plotdata);
-	
 
 	fromy = yscale.range()[0];
 	toy = yscale.range()[1];
+
 	
 	lineid = svgid + "_interactive_line";
 	circleid = svgid + "_interactive_cicle";
+	gid = svgid + "_addional_group";
 
 	if (pt.x > xscale.range()[1] || pt.x < xscale.range()[0]) {
 		console.log("remove");
 		d3.select("#"+lineid).remove();
 		d3.select("#"+circleid).remove();
+		d3.select("#"+gid).remove();
 		return;
 	}
-	
 
 	circylex = xscale.invert(pt.x);
 	liney = getYfromX(plotdata[0], xscale.invert(pt.x));
 	
 	console.log("liney = " + liney);
 	
-	if ( d3.select("#"+lineid).empty()  ) {
+	if ( d3.select("#"+lineid).empty() ) {
 		d3.select("#" + svgid).append("line")
-                          .attr("x1", fromx)
-                          .attr("y1", fromy)
+                         .attr("x1", fromx)
+                         .attr("y1", fromy)
                          .attr("x2", tox)
                          .attr("y2", toy)
 						 .attr("id", lineid)
@@ -649,7 +659,7 @@ var handleMouseOverLine = function(pathid,svgid,xscale,yscale,plotdata) {
 						 .style("stroke-dasharray", ("3, 3"))
                          .attr("stroke", "red");
 
-					d3.select("#" + svgid).append("circle")
+		d3.select("#" + svgid).append("circle")
                              .attr("r", 5)
 							 .attr("id",circleid)
                              .attr("cx",xScale(circylex))
@@ -659,16 +669,16 @@ var handleMouseOverLine = function(pathid,svgid,xscale,yscale,plotdata) {
 	} else {
 		d3.select("#"+lineid)
 					.attr("x1", fromx)
-                          .attr("y1", fromy)
-                          .attr("x2", tox)
-                          .attr("y2", toy);
+                    .attr("y1", fromy)
+                    .attr("x2", tox)
+                    .attr("y2", toy);
 						  //.attr("d", line);
 		d3.select("#" +  circleid )
 					.attr("cx",xScale(circylex))
 					.attr("cy",yScale(liney) )
 
 	}
-	
+	floatingPlot(svgid, xScale(circylex), yScale(liney),gid, pwidth, pheight );
 } 
 
 var getYfromX = function(plotdata, x){
@@ -682,4 +692,81 @@ var getYfromX = function(plotdata, x){
 		}
 	}
 	return res;
+}
+
+/***
+	pwidth --- parent container width
+    pheight --- parent container height
+***/
+var floatingPlot = function(svgid, x, y, gid, pwidth, pheight) {
+	fromx = 50
+	fromy = 50
+	tox = 100
+	toy = 100
+	
+	group = null;
+	if (d3.select("#" + gid).empty()) {
+		group = d3.select("#" + svgid).append('g')
+									  .attr("id", gid);
+		/*
+		group.append("line")
+         	.attr("x1", fromx)
+         	.attr("y1", fromy)
+         	.attr("x2", tox)
+         	.attr("y2", toy)
+		 	.attr("id", gid)
+		 	.attr("stroke-width", 2)
+         	.attr("stroke", "red")*/
+	} else {
+		d3.select("#"+gid).html("");
+		group = d3.select("#"+gid);
+	}
+		group.append("line")
+         	.attr("x1", 0)
+         	.attr("y1", 0)
+         	.attr("x2", tox)
+         	.attr("y2", toy)
+		 	.attr("stroke-width", 2)
+         	.attr("stroke", "red")
+
+	
+	xScale1 = d3.scale.linear().range([0, pwidth/2]).domain([0, 100]);
+    xAxis1 = d3.svg.axis().scale(xScale1).orient("bottom");
+	group.append("g")
+         .attr("class", "x axis")
+	     .attr("transform", "translate(0,"+pheight/2+")")
+         .call(xAxis1)
+
+    yScale1 = d3.scale.linear()
+				     .range( [0, pheight/2])
+					 .domain([100, 0]);
+    yAxis1 = d3.svg.axis().scale(yScale1).orient("left");//.tickValues(d3.range(20,80,4));
+	group.append("g")
+		.attr("class", "y axis")
+		//.attr("transform", "translate(0,"+ (this.margin.top) +")")
+		.attr("transform", "translate(0, 0)")
+		.call(yAxis1)
+
+	group.append("line")
+		.attr("x1", xScale1(0))
+		.attr("y1", yScale1(0))
+		.attr("x2", xScale1(50))
+		.attr("y2", yScale1(50))
+		.attr("stroke-width", 2)
+        .attr("stroke", "red")
+
+	group.append("line")
+		.attr("x1", xScale1(50))
+		.attr("y1", yScale1(50))
+		.attr("x2", xScale1(70))
+		.attr("y2", yScale1(70))
+		.attr("stroke-width", 2)
+        .attr("stroke", "green")
+
+
+	x = pwidth * 0.25;
+	y = pheight * 0.25;
+
+	group.attr("transform", "translate(" + x + "," + y +")");
+	console.log("translating (" + x + "," + y + ")");
 }
