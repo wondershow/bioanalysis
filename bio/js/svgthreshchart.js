@@ -125,16 +125,6 @@ SVGThreshChart.prototype.getYScale = function (valid_cases) {
 	This function draws one curve to the canvase.
 **/
 SVGThreshChart.prototype.drawCurve = function (data) {
-	
-	
-	
-
-
-
-
-
-
-
 
 }
 
@@ -253,11 +243,9 @@ SVGThreshChart.prototype.plot = function () {
 	var evalStr =  "yMap = function(d) {return $.isNumeric(d[1])? (yScale(d[1]) + " + this.margin.top  +"): (yScale(0) +" + this.margin.top  +")};"
 	eval(evalStr);
     yAxis = d3.svg.axis().scale(yScale).orient("left");//.tickValues(d3.range(20,80,4));
-
 	
 	var sizeMap = null;
 	var sizeScale = null;
-	
 	
 	var z_arr = [];
 	var i=0;
@@ -292,7 +280,6 @@ SVGThreshChart.prototype.plot = function () {
 				})
 				
 	this.svgContainer.call(tip);
-	
 	
 	// x-axis
 	this.svgContainer.append("g")
@@ -361,13 +348,15 @@ SVGThreshChart.prototype.plot = function () {
 		var svgid = chartid + "_chart_svg";
 		var pwidth = this.plotwidth;
 		var pheight = this.plotHeight;
+		var realplot = plotdata;
+		var risk = this.axisX;
+		var survival = this.axisZ;
+		var censor = this.axisC;
 
-
-		svg = d3.select("#" + svgid).on('mousemove', function(d,i){
-                                     handleMouseOverLine(pathid, svgid, xScale, yScale, plotdata, pwidth, pheight);
+		svg = d3.select("#" + svgid).on('mousemove', function(d,i) {
+                                    handleMouseOverLine(pathid, svgid, xScale, yScale, plotdata, pwidth, pheight,valid_datacases, survival, risk, censor);
                                  });
 
-		console.log(plotdata);
 		for (var key in plotdata) {	
 			if ($.isNumeric(key)==false) continue;
 			var rangeArr = color.range();
@@ -381,6 +370,7 @@ SVGThreshChart.prototype.plot = function () {
 							.attr("fill", "none")
 							.attr("id", pathid)
 							.attr("color",rangeArr[k])
+							.style("opacity", 0.5)
 							.on('click',function(d,i){
 							})/*
 							.on('mouseover', function(d,i) {
@@ -603,17 +593,17 @@ SVGThreshChart.prototype.getCircleSize = function (data,index) {
 SVGThreshChart.prototype.getCircleColor = function () {
 }
 
-SVGThreshChart.prototype.handleMouseOverLine = function (d,i) {
-	console.log("d is " + d + ", i is " + i );
-}
 
 
 /**
 
 	@pwidth parenet svg container width
 	@pheight parent svg containder height
+	@survival the property name of survial factor
+	@risk the property of risk factor
+	@censor the censoring property
 ***/
-var handleMouseOverLine = function(pathid,svgid,xscale,yscale,plotdata, pwidth, pheight) {	
+var handleMouseOverLine = function(pathid,svgid,xscale,yscale,plotdata, pwidth, pheight, valid_datacases, survival, risk, censor) {	
 	svg = d3.select("#" + svgid)[0][0];
 	path = d3.select("#" + pathid)[0][0];
 	var pt  = svg.createSVGPoint();
@@ -640,9 +630,11 @@ var handleMouseOverLine = function(pathid,svgid,xscale,yscale,plotdata, pwidth, 
 		d3.select("#"+lineid).remove();
 		d3.select("#"+circleid).remove();
 		d3.select("#"+gid).remove();
+		d3.select("#"+pathid).style("opacity",1.0);
 		return;
-	}
-
+	} 
+	d3.select("#"+pathid).style("opacity",0.2);
+	
 	circylex = xscale.invert(pt.x);
 	liney = getYfromX(plotdata[0], xscale.invert(pt.x));
 	
@@ -678,7 +670,8 @@ var handleMouseOverLine = function(pathid,svgid,xscale,yscale,plotdata, pwidth, 
 					.attr("cy",yScale(liney) )
 
 	}
-	floatingPlot(svgid, xScale(circylex), yScale(liney),gid, pwidth, pheight );
+	console.log("cx = " + circylex + ", cy = " + liney);
+	floatingPlot(svgid, xScale(circylex), yScale(liney),gid, pwidth, pheight,valid_datacases, circylex, liney, survival, risk, censor);
 } 
 
 var getYfromX = function(plotdata, x){
@@ -697,8 +690,29 @@ var getYfromX = function(plotdata, x){
 /***
 	pwidth --- parent container width
     pheight --- parent container height
+	survival_pname ---- the property of the survival factor
+	risk_pname ---- the property of the risk factor
+	objarr --- array of the objects
 ***/
-var floatingPlot = function(svgid, x, y, gid, pwidth, pheight) {
+var floatingPlot = function(svgid, x, y, gid, pwidth, pheight, objarr, cx, cy, survival_pname, risk_pname, censor) {
+	var timeStamp = Date.now();
+	console.log("timeStamp = " + timeStamp + ", lastLoadTime = " + lastLoadTime);
+	if (typeof lastLoadTime !== 'undefined') {
+		if ((timeStamp - lastLoadTime) < 1000) {
+			//console.log("deleeting gid");
+			//d3.select("#" + gid).remove();
+			//lastLoadTime = timeStamp;
+			return;
+		}
+		else
+			lastLoadTime = timeStamp;
+	}
+	else
+	{
+		lastLoadTime = timeStamp;
+	}
+
+
 	fromx = 50
 	fromy = 50
 	tox = 100
@@ -721,16 +735,37 @@ var floatingPlot = function(svgid, x, y, gid, pwidth, pheight) {
 		d3.select("#"+gid).html("");
 		group = d3.select("#"+gid);
 	}
-		group.append("line")
-         	.attr("x1", 0)
-         	.attr("y1", 0)
-         	.attr("x2", tox)
-         	.attr("y2", toy)
-		 	.attr("stroke-width", 2)
-         	.attr("stroke", "red")
 
+	var i = 0;
+	var tmparr = [];
+	for (i = 0; i < objarr.length; i++) {
+		var tmp = [objarr[i].getPropVal(survival_pname), objarr[i].getPropVal(risk_pname),objarr[i].getPropVal(censor) ];
+		tmparr.push(tmp);
+	}
+	var plotXY = getKMPlot(tmparr, cx , survival_pname, censor);
+	var group1 = plotXY[0];
+	var group2 = plotXY[1];
+	var normal_1 = group1[0];
+	var censored_1 = group1[1];
+	var normal_2 = group2[0];
+	var censored_2 = group2[1];
+
+	var xMax = Math.max(d3.max(normal_1, function(d){return parseFloat(d[0])}), 
+						d3.max(normal_2, function(d){return parseFloat(d[0])}), 
+						d3.max(censored_1, function(d){return parseFloat(d[0])}), 
+						d3.max(censored_2, function(d){return parseFloat(d[0])}));
+
+
+	var yMax = Math.max(d3.max(normal_1, function(d){return parseFloat(d[1])}),
+                        d3.max(normal_2, function(d){return parseFloat(d[1])}),
+                        d3.max(censored_1, function(d){return parseFloat(d[1])}),
+                        d3.max(censored_2, function(d){return parseFloat(d[1])}));
+
+	console.log("xMax = " + xMax);
+	console.log("yMax = " + yMax);
 	
-	xScale1 = d3.scale.linear().range([0, pwidth/2]).domain([0, 100]);
+	
+	xScale1 = d3.scale.linear().range([0, pwidth*0.5]).domain([0, xMax]);
     xAxis1 = d3.svg.axis().scale(xScale1).orient("bottom");
 	group.append("g")
          .attr("class", "x axis")
@@ -738,8 +773,8 @@ var floatingPlot = function(svgid, x, y, gid, pwidth, pheight) {
          .call(xAxis1)
 
     yScale1 = d3.scale.linear()
-				     .range( [0, pheight/2])
-					 .domain([100, 0]);
+				     .range( [0, pheight*0.5])
+					 .domain([yMax, 0]);
     yAxis1 = d3.svg.axis().scale(yScale1).orient("left");//.tickValues(d3.range(20,80,4));
 	group.append("g")
 		.attr("class", "y axis")
@@ -747,6 +782,8 @@ var floatingPlot = function(svgid, x, y, gid, pwidth, pheight) {
 		.attr("transform", "translate(0, 0)")
 		.call(yAxis1)
 
+
+	/*
 	group.append("line")
 		.attr("x1", xScale1(0))
 		.attr("y1", yScale1(0))
@@ -762,11 +799,142 @@ var floatingPlot = function(svgid, x, y, gid, pwidth, pheight) {
 		.attr("y2", yScale1(70))
 		.attr("stroke-width", 2)
         .attr("stroke", "green")
+	*/
 
+	
+	for (i = 0; i < normal_1.length-1; i++) {
+		group.append("line")
+		.attr("x1", xScale1(normal_1[i][0]))	
+		.attr("y1", yScale1(normal_1[i][1]))
+		.attr("x2", xScale1(normal_1[i+1][0]))
+		.attr("y2",	yScale1(normal_1[i][1]))
+		.attr("stroke-width", 2)
+        .attr("stroke", "black");
+		//console.log("(" +normal[i][0] + "," + normal[i][1] * 100 + ")" + ", (" + normal[i+1][0] +"," + xScale1(normal[i][1])+")")
+		group.append("line")
+		.attr("x1", xScale1(normal_1[i+1][0]))	
+		.attr("y1", yScale1(normal_1[i][1]))
+		.attr("x2", xScale1(normal_1[i+1][0]))
+		.attr("y2",	yScale1(normal_1[i+1][1]))
+		.attr("stroke-width", 2)
+        .attr("stroke", "black");
+	}
+
+
+	for (i = 0; i < normal_2.length-1; i++) {
+		group.append("line")
+		.attr("x1", xScale1(normal_2[i][0]))	
+		.attr("y1", yScale1(normal_2[i][1]))
+		.attr("x2", xScale1(normal_2[i+1][0]))
+		.attr("y2",	yScale1(normal_2[i][1]))
+		.attr("stroke-width", 2)
+        .attr("stroke", "red");
+		group.append("line")
+		.attr("x1", xScale1(normal_2[i+1][0]))	
+		.attr("y1", yScale1(normal_2[i][1]))
+		.attr("x2", xScale1(normal_2[i+1][0]))
+		.attr("y2",	yScale1(normal_2[i+1][1]))
+		.attr("stroke-width", 2)
+        .attr("stroke", "red");
+	}
+	
+	
+	 group.append("line")
+        .attr("x1", xScale1(10))
+        .attr("y1", yScale1(10))
+        .attr("x2", xScale1(30))
+        .attr("y2", yScale1(40))
+        .attr("stroke-width", 2)
+        .attr("stroke", "green")
 
 	x = pwidth * 0.25;
 	y = pheight * 0.25;
 
 	group.attr("transform", "translate(" + x + "," + y +")");
 	console.log("translating (" + x + "," + y + ")");
+	
+	
+	group.append("rect")
+         .attr("x", xMax*0.8)
+		 .attr("y", yMax*0.5)
+         .attr("width", 7)
+         .attr("height", 7)
+         .style("fill","black");
+        // draw legend text
+    group.append("text")
+            .attr("x", xMax*0.9)
+            .attr("y", yMax*0.6)
+         //   .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text("< " + Math.round(cx*10)/10);
+
+	
+	group.append("rect")
+         .attr("x", xMax * 0.7)
+		 .attr("y", yMax * 0.5)
+         .attr("width", 7)
+         .attr("height", 7)
+         .style("fill","red");
+        // draw legend text
+    group.append("text")
+            .attr("x", xMax * 0.8)
+            .attr("y", yMax * 0.3)
+         	.style("fill","red")
+         //   .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text("> " + Math.round(cx*10)/10);
+}
+
+/**
+Kalpan-Merier plotting
+survival_data is an array of tuples(a,b), where a is survival time, b is risk factor
+pname is the property name of "survival time" in the original dataset
+threshold is the cutoff point 
+survival_data
+**/
+var getKMPlot = function(survival_data,pthreshold,pname,censor) {
+	var group1 = [], group2 = [];
+	var i = 0;
+	
+	var len1 = 0;
+	for (; i< survival_data.length; i++) {
+		if (survival_data[i][1] < pthreshold) {
+			group1.push(survival_data[i]);
+		} else group2.push(survival_data[i]);
+	}
+	group1.sort(function(a,b){ return a[0] - b[0] });
+	group2.sort(function(a,b){ return a[0] - b[0] });
+
+	var res = [];
+	var remainings = group1.length;
+	var res1 = [];
+	var res2 = [];
+	var lastVal = 0;	
+	for (i = 0; i < group1.length; i++) {
+		if(group1[i][2] == 1) {
+			res1.push( [group1[i][0], remainings/group1.length]);
+			lastVal = remainings/group1.length;
+		} else {
+			res2.push(  [group1[i][0], lastVal]);
+		}
+		remainings--;
+	}
+
+	res[0] = [res1, res2];
+
+	var res3 = [], res4 = [];
+	remainings = group2.length;
+    lastVal = 0;        
+    for (i = 0; i < group2.length; i++) {
+        if(group2[i][2] == 1) {
+            res3.push( [group2[i][0], remainings/group2.length]);
+            lastVal = remainings/group2.length;
+        } else {
+            res4.push( [group2[i][0], lastVal]);
+        }   
+        remainings--;
+    }   
+	res[1] = [res3,res4];
+	return res;
+	console.log("cx = " + pthreshold);
 }

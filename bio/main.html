@@ -45,6 +45,7 @@
 		var mainCanvas;
 		var dataTable;
 		var sortVars = [];
+		var lastLoadTime = 0;
 		$.ajax({
 				url:   google_spreadsheet_url,
 				type:     "GET",

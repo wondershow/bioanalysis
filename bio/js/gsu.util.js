@@ -274,3 +274,19 @@ function isInt(n){
 function isFloat(n){
     return n === Number(n) && n % 1 !== 0;
 }
+
+/**
+	KAPLAN-MEIER analysis
+
+**/
+function KM_Analysis(     ) {
+	
+
+
+
+}
+
+
+
+
+
