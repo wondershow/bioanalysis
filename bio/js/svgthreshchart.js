@@ -353,7 +353,8 @@ SVGThreshChart.prototype.plot = function () {
 		var survival = this.axisZ;
 		var censor = this.axisC;
 
-		svg = d3.select("#" + svgid).on('mousemove', function(d,i) {
+		if (this.axisY == "" || this.axisY == undefined )
+			svg = d3.select("#" + svgid).on('mousemove', function(d,i) {
                                     handleMouseOverLine(pathid, svgid, xScale, yScale, plotdata, pwidth, pheight,valid_datacases, survival, risk, censor);
                                  });
 
