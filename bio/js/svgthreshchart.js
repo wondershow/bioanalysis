@@ -752,15 +752,17 @@ var floatingPlot = function(svgid, x, y, gid, pwidth, pheight, objarr, cx, cy, s
 	var censored_2 = group2[1];
 
 	var xMax = Math.max(d3.max(normal_1, function(d){return parseFloat(d[0])}), 
-						d3.max(normal_2, function(d){return parseFloat(d[0])}), 
-						d3.max(censored_1, function(d){return parseFloat(d[0])}), 
-						d3.max(censored_2, function(d){return parseFloat(d[0])}));
+						d3.max(normal_2, function(d){return parseFloat(d[0])})//, 
+						//d3.max(censored_1, function(d){return parseFloat(d[0])}), 
+						//d3.max(censored_2, function(d){return parseFloat(d[0])})
+						);
 
 
 	var yMax = Math.max(d3.max(normal_1, function(d){return parseFloat(d[1])}),
-                        d3.max(normal_2, function(d){return parseFloat(d[1])}),
-                        d3.max(censored_1, function(d){return parseFloat(d[1])}),
-                        d3.max(censored_2, function(d){return parseFloat(d[1])}));
+                        d3.max(normal_2, function(d){return parseFloat(d[1])})//,
+                        //d3.max(censored_1, function(d){return parseFloat(d[1])}),
+                        //d3.max(censored_2, function(d){return parseFloat(d[1])})
+						);
 
 	console.log("xMax = " + xMax);
 	console.log("yMax = " + yMax);
@@ -802,7 +804,10 @@ var floatingPlot = function(svgid, x, y, gid, pwidth, pheight, objarr, cx, cy, s
         .attr("stroke", "green")
 	*/
 
-	
+	/*
+
+		The following for statements draws stepwise curve
+	***/
 	for (i = 0; i < normal_1.length-1; i++) {
 		group.append("line")
 		.attr("x1", xScale1(normal_1[i][0]))	
@@ -821,23 +826,23 @@ var floatingPlot = function(svgid, x, y, gid, pwidth, pheight, objarr, cx, cy, s
         .attr("stroke", "black");
 	}
 
-
 	for (i = 0; i < normal_2.length-1; i++) {
-		group.append("line")
-		.attr("x1", xScale1(normal_2[i][0]))	
-		.attr("y1", yScale1(normal_2[i][1]))
-		.attr("x2", xScale1(normal_2[i+1][0]))
-		.attr("y2",	yScale1(normal_2[i][1]))
-		.attr("stroke-width", 2)
+        group.append("line")
+        .attr("x1", xScale1(normal_2[i][0]))    
+        .attr("y1", yScale1(normal_2[i][1]))
+        .attr("x2", xScale1(normal_2[i+1][0]))
+        .attr("y2", yScale1(normal_2[i][1]))
+        .attr("stroke-width", 2)
         .attr("stroke", "red");
-		group.append("line")
-		.attr("x1", xScale1(normal_2[i+1][0]))	
-		.attr("y1", yScale1(normal_2[i][1]))
-		.attr("x2", xScale1(normal_2[i+1][0]))
-		.attr("y2",	yScale1(normal_2[i+1][1]))
-		.attr("stroke-width", 2)
+        //console.log("(" +normal[i][0] + "," + normal[i][1] * 100 + ")" + ", (" + normal[i+1][0] +"," + xScale1(normal[i][1])+")")
+        group.append("line")
+        .attr("x1", xScale1(normal_2[i+1][0]))  
+        .attr("y1", yScale1(normal_2[i][1]))
+        .attr("x2", xScale1(normal_2[i+1][0]))
+        .attr("y2", yScale1(normal_2[i+1][1]))
+        .attr("stroke-width", 2)
         .attr("stroke", "red");
-	}
+    }  
 	
 	
 	 group.append("line")
@@ -911,13 +916,13 @@ var getKMPlot = function(survival_data,pthreshold,pname,censor) {
 	var res1 = [];
 	var res2 = [];
 	var lastVal = 0;	
-	for (i = 0; i < group1.length; i++) {
-		if(group1[i][2] == 1) {
+	for (i = 0; i < group1.length; i++) { //we do not consider censoring now
+		//if(group1[i][2] == 1) {
 			res1.push( [group1[i][0], remainings/group1.length]);
 			lastVal = remainings/group1.length;
-		} else {
-			res2.push(  [group1[i][0], lastVal]);
-		}
+		//} else {
+			//res2.push(  [group1[i][0], lastVal]);
+		//}
 		remainings--;
 	}
 
@@ -926,13 +931,13 @@ var getKMPlot = function(survival_data,pthreshold,pname,censor) {
 	var res3 = [], res4 = [];
 	remainings = group2.length;
     lastVal = 0;        
-    for (i = 0; i < group2.length; i++) {
-        if(group2[i][2] == 1) {
+    for (i = 0; i < group2.length; i++) {//we do not consider censoring now
+        //if(group2[i][2] == 1) {
             res3.push( [group2[i][0], remainings/group2.length]);
             lastVal = remainings/group2.length;
-        } else {
-            res4.push( [group2[i][0], lastVal]);
-        }   
+        //} else {
+            //res4.push( [group2[i][0], lastVal]);
+        //}   
         remainings--;
     }   
 	res[1] = [res3,res4];
