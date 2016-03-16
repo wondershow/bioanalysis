@@ -75,7 +75,7 @@ SVGThreshChart.prototype.getMaxVal = function(type) {
 				tmpVals.push( this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ) );
 		}
 	}
-	return d3.max(tmpVals, function(d){ return parseExcelNumber(d)});
+	return d3.max(tmpVals, function(d){ return eval(d)});
 }
 
 SVGThreshChart.prototype.getMinVal= function(type) {
@@ -92,7 +92,7 @@ SVGThreshChart.prototype.getMinVal= function(type) {
 				tmpVals.push(this.canvasObj.dataCaseArr[i].getPropVal(this.axisZ));
 		}
 	}
-	return d3.min(tmpVals, function(d){ return parseExcelNumber(d)});
+	return d3.min(tmpVals, function(d){ return eval(d)});
 }
 
 /**
@@ -861,34 +861,34 @@ var floatingPlot = function(svgid, x, y, gid, pwidth, pheight, objarr, cx, cy, s
 	
 	
 	group.append("rect")
-         .attr("x", xMax*0.8)
-		 .attr("y", yMax*0.5)
+         .attr("x", xScale1(xMax*0.8))
+		 .attr("y", yScale1(yMax*0.75))
          .attr("width", 7)
          .attr("height", 7)
          .style("fill","black");
         // draw legend text
     group.append("text")
-            .attr("x", xMax*0.9)
-            .attr("y", yMax*0.6)
+            .attr("x",xScale1( xMax*0.9))
+            .attr("y",yScale1( yMax*0.8))
          //   .attr("dy", ".35em")
             .style("text-anchor", "end")
-            .text("< " + Math.round(cx*10)/10);
+			.text("<=" + Math.round(cx*100)/100);
 
 	
 	group.append("rect")
-         .attr("x", xMax * 0.7)
-		 .attr("y", yMax * 0.5)
+         .attr("x",xScale1( xMax * 0.8))
+		 .attr("y",yScale1( yMax * 0.65))
          .attr("width", 7)
          .attr("height", 7)
          .style("fill","red");
         // draw legend text
     group.append("text")
-            .attr("x", xMax * 0.8)
-            .attr("y", yMax * 0.3)
+            .attr("x",xScale1( xMax * 0.9))
+            .attr("y",yScale1( yMax * 0.5))
          	.style("fill","red")
          //   .attr("dy", ".35em")
             .style("text-anchor", "end")
-            .text("> " + Math.round(cx*10)/10);
+            .text("> " + Math.round(cx*100)/100);
 }
 
 /**
