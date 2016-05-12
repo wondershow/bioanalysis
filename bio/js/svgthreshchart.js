@@ -917,12 +917,12 @@ var getKMPlot = function(survival_data,pthreshold,pname,censor) {
 	var res2 = [];
 	var lastVal = 0;	
 	for (i = 0; i < group1.length; i++) { //we do not consider censoring now
-		//if(group1[i][2] == 1) {
+		if(group1[i][2] == 1) {
 			res1.push( [group1[i][0], remainings/group1.length]);
 			lastVal = remainings/group1.length;
-		//} else {
-			//res2.push(  [group1[i][0], lastVal]);
-		//}
+		} else {
+			res2.push(  [group1[i][0], lastVal]);
+		}
 		remainings--;
 	}
 
@@ -932,12 +932,12 @@ var getKMPlot = function(survival_data,pthreshold,pname,censor) {
 	remainings = group2.length;
     lastVal = 0;        
     for (i = 0; i < group2.length; i++) {//we do not consider censoring now
-        //if(group2[i][2] == 1) {
+        if(group2[i][2] == 1) {
             res3.push( [group2[i][0], remainings/group2.length]);
             lastVal = remainings/group2.length;
-        //} else {
-            //res4.push( [group2[i][0], lastVal]);
-        //}   
+        } else {
+            res4.push( [group2[i][0], lastVal]);
+        }   
         remainings--;
     }   
 	res[1] = [res3,res4];
